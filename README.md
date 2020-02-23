@@ -1,2 +1,3 @@
-# MatrixFinalProject
-Mrityunjay ShishupalVadh Demo
+# MATRIX readme
+---
+Fill Free To Add Whatever required !
