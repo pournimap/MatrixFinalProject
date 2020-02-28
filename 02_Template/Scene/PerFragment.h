@@ -28,6 +28,24 @@ GLfloat material_diffuse[] = { 1.0f,1.0f,1.0f,1.0f };
 GLfloat material_specular[] = { 1.0f,1.0f,1.0f,1.0f };
 GLfloat material_shininess = 50.0f;
 
+// animation variable
+bool gbIsAnimate = false;
+GLfloat gfKrishnaModelScale = 20.0f;
+
+
+
+
+
+// FOR CAMERA
+vec3 vmath_camera_eye_coord		= { -500.0f, 0.0f,1.0f };
+vec3 vmath_camera_center_coord	= { -1000.0f,0.0f,0.0f };
+vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
+
+bool gbStartCamera			= false;
+bool gbZoomOutForFullView	= false;
+
+
+
 void initPerFragmentShader()
 {
 	void uninitialize(int);
@@ -231,11 +249,16 @@ void display_perFragmentLight()
 	}
 
 	mat4 modelMatrix = mat4::identity();
-	glm::mat4 viewMatrix = glm::mat4();
+	//glm::mat4 viewMatrix = glm::mat4();
+	mat4 viewMatrix = mat4::identity();
 	mat4 scaleMatrix = mat4::identity();
+	mat4 rotateMatrix = mat4::identity();
 
-	viewMatrix = Scene_camera.GetViewMatrix();
-	glUniformMatrix4fv(gViewMatrixUniform_perFragmentLight, 1, GL_FALSE, &viewMatrix[0][0]);
+	//viewMatrix = Scene_camera.GetViewMatrix();
+	//glUniformMatrix4fv(gViewMatrixUniform_perFragmentLight, 1, GL_FALSE, &viewMatrix[0][0]);
+	
+	viewMatrix = lookat(vmath_camera_eye_coord, vmath_camera_center_coord, vmath_camera_up_coord);
+	glUniformMatrix4fv(gViewMatrixUniform_perFragmentLight, 1, GL_FALSE, viewMatrix);
 
 	modelMatrix = vmath::translate(0.0f, 0.0f, -2.0f);
 
@@ -277,10 +300,14 @@ void display_perFragmentLight()
 		glDrawArrays(GL_TRIANGLES, gModel_Mahal.model_mesh_data[i].vertex_Index, gModel_Mahal.model_mesh_data[i].vertex_Count);
 	}
 	glBindVertexArray(0);
+	
+	
 	modelMatrix = mat4::identity();
-	modelMatrix = vmath::translate(0.0f, 0.0f, -6.0f);
-	scaleMatrix = scale(10.0f, 10.0f, 10.0f);
-	modelMatrix = modelMatrix * scaleMatrix;
+	modelMatrix = vmath::translate(-700.0f, 0.0f, 1.0f);
+	scaleMatrix = scale(gfKrishnaModelScale, gfKrishnaModelScale, gfKrishnaModelScale);
+	rotateMatrix = rotate(90.0f, 0.0f, 1.0f, 0.0f);
+
+	modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
 	glUniformMatrix4fv(gModelMatrixUniform_perFragmentLight, 1, GL_FALSE, modelMatrix);
 	//Draw Krishna Model
 	glBindVertexArray(gModel_Krishna.Vao);
@@ -293,6 +320,7 @@ void display_perFragmentLight()
 			glUniform3fv(gKsUniform_perFragmentLight, 1, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].Ks);
 			glUniform1f(gMaterialShininessUniform_perFragmentLight, material_shininess);
 			glUniform1f(gAlphaUniform_perFragmentLight, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].d);
+			//glUniform1f(gAlphaUniform_perFragmentLight, 0.5f);
 			if (gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].ismap_Kd == true)
 			{
 				glActiveTexture(GL_TEXTURE0);
@@ -306,6 +334,16 @@ void display_perFragmentLight()
 				glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
 		}
 		glDrawArrays(GL_TRIANGLES, gModel_Krishna.model_mesh_data[i].vertex_Index, gModel_Krishna.model_mesh_data[i].vertex_Count);
+		/*
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_NOTEQUAL, 0);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+		glEnable(GL_POINT_SMOOTH);
+		glPointSize(5.0f);
+		glDrawArrays(GL_POINTS, gModel_Krishna.model_mesh_data[i].vertex_Index, gModel_Krishna.model_mesh_data[i].vertex_Count);
+		*/
 	}
 	glBindVertexArray(0);
 
@@ -315,7 +353,43 @@ void display_perFragmentLight()
 
 void update_perFragmentLight()
 {
-
+	if (gbIsAnimate)
+	{
+		if (gfKrishnaModelScale < 220.0f)
+		{
+			gfKrishnaModelScale = gfKrishnaModelScale + 0.1f;
+		}
+	}
+	if (gbStartCamera)
+	{
+		
+		if (vmath_camera_eye_coord[1] < 660.0f && vmath_camera_center_coord[1] < 900.0f &&  gbZoomOutForFullView == false)
+		{
+			vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] + (660.0f / 1000.0f);
+			vmath_camera_center_coord[1] = vmath_camera_center_coord[1] + (900.0f / 1000.0f);
+		}
+		else
+		{
+			gbZoomOutForFullView = true;
+		}
+		
+		if (gbZoomOutForFullView == true)
+		{
+			if (vmath_camera_eye_coord[0] < 340.0f)
+			{
+				vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + ((500.0f + 340.0f) / 1000.0f);			// -500.0f is old position , so old position to final position in 1000 steps
+			}
+			if (vmath_camera_eye_coord[2] < 11.0f)
+			{
+				vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] + (10.0f / 1000.0f);			// 11 final pos, 1 old pos so 10 / 1000 steps
+			}
+			if (vmath_camera_center_coord[1] > 370.0f)
+			{
+				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - ((900.0f - 370.0f) / 1000.0f);
+			}
+		}
+		
+	}
 }
 
 void uninitialize_perFragmentLight()

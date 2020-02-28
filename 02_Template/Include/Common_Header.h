@@ -12,6 +12,7 @@
 #include "math_lib_headers/vmath.h"
 #include "Camera/Camera_2.h"
 
+
 // vmath namespace inclusion
 using namespace vmath;
 
