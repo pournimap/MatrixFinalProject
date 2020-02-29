@@ -219,14 +219,23 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				}
 				break;
 			*/
+
+		case VK_UP:
+			vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] + 10.0f;
+			break;
+
+		case VK_DOWN:
+			vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] - 10.0f;
+			break;
+
 		default:
 			break;
 		}
 		break;
 	case WM_MOUSEMOVE:
-		xpos = GET_X_LPARAM(lParam);
-		ypos = GET_Y_LPARAM(lParam);
-		MouseMovement((double)xpos, (double)ypos);
+		//xpos = GET_X_LPARAM(lParam);
+		//ypos = GET_Y_LPARAM(lParam);
+		//MouseMovement((double)xpos, (double)ypos);
 		break;
 	case WM_CHAR:
 		switch (LOWORD(wParam))
@@ -249,6 +258,85 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				bIsLKeyPressed = false;
 			}
 			break;
+
+			// eye coordinate
+			// zoom in
+		case 'i':
+		case 'I':
+			vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] - 10.0f;
+			break;
+
+			// zoom out
+		case 'o':
+		case 'O':
+			vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] + 10.0f;
+			break;
+
+		case 'j':
+		case 'J':
+			vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] - 10.0f;
+			break;
+
+		case 'k':
+		case 'K':
+			vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + 10.0f;
+			break;
+
+			// camera center
+
+		case 'w':
+		case 'W':
+			vmath_camera_center_coord[1] = vmath_camera_center_coord[1] + 10.0f;
+			break;
+
+		case 's':
+		case 'S':
+			vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - 10.0f;
+			break;
+
+
+		case 'A':
+		case 'a':
+			vmath_camera_center_coord[0] = vmath_camera_center_coord[0] - 1000.0f;
+			break;
+
+		case 'D':
+		case 'd':
+			vmath_camera_center_coord[0] = vmath_camera_center_coord[0] + 1000.0f;
+			break;
+
+		case 'p':
+			fprintf(gpFile, "Current Positins  : \n");
+			fprintf(gpFile, "___________________________________________________ \n");
+			fprintf(gpFile, "eye coodinates    :  %f     , %f     , %f  \n", vmath_camera_eye_coord[0], vmath_camera_eye_coord[1], vmath_camera_eye_coord[2]);
+			fprintf(gpFile, "center coodinates :  %f     , %f     , %f  \n", vmath_camera_center_coord[0], vmath_camera_center_coord[1], vmath_camera_center_coord[2]);
+			fprintf(gpFile, "up coodinates     :  %f     , %f     , %f  \n", vmath_camera_up_coord[0], vmath_camera_up_coord[1], vmath_camera_up_coord[2]);
+			fprintf(gpFile, "___________________________________________________ \n");
+			fflush(gpFile);
+			break;
+
+		case 'g':		// start animation
+		case 'G':		// start animation
+			gbIsAnimate = !gbIsAnimate;
+			break;
+
+		case 'c':		// start camera animation
+		case 'C':
+			gbStartCamera = !gbStartCamera;
+			break;
+
+		case 'q':
+		case 'Q':
+			vmath_camera_eye_coord[0] = 1660.0f;
+			vmath_camera_eye_coord[1] = 160.0f;
+			vmath_camera_eye_coord[2] = 720.0f;
+
+			vmath_camera_center_coord[0] = 0.0f;
+			vmath_camera_center_coord[1] = 125.0f;
+			vmath_camera_center_coord[2] = 0.0f;
+			break;
+
+
 
 		default:
 			break;
@@ -385,7 +473,7 @@ void display(void)
 	//call your scene Display here
 	display_perFragmentLight();
 	
-	Clothdisplay();
+	//Clothdisplay();
 	
 	SwapBuffers(ghdc);
 }
