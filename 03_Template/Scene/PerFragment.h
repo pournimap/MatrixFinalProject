@@ -33,8 +33,14 @@ bool gbIsAnimate			= false;
 GLfloat gfKrishnaModelScale = 100.0f;
 
 // FOR CAMERA
+/*
 vec3 vmath_camera_eye_coord		= { -40.0f, 180.0f,1.0f };
 vec3 vmath_camera_center_coord	= { -1000.0f,200.00f,0.0f };
+vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
+*/
+
+vec3 vmath_camera_eye_coord		= { 1660.0f, 160.0f,720.0f };
+vec3 vmath_camera_center_coord	= { 0.0f,125.0f,0.0f };
 vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
 
 bool gbStartCamera			= false;
@@ -344,7 +350,8 @@ void update_perFragmentLight()
 	{
 		if (gfKrishnaModelScale < 250.0f)
 		{
-			gfKrishnaModelScale = gfKrishnaModelScale + 1.0f;
+			gfKrishnaModelScale = 250.0f;
+			//gfKrishnaModelScale = gfKrishnaModelScale + 1.0f;
 		}
 	}
 	if (gbStartCamera)
@@ -352,9 +359,9 @@ void update_perFragmentLight()
 
 		if (vmath_camera_eye_coord[0] < 20.0f && vmath_camera_eye_coord[1] < 840.0f && vmath_camera_center_coord[1] < 1270.0f && gbZoomOutForFullView == false)
 		{
-			vmath_camera_eye_coord[0]		= vmath_camera_eye_coord[0] + ((40.0f + 20.0f) / 1000.0f);				// -40: inital, 20 : final, 1000 number of steps 
-			vmath_camera_eye_coord[1]		= vmath_camera_eye_coord[1] + ((840.0f - 180.0f) / 1000.0f);			// 840 : final, 180 : initial
-			vmath_camera_center_coord[1]	= vmath_camera_center_coord[1] + ((1270.0f - 200.0f) / 1000.0f);		// 1270.0f : final, 200 : initial
+			vmath_camera_eye_coord[0]		= vmath_camera_eye_coord[0]		+ ((40.0f	+ 20.0f)	/ 2000.0f);				// -40: inital, 20 : final, 1000 number of steps 
+			vmath_camera_eye_coord[1]		= vmath_camera_eye_coord[1]		+ ((840.0f	- 180.0f)	/ 2000.0f);			// 840 : final, 180 : initial
+			vmath_camera_center_coord[1]	= vmath_camera_center_coord[1]	+ ((1270.0f - 200.0f)	/ 2000.0f);		// 1270.0f : final, 200 : initial
 		}
 		else
 		{
@@ -363,7 +370,7 @@ void update_perFragmentLight()
 
 		if (gbZoomOutForFullView == true)
 		{
-
+			/*
 			if (vmath_camera_eye_coord[0] < 670.0f)
 			{
 				vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + ((670.0f - 20.0f) / 1000.0f);			// 20.0f is old position , 670.0f is new, so old position to final position in 1000 steps
@@ -381,6 +388,45 @@ void update_perFragmentLight()
 			{
 				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - ((1270.0f - 360.0f) / 1000.0f);
 			}
+			
+
+			if (vmath_camera_eye_coord[0] < 1900.0f)
+			{
+				vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + ((1900.0f - 20.0f) / 1000.0f);			// 20.0f is old position , 1900.0f is new, so old position to final position in 1000 steps
+			}
+			if (vmath_camera_eye_coord[1] < 1130.2f)
+			{
+				vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] + ((1130.2f - 840.0f) / 1000.0f);
+			}
+			if (vmath_camera_eye_coord[2] > -550.0f)
+			{
+				vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] - ((550.0f + 1.0f) / 1000.0f);				// 1 old postion, -550.0f new position	
+			}
+
+			if (vmath_camera_center_coord[1] > -160.0f)
+			{
+				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - ((1270.0f + 160.0f) / 1000.0f);
+			}
+			*/
+
+			if (vmath_camera_eye_coord[0] < 480.0f)
+			{
+				vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + ((480.0f - 20.0f) / 1000.0f);			// 20.0f is old position , 480.0f is new, so old position to final position in 1000 steps
+			}
+			if (vmath_camera_eye_coord[1] > 40.0f)
+			{
+				vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] - ((840.0f - 40.0f) / 1000.0f);
+			}
+			if (vmath_camera_eye_coord[2] > -340.50f)
+			{
+				vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] - ((340.50f - 1.0f) / 1000.0f);				// 1 old postion, 11 new position	
+			}
+
+			if (vmath_camera_center_coord[1] > 1030.0f)
+			{
+				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - ((1270.0f - 1030.0f) / 1000.0f);
+			}
+
 		}
 
 	}

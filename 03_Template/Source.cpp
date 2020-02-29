@@ -322,7 +322,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 		case 'c':		// start camera animation
 		case 'C':
-			gbStartCamera = !gbStartCamera;
+			vmath_camera_eye_coord[0] = -40.0f;
+			vmath_camera_eye_coord[1] = 180.0f;
+			vmath_camera_eye_coord[2] = 1.0f;
+
+			vmath_camera_center_coord[0] = -1000.0f;
+			vmath_camera_center_coord[1] = 200.00f;
+			vmath_camera_center_coord[2] = 0.0f;
+
+			gbIsAnimate		= !gbIsAnimate;
+			gbStartCamera	= !gbStartCamera;
 			break;
 
 		case 'q':
