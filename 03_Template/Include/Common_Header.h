@@ -9,6 +9,9 @@
 
 #include <gl/GL.h>
 
+#include<vector>		// to use vectors
+#include<time.h>
+
 #include "math_lib_headers/vmath.h"
 #include "Camera/Camera_2.h"
 
@@ -36,6 +39,7 @@ enum
 FILE* gpFile = NULL;
 bool gbLight = false;
 mat4 gPerspectiveProjectionMatrix;
+mat4 gViewMatrix;
 
 
 

@@ -258,8 +258,10 @@ void display_perFragmentLight()
 	//viewMatrix = Scene_camera.GetViewMatrix();
 	//glUniformMatrix4fv(gViewMatrixUniform_perFragmentLight, 1, GL_FALSE, &viewMatrix[0][0]);
 
-	viewMatrix = lookat(vmath_camera_eye_coord, vmath_camera_center_coord, vmath_camera_up_coord);
-	glUniformMatrix4fv(gViewMatrixUniform_perFragmentLight, 1, GL_FALSE, viewMatrix);
+	//viewMatrix = lookat(vmath_camera_eye_coord, vmath_camera_center_coord, vmath_camera_up_coord);
+	gViewMatrix = lookat(vmath_camera_eye_coord, vmath_camera_center_coord, vmath_camera_up_coord);
+	//glUniformMatrix4fv(gViewMatrixUniform_perFragmentLight, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(gViewMatrixUniform_perFragmentLight, 1, GL_FALSE, gViewMatrix);
 	modelMatrix = vmath::translate(0.0f, 0.0f, -2.0f);
 
 	glUniformMatrix4fv(gProjectionMatrixUniform_perFragmentLight, 1, GL_FALSE, gPerspectiveProjectionMatrix);

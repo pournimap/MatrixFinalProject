@@ -3,6 +3,7 @@
 
 //Add your header files here
 #include "Scene/PerFragment.h"
+#include"Scene/Fire/Fire.h"
 
 // Callback
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -445,9 +446,9 @@ int initialize(void)
 
 	initialize_perFragmentLight();
 
-	Clothintialize();
+	//Clothintialize();
 
-
+	initialize_fire();
 
 
 	// ................................................................................................
@@ -483,6 +484,8 @@ void display(void)
 	display_perFragmentLight();
 	
 	//Clothdisplay();
+
+	display_fire();
 	
 	SwapBuffers(ghdc);
 }
@@ -559,8 +562,9 @@ void uninitialize(int i_Exit_Flag)
 
 	uninitialize_perFragmentLight();
 
-	Clothunintialize();
+	//Clothunintialize();
 
+	uninitialize_fire();
 
 	// ....................................................................................
 	//
