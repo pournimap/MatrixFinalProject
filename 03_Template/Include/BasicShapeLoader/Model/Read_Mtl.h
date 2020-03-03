@@ -91,8 +91,8 @@ void LoadMaterialData(char *filename, std::vector<material>&mat)
 		first_token = strtok_s(line_mtl, sep_space, &context);
 		if (strcmp(first_token, "newmtl") == S_EQUAL)
 		{
-			fprintf(gpFile, "newmtl:\n");
-			fflush(gpFile);
+			/*fprintf(gpFile, "newmtl:\n");
+			fflush(gpFile);*/
 			if (gbFirstTime == true)
 			{
 				mat.push_back(material_temp);
@@ -105,16 +105,16 @@ void LoadMaterialData(char *filename, std::vector<material>&mat)
 		}
 		else if (strcmp(first_token, "Ns") == S_EQUAL)
 		{
-			fprintf(gpFile, "Ns:\n");
-			fflush(gpFile);
+			/*fprintf(gpFile, "Ns:\n");
+			fflush(gpFile);*/
 			token = strtok_s(NULL, sep_space, &context);
 			material_temp.Ns = atof(token);
 			counter_Ns++;
 		}
 		else if (strcmp(first_token, "Ka") == S_EQUAL)
 		{
-			fprintf(gpFile, "Ka:\n");
-			fflush(gpFile);
+			/*fprintf(gpFile, "Ka:\n");
+			fflush(gpFile);*/
 			for (int i = 0; i < NR_KA; i++)
 			{
 				token = strtok_s(NULL, sep_space, &context);
@@ -124,8 +124,8 @@ void LoadMaterialData(char *filename, std::vector<material>&mat)
 		}
 		else if (strcmp(first_token, "Kd") == S_EQUAL)
 		{
-			fprintf(gpFile, "Kd:\n");
-			fflush(gpFile);
+			/*fprintf(gpFile, "Kd:\n");
+			fflush(gpFile);*/
 			for (int i = 0; i < NR_KD; i++)
 			{
 				token = strtok_s(NULL, sep_space, &context);
@@ -135,8 +135,8 @@ void LoadMaterialData(char *filename, std::vector<material>&mat)
 		}
 		else if (strcmp(first_token, "Ks") == S_EQUAL)
 		{
-			fprintf(gpFile, "Ks:\n");
-			fflush(gpFile);
+			/*fprintf(gpFile, "Ks:\n");
+			fflush(gpFile);*/
 			for (int i = 0; i < NR_KS; i++)
 			{
 				token = strtok_s(NULL, sep_space, &context);
@@ -146,32 +146,32 @@ void LoadMaterialData(char *filename, std::vector<material>&mat)
 		}
 		else if (strcmp(first_token, "Ni") == S_EQUAL)
 		{
-			fprintf(gpFile, "Ni:\n");
-			fflush(gpFile);
+			/*fprintf(gpFile, "Ni:\n");
+			fflush(gpFile);*/
 			token = strtok_s(NULL, sep_space, &context);
 			material_temp.Ni = atof(token);
 			counter_Ni++;
 		}
 		else if (strcmp(first_token, "d") == S_EQUAL)
 		{
-			fprintf(gpFile, "d:\n");
-			fflush(gpFile);
+			/*fprintf(gpFile, "d:\n");
+			fflush(gpFile);*/
 			token = strtok_s(NULL, sep_space, &context);
 			material_temp.d = atof(token);
 			counter_d++;
 		}
 		else if (strcmp(first_token, "illum") == S_EQUAL)
 		{
-			fprintf(gpFile, "illum:\n");
-			fflush(gpFile);
+			/*fprintf(gpFile, "illum:\n");
+			fflush(gpFile);*/
 			token = strtok_s(NULL, sep_space, &context);
 			material_temp.illum = atof(token);
 			counter_illum++;
 		}
 		else if (strcmp(first_token, "map_Kd") == S_EQUAL)
 		{
-			fprintf(gpFile, "map_Kd:\n");
-			fflush(gpFile);
+			/*fprintf(gpFile, "map_Kd:\n");
+			fflush(gpFile);*/
 			int size;
 			token = strtok_s(NULL, sep_space, &context);
 			size = strlen(token);
@@ -184,8 +184,8 @@ void LoadMaterialData(char *filename, std::vector<material>&mat)
 		}
 		else if (strcmp(first_token, "map_Ka") == S_EQUAL)
 		{
-			fprintf(gpFile, "map_Ka:\n");
-			fflush(gpFile);
+			/*fprintf(gpFile, "map_Ka:\n");
+			fflush(gpFile);*/
 			token = strtok_s(NULL, sep_space, &context);
 			strcpy_s(material_temp.map_Ka, token);
 			material_temp.ismap_Ka = true;
@@ -193,8 +193,8 @@ void LoadMaterialData(char *filename, std::vector<material>&mat)
 		}
 		else if (strcmp(first_token, "map_Ks") == S_EQUAL)
 		{
-			fprintf(gpFile, "map_Ks:\n");
-			fflush(gpFile);
+			/*fprintf(gpFile, "map_Ks:\n");
+			fflush(gpFile);*/
 			token = strtok_s(NULL, sep_space, &context);
 			strcpy_s(material_temp.map_Ks, token);
 			material_temp.ismap_Ks = true;
@@ -202,8 +202,8 @@ void LoadMaterialData(char *filename, std::vector<material>&mat)
 		}
 		else if (strcmp(first_token, "map_Bump") == S_EQUAL)
 		{
-			fprintf(gpFile, "map_Bump:\n");
-			fflush(gpFile);
+			/*fprintf(gpFile, "map_Bump:\n");
+			fflush(gpFile);*/
 			token = strtok_s(NULL, sep_space, &context);
 			strcpy_s(material_temp.map_Bump, token);
 			material_temp.ismap_Bump = true;
