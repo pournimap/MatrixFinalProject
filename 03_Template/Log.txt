@@ -1,5 +1,5 @@
 Log File Successfully Created.
-4.6.0 NVIDIA 436.48
+4.6.0 NVIDIA 441.66
 Shading Lang Version : 4.60 NVIDIA 
 newmtl:
 Ns:
@@ -177,8 +177,19 @@ Ns:
 Ka:
 Kd:
 Ks:
+Ni:
 d:
 illum:
+map_Kd:
+newmtl:
+Ns:
+Ka:
+Kd:
+Ks:
+Ni:
+d:
+illum:
+map_Kd:
 newmtl:
 Ns:
 Ka:

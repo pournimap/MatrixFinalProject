@@ -39,8 +39,8 @@ vec3 vmath_camera_center_coord	= { -1000.0f,200.00f,0.0f };
 vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
 */
 
-vec3 vmath_camera_eye_coord		= { 1660.0f, 160.0f,720.0f };
-vec3 vmath_camera_center_coord	= { 0.0f,125.0f,0.0f };
+vec3 vmath_camera_eye_coord		= { 3190.0f, 80.0f, 670.0f };
+vec3 vmath_camera_center_coord	= { 0.0f,-235.0f,0.0f };
 vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
 
 bool gbStartCamera			= false;
@@ -308,7 +308,7 @@ void display_perFragmentLight()
 	modelMatrix		= mat4::identity();
 	scaleMatrix		= mat4::identity();
 	//modelMatrix = vmath::translate(50.0f, 0.0f, 5.0f);
-	modelMatrix		= vmath::translate(-300.0f, 130.0f, 1.0f);
+	modelMatrix		= vmath::translate(-300.0f, 55.0f, 1.0f);
 	scaleMatrix		= scale(gfKrishnaModelScale, gfKrishnaModelScale, gfKrishnaModelScale);
 	rotateMatrix	= rotate(90.0f, 0.0f, 1.0f, 0.0f);
 	
@@ -359,10 +359,11 @@ void update_perFragmentLight()
 	if (gbStartCamera)
 	{
 
-		if (vmath_camera_eye_coord[0] < 20.0f && vmath_camera_eye_coord[1] < 840.0f && vmath_camera_center_coord[1] < 1270.0f && gbZoomOutForFullView == false)
+		//if (vmath_camera_eye_coord[0] < 20.0f && vmath_camera_eye_coord[1] < 840.0f && vmath_camera_center_coord[1] < 1270.0f && gbZoomOutForFullView == false)
+		if (vmath_camera_eye_coord[0] < 20.0f && vmath_camera_eye_coord[1] < 820.0f && vmath_camera_center_coord[1] < 1270.0f && gbZoomOutForFullView == false)
 		{
 			vmath_camera_eye_coord[0]		= vmath_camera_eye_coord[0]		+ ((40.0f	+ 20.0f)	/ 2000.0f);				// -40: inital, 20 : final, 1000 number of steps 
-			vmath_camera_eye_coord[1]		= vmath_camera_eye_coord[1]		+ ((840.0f	- 180.0f)	/ 2000.0f);			// 840 : final, 180 : initial
+			vmath_camera_eye_coord[1]		= vmath_camera_eye_coord[1]		+ ((820.0f	- 180.0f)	/ 2000.0f);			// 840 : final, 180 : initial
 			vmath_camera_center_coord[1]	= vmath_camera_center_coord[1]	+ ((1270.0f - 200.0f)	/ 2000.0f);		// 1270.0f : final, 200 : initial
 		}
 		else
@@ -415,9 +416,9 @@ void update_perFragmentLight()
 			{
 				vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + ((480.0f - 20.0f) / 1000.0f);			// 20.0f is old position , 480.0f is new, so old position to final position in 1000 steps
 			}
-			if (vmath_camera_eye_coord[1] > 40.0f)
+			if (vmath_camera_eye_coord[1] > 20.0f)
 			{
-				vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] - ((840.0f - 40.0f) / 1000.0f);
+				vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] - ((840.0f - 20.0f) / 1000.0f);
 			}
 			if (vmath_camera_eye_coord[2] > -340.50f)
 			{

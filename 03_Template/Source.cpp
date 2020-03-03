@@ -337,12 +337,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 		case 'q':
 		case 'Q':
-			vmath_camera_eye_coord[0] = 1660.0f;
-			vmath_camera_eye_coord[1] = 160.0f;
-			vmath_camera_eye_coord[2] = 720.0f;
-
-			vmath_camera_center_coord[0] = 0.0f;
-			vmath_camera_center_coord[1] = 125.0f;
+			vmath_camera_eye_coord[0] = 3190.0f;	
+			vmath_camera_eye_coord[1] = 80.0f;	
+			vmath_camera_eye_coord[2] = 670.0f;	
+			
+			vmath_camera_center_coord[0] = 0.0f;	
+			vmath_camera_center_coord[1] = -235.00f;
 			vmath_camera_center_coord[2] = 0.0f;
 			break;
 
@@ -446,7 +446,7 @@ int initialize(void)
 
 	initialize_perFragmentLight();
 
-	//Clothintialize();
+	Clothintialize();
 
 	initialize_fire();
 
@@ -483,7 +483,7 @@ void display(void)
 	//call your scene Display here
 	display_perFragmentLight();
 	
-	//Clothdisplay();
+	Clothdisplay();
 
 	display_fire();
 	

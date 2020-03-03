@@ -261,7 +261,7 @@ void display_fire(void)
 	mat4 scaleMatrix_fire	= mat4::identity();
 	mat4 rotateMatrix_fire	= mat4::identity();
 
-	modelMatrix_fire	= vmath::translate(900.0f, 100.0f, 0.0f);
+	modelMatrix_fire	= vmath::translate(1200.0f, 100.0f, 0.0f);
 	scaleMatrix_fire	= vmath::scale(100.0f, 100.0f, 100.0f);
 	rotateMatrix_fire	= rotate(45.0f, 0.0f, 1.0f, 0.0f);
 
