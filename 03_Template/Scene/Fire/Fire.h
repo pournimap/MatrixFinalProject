@@ -118,7 +118,7 @@ void initfire(void)
 		"vec4 ColorTemp;" \
 		"vec4 texColor	= texture2D(sTexture, gl_PointCoord);" \
 		"ColorTemp		= vec4(color, 0., 1.) * texColor ;" \
-		"ColorTemp.a	= vLifetime;" \
+		"ColorTemp.a	= vLifetime + 0.9;" \
 		"if(ColorTemp.r < 0.1 && ColorTemp.g < 0.1 && ColorTemp.b < 0.1)" \
 			"discard;" \
 		"FragColor		= ColorTemp;" \
@@ -158,7 +158,7 @@ void initfire(void)
 void initialize_fire(void)
 {
 	initfire();
-	numParticles_fire = 1000;
+	numParticles_fire = 2000;
 	
 	std::vector<float> lifetimes_fire, xPos_fire, ySpeed_fire, colors_fire;
 	
@@ -261,9 +261,10 @@ void display_fire(void)
 	mat4 scaleMatrix_fire	= mat4::identity();
 	mat4 rotateMatrix_fire	= mat4::identity();
 
-	modelMatrix_fire	= vmath::translate(1200.0f, 100.0f, 0.0f);
+	modelMatrix_fire	= vmath::translate(1200.0f, 120.0f, 0.0f);
 	scaleMatrix_fire	= vmath::scale(100.0f, 100.0f, 100.0f);
-	rotateMatrix_fire	= rotate(45.0f, 0.0f, 1.0f, 0.0f);
+	//scaleMatrix_fire	= vmath::scale(50.0f, 50.0f, 100.0f);
+	rotateMatrix_fire	= rotate(75.0f, 0.0f, 1.0f, 0.0f);
 
 	modelMatrix_fire = modelMatrix_fire * rotateMatrix_fire * scaleMatrix_fire;
 

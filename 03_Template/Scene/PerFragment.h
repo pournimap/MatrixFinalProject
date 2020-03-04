@@ -30,7 +30,8 @@ GLfloat material_shininess = 50.0f;
 
 // animation variable
 bool gbIsAnimate			= false;
-GLfloat gfKrishnaModelScale = 100.0f;
+//GLfloat gfKrishnaModelScale = 100.0f;
+GLfloat gfKrishnaModelScale = 70.0f;
 
 // FOR CAMERA
 /*
@@ -39,13 +40,13 @@ vec3 vmath_camera_center_coord	= { -1000.0f,200.00f,0.0f };
 vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
 */
 
-vec3 vmath_camera_eye_coord		= { 3190.0f, 80.0f, 670.0f };
+vec3 vmath_camera_eye_coord		= { 3190.0f, 80.0f, 610.0f };
 vec3 vmath_camera_center_coord	= { 0.0f,-235.0f,0.0f };
 vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
 
 bool gbStartCamera			= false;
 bool gbZoomOutForFullView	= false;
-
+ 
 
 void initPerFragmentShader()
 {
@@ -304,7 +305,7 @@ void display_perFragmentLight()
 	}
 	glBindVertexArray(0);
 	
-	
+	// KRISHNA MODEL
 	modelMatrix		= mat4::identity();
 	scaleMatrix		= mat4::identity();
 	//modelMatrix = vmath::translate(50.0f, 0.0f, 5.0f);
@@ -314,6 +315,51 @@ void display_perFragmentLight()
 	
 	modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
 	
+	glUniformMatrix4fv(gModelMatrixUniform_perFragmentLight, 1, GL_FALSE, modelMatrix);
+	//Draw Krishna Model
+	glBindVertexArray(gModel_Krishna.Vao);
+	for (int i = 0; i < gModel_Krishna.model_mesh_data.size(); i++)
+	{
+		if (gbLight == true)
+		{
+			glUniform3fv(gKaUniform_perFragmentLight, 1, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].Ka);
+			glUniform3fv(gKdUniform_perFragmentLight, 1, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].Kd);
+			glUniform3fv(gKsUniform_perFragmentLight, 1, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].Ks);
+			glUniform1f(gMaterialShininessUniform_perFragmentLight, material_shininess);
+			glUniform1f(gAlphaUniform_perFragmentLight, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].d);
+			if (gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].ismap_Kd == true)
+			{
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].gTexture);
+				glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
+				glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
+				/*fprintf(gpFile, "perFragmentLight Krishna ismapKd true \n");
+				fflush(gpFile);*/
+			}
+			else
+				glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
+		}
+		glDrawArrays(GL_TRIANGLES, gModel_Krishna.model_mesh_data[i].vertex_Index, gModel_Krishna.model_mesh_data[i].vertex_Count);
+	}
+	glBindVertexArray(0);
+
+
+
+	// shishupal model
+
+	modelMatrix = mat4::identity();
+	scaleMatrix = mat4::identity();
+	
+	modelMatrix = vmath::translate(2500.0f, 0.0f, 600.0f);
+	scaleMatrix = scale(50.0f, 50.0f, 50.0f);
+	rotateMatrix = rotate(230.0f, 0.0f, 1.0f, 0.0f);
+	/*
+	modelMatrix = vmath::translate(1000.0f, 0.0f, 600.0f);
+	scaleMatrix = scale(50.0f, 50.0f, 50.0f);
+	rotateMatrix = rotate(230.0f, 0.0f, 1.0f, 0.0f);
+	*/
+	modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
+
 	glUniformMatrix4fv(gModelMatrixUniform_perFragmentLight, 1, GL_FALSE, modelMatrix);
 	//Draw Krishna Model
 	glBindVertexArray(gModel_Krishna.Vao);
