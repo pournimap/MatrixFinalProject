@@ -28,11 +28,6 @@ GLfloat material_diffuse[] = { 1.0f,1.0f,1.0f,1.0f };
 GLfloat material_specular[] = { 1.0f,1.0f,1.0f,1.0f };
 GLfloat material_shininess = 50.0f;
 
-// animation variable
-bool gbIsAnimate			= false;
-//GLfloat gfKrishnaModelScale = 100.0f;
-GLfloat gfKrishnaModelScale = 70.0f;
-
 // FOR CAMERA
 /*
 vec3 vmath_camera_eye_coord		= { -40.0f, 180.0f,1.0f };
@@ -75,16 +70,16 @@ void initPerFragmentShader()
 
 		"void main(void)" \
 		"{" \
-		"if(u_LKeyPressed == 1)" \
-		"{" \
-		"vec4 eye_coordinates=u_view_matrix * u_model_matrix * vPosition;" \
-		"transformed_normals=mat3(u_view_matrix * u_model_matrix) * vNormal;" \
-		"light_direction = vec3(u_light_position) - eye_coordinates.xyz;" \
-		"viewer_vector = -eye_coordinates.xyz;" \
-		"}"\
+			"if(u_LKeyPressed == 1)" \
+			"{" \
+				"vec4 eye_coordinates=u_view_matrix * u_model_matrix * vPosition;" \
+				"transformed_normals=mat3(u_view_matrix * u_model_matrix) * vNormal;" \
+				"light_direction = vec3(u_light_position) - eye_coordinates.xyz;" \
+				"viewer_vector = -eye_coordinates.xyz;" \
+			"}"\
 
-		"out_texcord = vTexcoord;" \
-		"gl_Position = u_projection_matrix * u_view_matrix * u_model_matrix * vPosition;" \
+			"out_texcord = vTexcoord;" \
+			"gl_Position = u_projection_matrix * u_view_matrix * u_model_matrix * vPosition;" \
 		"}";
 
 	glShaderSource(gVertexShaderObject_perFragmentLight, 1, (const GLchar**)&vertextShaderSourceCode, NULL);
@@ -124,33 +119,33 @@ void initPerFragmentShader()
 
 		"void main(void)" \
 		"{" \
-		"vec3 phong_ads_color;" \
-		"vec4 Final_Texture;" \
-		"if(u_LKeyPressed==1)" \
-		"{" \
-		"vec3 normalized_transformed_normals=normalize(transformed_normals);" \
-		"vec3 normalized_light_direction=normalize(light_direction);" \
-		"vec3 normalized_viewer_vector=normalize(viewer_vector);" \
-		"vec3 ambient = u_La * u_Ka;" \
-		"float tn_dot_ld = max(dot(normalized_transformed_normals, normalized_light_direction),0.0);" \
-		"vec3 diffuse = u_Ld * u_Kd * tn_dot_ld;" \
-		"vec3 reflection_vector = reflect(-normalized_light_direction, normalized_transformed_normals);" \
-		"vec3 specular = u_Ls * u_Ks * pow(max(dot(reflection_vector, normalized_viewer_vector), 0.0), u_material_shininess);" \
-		"phong_ads_color=ambient + diffuse + specular;" \
-		"}" \
-		"else" \
-		"{" \
-		"phong_ads_color = vec3(1.0, 1.0, 1.0);" \
-		"}" \
-		"if(u_is_texture == 1)" \
-		"{" \
-		"Final_Texture = texture(u_texture0_sampler, out_texcord); " \
-		"FragColor = vec4(phong_ads_color, u_alpha) * Final_Texture;" \
-		"}" \
-		"else" \
-		"{" \
-		"FragColor = vec4(phong_ads_color, u_alpha);" \
-		"}" \
+			"vec3 phong_ads_color;" \
+			"vec4 Final_Texture;" \
+			"if(u_LKeyPressed==1)" \
+			"{" \
+				"vec3 normalized_transformed_normals=normalize(transformed_normals);" \
+				"vec3 normalized_light_direction=normalize(light_direction);" \
+				"vec3 normalized_viewer_vector=normalize(viewer_vector);" \
+				"vec3 ambient = u_La * u_Ka;" \
+				"float tn_dot_ld = max(dot(normalized_transformed_normals, normalized_light_direction),0.0);" \
+				"vec3 diffuse = u_Ld * u_Kd * tn_dot_ld;" \
+				"vec3 reflection_vector = reflect(-normalized_light_direction, normalized_transformed_normals);" \
+				"vec3 specular = u_Ls * u_Ks * pow(max(dot(reflection_vector, normalized_viewer_vector), 0.0), u_material_shininess);" \
+				"phong_ads_color=ambient + diffuse + specular;" \
+			"}" \
+			"else" \
+			"{" \
+				"phong_ads_color = vec3(1.0, 1.0, 1.0);" \
+			"}" \
+			"if(u_is_texture == 1)" \
+			"{" \
+				"Final_Texture = texture(u_texture0_sampler, out_texcord); " \
+				"FragColor = vec4(phong_ads_color, u_alpha) * Final_Texture;" \
+			"}" \
+			"else" \
+			"{" \
+				"FragColor = vec4(phong_ads_color, u_alpha);" \
+			"}" \
 		"}";
 
 	glShaderSource(gFragmentShaderObject_perFragmentLight, 1, (const GLchar**)&fragmentShaderSourceCode, NULL);
@@ -193,13 +188,13 @@ void initPerFragmentShader()
 	gKsUniform_perFragmentLight = glGetUniformLocation(gShaderProgramObject_perFragmentLight, "u_Ks");
 	gKaUniform_perFragmentLight = glGetUniformLocation(gShaderProgramObject_perFragmentLight, "u_Ka");
 
-	gLightPositionUniform_perFragmentLight = glGetUniformLocation(gShaderProgramObject_perFragmentLight, "u_light_position");
-	gMaterialShininessUniform_perFragmentLight = glGetUniformLocation(gShaderProgramObject_perFragmentLight, "u_material_shininess");
+	gLightPositionUniform_perFragmentLight		= glGetUniformLocation(gShaderProgramObject_perFragmentLight, "u_light_position");
+	gMaterialShininessUniform_perFragmentLight	= glGetUniformLocation(gShaderProgramObject_perFragmentLight, "u_material_shininess");
 
 	gTextureSamplerUniform_perFragmentLight = glGetUniformLocation(gShaderProgramObject_perFragmentLight, "u_texture0_sampler");
 
-	gTextureActiveUniform_perFragmentLight = glGetUniformLocation(gShaderProgramObject_perFragmentLight, "u_is_texture");
-	gAlphaUniform_perFragmentLight = glGetUniformLocation(gShaderProgramObject_perFragmentLight, "u_alpha");
+	gTextureActiveUniform_perFragmentLight	= glGetUniformLocation(gShaderProgramObject_perFragmentLight, "u_is_texture");
+	gAlphaUniform_perFragmentLight			= glGetUniformLocation(gShaderProgramObject_perFragmentLight, "u_alpha");
 }
 
 
@@ -305,6 +300,7 @@ void display_perFragmentLight()
 	}
 	glBindVertexArray(0);
 	
+	/*
 	// KRISHNA MODEL
 	modelMatrix		= mat4::identity();
 	scaleMatrix		= mat4::identity();
@@ -333,8 +329,6 @@ void display_perFragmentLight()
 				glBindTexture(GL_TEXTURE_2D, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].gTexture);
 				glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
 				glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
-				/*fprintf(gpFile, "perFragmentLight Krishna ismapKd true \n");
-				fflush(gpFile);*/
 			}
 			else
 				glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
@@ -343,7 +337,7 @@ void display_perFragmentLight()
 	}
 	glBindVertexArray(0);
 
-
+	*/
 
 	// shishupal model
 
@@ -353,15 +347,10 @@ void display_perFragmentLight()
 	modelMatrix = vmath::translate(2500.0f, 0.0f, 600.0f);
 	scaleMatrix = scale(50.0f, 50.0f, 50.0f);
 	rotateMatrix = rotate(230.0f, 0.0f, 1.0f, 0.0f);
-	/*
-	modelMatrix = vmath::translate(1000.0f, 0.0f, 600.0f);
-	scaleMatrix = scale(50.0f, 50.0f, 50.0f);
-	rotateMatrix = rotate(230.0f, 0.0f, 1.0f, 0.0f);
-	*/
+
 	modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
 
 	glUniformMatrix4fv(gModelMatrixUniform_perFragmentLight, 1, GL_FALSE, modelMatrix);
-	//Draw Krishna Model
 	glBindVertexArray(gModel_Krishna.Vao);
 	for (int i = 0; i < gModel_Krishna.model_mesh_data.size(); i++)
 	{
@@ -394,14 +383,7 @@ void display_perFragmentLight()
 
 void update_perFragmentLight()
 {
-	if (gbIsAnimate)
-	{
-		if (gfKrishnaModelScale < 250.0f)
-		{
-			gfKrishnaModelScale = 250.0f;
-			//gfKrishnaModelScale = gfKrishnaModelScale + 1.0f;
-		}
-	}
+	
 	if (gbStartCamera)
 	{
 

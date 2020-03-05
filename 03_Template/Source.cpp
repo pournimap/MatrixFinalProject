@@ -4,6 +4,8 @@
 //Add your header files here
 #include "Scene/PerFragment.h"
 #include"Scene/Fire/Fire.h"
+#include"Scene/KrishnaAnimate/KrishnaAnimate.h"
+
 
 // Callback
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -316,10 +318,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			fflush(gpFile);
 			break;
 
-		case 'g':		// start animation
-		case 'G':		// start animation
-			gbIsAnimate = !gbIsAnimate;
-			break;
 
 		case 'c':		// start camera animation
 		case 'C':
@@ -331,7 +329,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			vmath_camera_center_coord[1] = 200.00f;
 			vmath_camera_center_coord[2] = 0.0f;
 
-			gbIsAnimate		= !gbIsAnimate;
 			gbStartCamera	= !gbStartCamera;
 			break;
 
@@ -345,7 +342,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			vmath_camera_center_coord[1] = -235.00f;
 			vmath_camera_center_coord[2] = 0.0f;
 			break;
+		
+		case 'E':
+		case 'e':
+			Done_krishnaAnimate = false;
+			startExplode_krishnaAnimate = true;
+			startJoin_krishnaAnimate = false;
+			break;
 
+		case 'R':
+		case 'r':
+			startJoin_krishnaAnimate = true;
+			DoneFlag_krishnaAnimate  = !DoneFlag_krishnaAnimate;
+			break;
 
 
 		default:
@@ -446,9 +455,13 @@ int initialize(void)
 
 	initialize_perFragmentLight();
 
+	initialize_krishnaAnimate();
+
 	Clothintialize();
 
 	initialize_fire();
+
+
 
 
 	// ................................................................................................
@@ -483,6 +496,8 @@ void display(void)
 	//call your scene Display here
 	display_perFragmentLight();
 	
+	display_krishnaAnimate();
+	
 	Clothdisplay();
 
 	display_fire();
@@ -494,6 +509,7 @@ void update(void)
 {
 	//call your scene Update here
 	update_perFragmentLight();
+	update_krishnaAnimate();
 }
 
 float getTime(void)
@@ -561,6 +577,8 @@ void uninitialize(int i_Exit_Flag)
 	// ....................................................................................
 
 	uninitialize_perFragmentLight();
+
+	uninitialize_krishnaAnimate();
 
 	//Clothunintialize();
 
