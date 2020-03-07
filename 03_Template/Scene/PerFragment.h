@@ -388,11 +388,12 @@ void update_perFragmentLight()
 	{
 
 		//if (vmath_camera_eye_coord[0] < 20.0f && vmath_camera_eye_coord[1] < 840.0f && vmath_camera_center_coord[1] < 1270.0f && gbZoomOutForFullView == false)
-		if (vmath_camera_eye_coord[0] < 20.0f && vmath_camera_eye_coord[1] < 820.0f && vmath_camera_center_coord[1] < 1270.0f && gbZoomOutForFullView == false)
+		//if (vmath_camera_eye_coord[0] < 20.0f && vmath_camera_eye_coord[1] < 820.0f && vmath_camera_center_coord[1] < 1270.0f && gbZoomOutForFullView == false)
+		if (vmath_camera_eye_coord[0] < 207.0f && vmath_camera_eye_coord[1] < 395.0f && vmath_camera_center_coord[1] < 514.0f && gbZoomOutForFullView == false)
 		{
-			vmath_camera_eye_coord[0]		= vmath_camera_eye_coord[0]		+ ((40.0f	+ 20.0f)	/ 2000.0f);				// -40: inital, 20 : final, 1000 number of steps 
-			vmath_camera_eye_coord[1]		= vmath_camera_eye_coord[1]		+ ((820.0f	- 180.0f)	/ 2000.0f);			// 840 : final, 180 : initial
-			vmath_camera_center_coord[1]	= vmath_camera_center_coord[1]	+ ((1270.0f - 200.0f)	/ 2000.0f);		// 1270.0f : final, 200 : initial
+			vmath_camera_eye_coord[0]		= vmath_camera_eye_coord[0]		+ ((207.0f	- 144.0f)	/ 2000.0f);				// 144.0f	: inital, 207.0f : final, 2000 number of steps 
+			vmath_camera_eye_coord[1]		= vmath_camera_eye_coord[1]		+ ((395.0f	- 39.0f)	/ 2000.0f);				// 395.0f	: final, 39.0f : initial
+			vmath_camera_center_coord[1]	= vmath_camera_center_coord[1]	+ ((514.0f - 91.0f)	/ 2000.0f);					// 91.0f	: final,  514.0f: initial
 		}
 		else
 		{
@@ -438,7 +439,7 @@ void update_perFragmentLight()
 			{
 				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - ((1270.0f + 160.0f) / 1000.0f);
 			}
-			*/
+			
 
 			if (vmath_camera_eye_coord[0] < 480.0f)
 			{
@@ -457,7 +458,20 @@ void update_perFragmentLight()
 			{
 				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - ((1270.0f - 1030.0f) / 1000.0f);
 			}
+			*/
+			if (vmath_camera_eye_coord[0] < 676.0f)
+			{
+				vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + ((676.0f - 207.0f) / 1000.0f);
+			}
+			if (vmath_camera_eye_coord[1] > 80.0f)
+			{
+				vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] - ((395.0f - 80.0f) / 1000.0f);						// initial position is 395, final position is 80
+			}
 
+			if (vmath_camera_center_coord[1] > 351.0f)
+			{
+				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - ((514.0f - 351.0f) / 1000.0f);				// initial position is 514.0f, final position is 351.0
+			}
 		}
 
 	}

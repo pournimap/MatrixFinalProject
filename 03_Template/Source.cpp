@@ -224,11 +224,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			*/
 
 		case VK_UP:
-			vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] + 10.0f;
+			vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] + 1.0f;
 			break;
 
 		case VK_DOWN:
-			vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] - 10.0f;
+			vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] - 1.0f;
 			break;
 
 		default:
@@ -266,46 +266,46 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			// zoom in
 		case 'i':
 		case 'I':
-			vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] - 10.0f;
+			vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] - 1.0f;
 			break;
 
 			// zoom out
 		case 'o':
 		case 'O':
-			vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] + 10.0f;
+			vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] + 1.0f;
 			break;
 
 		case 'j':
 		case 'J':
-			vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] - 10.0f;
+			vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] - 1.0f;
 			break;
 
 		case 'k':
 		case 'K':
-			vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + 10.0f;
+			vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + 1.0f;
 			break;
 
 			// camera center
 
 		case 'w':
 		case 'W':
-			vmath_camera_center_coord[1] = vmath_camera_center_coord[1] + 10.0f;
+			vmath_camera_center_coord[1] = vmath_camera_center_coord[1] + 1.0f;
 			break;
 
 		case 's':
 		case 'S':
-			vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - 10.0f;
+			vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - 1.0f;
 			break;
 
 
 		case 'A':
 		case 'a':
-			vmath_camera_center_coord[0] = vmath_camera_center_coord[0] - 1000.0f;
+			vmath_camera_center_coord[0] = vmath_camera_center_coord[0] - 1.0f;
 			break;
 
 		case 'D':
 		case 'd':
-			vmath_camera_center_coord[0] = vmath_camera_center_coord[0] + 1000.0f;
+			vmath_camera_center_coord[0] = vmath_camera_center_coord[0] + 1.0f;
 			break;
 
 		case 'p':
@@ -321,12 +321,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 		case 'c':		// start camera animation
 		case 'C':
+			/*
 			vmath_camera_eye_coord[0] = -40.0f;
 			vmath_camera_eye_coord[1] = 180.0f;
 			vmath_camera_eye_coord[2] = 1.0f;
 
 			vmath_camera_center_coord[0] = -1000.0f;
 			vmath_camera_center_coord[1] = 200.00f;
+			vmath_camera_center_coord[2] = 0.0f;
+			*/
+
+			vmath_camera_eye_coord[0] = 144.0f;
+			vmath_camera_eye_coord[1] = 39.0f;
+			vmath_camera_eye_coord[2] = -2.0f;
+
+			vmath_camera_center_coord[0] = 0.0f;
+			vmath_camera_center_coord[1] = 91.00f;
 			vmath_camera_center_coord[2] = 0.0f;
 
 			gbStartCamera	= !gbStartCamera;
@@ -336,7 +346,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case 'Q':
 			vmath_camera_eye_coord[0] = 3190.0f;	
 			vmath_camera_eye_coord[1] = 80.0f;	
-			vmath_camera_eye_coord[2] = 670.0f;	
+			vmath_camera_eye_coord[2] = 610.0f;
 			
 			vmath_camera_center_coord[0] = 0.0f;	
 			vmath_camera_center_coord[1] = -235.00f;
@@ -345,9 +355,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		
 		case 'E':
 		case 'e':
-			Done_krishnaAnimate = false;
+			Done_krishnaAnimate			= false;
 			startExplode_krishnaAnimate = true;
-			startJoin_krishnaAnimate = false;
+			startJoin_krishnaAnimate	= false;
 			break;
 
 		case 'R':
