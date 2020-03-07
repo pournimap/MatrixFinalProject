@@ -145,14 +145,14 @@ void initKrishnaAnimate()
 			"viewer_vector			= gs_in[0].viewer_vector;" \
 			"EmitVertex();" \
 
-			"gl_Position			= explode(gl_in[1].gl_Position, normal);" \
+			"gl_Position			= explode(gl_in[1].gl_Position , normal);" \
 			"out_texcord			= gs_in[1].out_texcord;" \
 			"transformed_normals	= gs_in[1].transformed_normals;" \
 			"light_direction		= gs_in[1].light_direction;" \
 			"viewer_vector			= gs_in[1].viewer_vector;" \
 			"EmitVertex();" \
 
-			"gl_Position			= explode(gl_in[2].gl_Position, normal);" \
+			"gl_Position			= explode(gl_in[2].gl_Position , normal);" \
 			"out_texcord			= gs_in[2].out_texcord;" \
 			"transformed_normals	= gs_in[2].transformed_normals;" \
 			"light_direction		= gs_in[2].light_direction;" \
@@ -224,9 +224,8 @@ void initKrishnaAnimate()
 			"}" \
 			"else" \
 			"{" \
-				"FragColor		= vec4(phong_ads_color, u_alpha);" \
+				"FragColor		= vec4(phong_ads_color,u_alpha);" \
 			"}" \
-			"FragColor.a	= 1.0 - (time / 30.0);" \
 		"}";
 	
 	glShaderSource(gFragmentShaderObject_krishnaAnimate, 1, (const GLchar**)&fragmentShaderSourceCode, NULL);
@@ -308,6 +307,7 @@ void initialize_krishnaAnimate()
 
 void display_krishnaAnimate()
 {
+	
 	glUseProgram(gShaderProgramObject_krishnaAnimate);
 
 	glUniform1i(gLKeyPressedUniform_krishnaAnimate, 1);
@@ -376,6 +376,7 @@ void display_krishnaAnimate()
 	glBindVertexArray(0);
 
 	glUseProgram(0);
+	
 }
 
 void update_krishnaAnimate()
@@ -385,7 +386,7 @@ void update_krishnaAnimate()
 		if (exploded_krishnaAnimate && startJoin_krishnaAnimate)
 		{
 
-			ftime_krishnaAnimate = ftime_krishnaAnimate - 0.1f;
+			ftime_krishnaAnimate = ftime_krishnaAnimate - 0.01f;
 			if (ftime_krishnaAnimate < 0.0f)
 			{
 				ftime_krishnaAnimate = 0.0f;
