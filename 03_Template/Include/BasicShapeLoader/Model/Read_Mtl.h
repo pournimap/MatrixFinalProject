@@ -69,7 +69,7 @@ void LoadMaterialData(char *filename, std::vector<material>&mat)
 	int LoadGLTextures(GLuint *, char *);
 	void InitTextures(std::vector<material>&);
 
-	MessageBox(NULL, TEXT("In LoadMaterialData()"), TEXT("MSG"), MB_OK);
+	//MessageBox(NULL, TEXT("In LoadMaterialData()"), TEXT("MSG"), MB_OK);
 	fopen_s(&gpMtlFile, filename, "r");
 	if (!gpMtlFile)
 	{
@@ -217,7 +217,7 @@ void LoadMaterialData(char *filename, std::vector<material>&mat)
 
 	fclose(gpMtlFile);
 	InitTextures(mat);
-	MessageBox(NULL, TEXT("END"), TEXT("MSG"), MB_OK);
+	//MessageBox(NULL, TEXT("END"), TEXT("MSG"), MB_OK);
 	//return(0);
 }
 
