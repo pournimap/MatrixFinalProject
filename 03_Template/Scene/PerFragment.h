@@ -269,7 +269,7 @@ void display_perFragmentLight()
 	//modelMatrix = vmath::translate(0.0f, 0.0f, -6.0f);
 	modelMatrix = vmath::translate(0.0f, -2.0f, -6.0f);
 	scaleMatrix = scale(10.0f, 10.0f, 10.0f);
-	modelMatrix = modelMatrix * scaleMatrix;
+	//modelMatrix = modelMatrix * scaleMatrix;
 
 	glUniformMatrix4fv(gModelMatrixUniform_perFragmentLight, 1, GL_FALSE, modelMatrix);
 	glBindVertexArray(gModel_Mahal.Vao);

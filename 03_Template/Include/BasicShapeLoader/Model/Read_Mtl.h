@@ -69,7 +69,7 @@ void LoadMaterialData(char *filename, std::vector<material>&mat)
 	int LoadGLTextures(GLuint *, char *);
 	void InitTextures(std::vector<material>&);
 
-	MessageBox(NULL, TEXT("In LoadMaterialData()"), TEXT("MSG"), MB_OK);
+	//MessageBox(NULL, TEXT("In LoadMaterialData()"), TEXT("MSG"), MB_OK);
 	fopen_s(&gpMtlFile, filename, "r");
 	if (!gpMtlFile)
 	{
@@ -217,7 +217,7 @@ void LoadMaterialData(char *filename, std::vector<material>&mat)
 
 	fclose(gpMtlFile);
 	InitTextures(mat);
-	MessageBox(NULL, TEXT("END"), TEXT("MSG"), MB_OK);
+	//MessageBox(NULL, TEXT("END"), TEXT("MSG"), MB_OK);
 	//return(0);
 }
 
@@ -269,11 +269,13 @@ int LoadGLTextures(GLuint *texture, char *filename)
 		glBindTexture(GL_TEXTURE_2D, *texture);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, format, GL_UNSIGNED_BYTE, image);
 
 		glGenerateMipmap(GL_TEXTURE_2D);
+		
 
 		//DeleteObject(hBitmap);
 		stbi_image_free(image);

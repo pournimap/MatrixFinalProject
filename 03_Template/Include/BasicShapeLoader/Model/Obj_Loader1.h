@@ -108,7 +108,7 @@ void LoadMeshData(const char *filename, std::vector<float> &vertices, std::vecto
 
 			memcpy(mtllib, token, size - 1);
 			wsprintf(str, TEXT("MTLLIB : %s.\n"), mtllib);
-			MessageBox(NULL, str, TEXT("MSG"), MB_OK);
+			//MessageBox(NULL, str, TEXT("MSG"), MB_OK);
 		}
 
 		//If first token indicates vertex data
@@ -267,7 +267,7 @@ void LoadMeshData(const char *filename, std::vector<float> &vertices, std::vecto
 	}
 
 	wsprintf(str, TEXT("count_of_vertices Value : %d\n count by method : %zu\n Face Count : %d\n Counter : %d\n"), count_of_vertices, g_temp_vertices.size(), count_vertex, counter);
-	MessageBox(NULL, str, TEXT("MSG"), MB_OK);
+	//MessageBox(NULL, str, TEXT("MSG"), MB_OK);
 
 	g_temp_vertices.clear();
 	g_temp_textures.clear();
@@ -276,5 +276,5 @@ void LoadMeshData(const char *filename, std::vector<float> &vertices, std::vecto
 	g_face_texture.clear();
 	g_face_normals.clear();
 
-	MessageBox(NULL, TEXT("End LoadMesgData()"), TEXT("MSG"), MB_OK);
+	//MessageBox(NULL, TEXT("End LoadMesgData()"), TEXT("MSG"), MB_OK);
 }
