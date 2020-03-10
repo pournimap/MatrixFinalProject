@@ -2,7 +2,8 @@
 #include "Include/BasicShapeLoader/Shapes/Matrix_BasicShapes.h"
 
 //Add your header files here
-#include "Scene/PerFragment.h"
+//#include "Scene/PerFragment.h"
+#include "Scene/Light/PointLight.h"
 #include"Scene/Fire/Fire.h"
 #include"Scene/KrishnaAnimate/KrishnaAnimate.h"
 
@@ -266,46 +267,46 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			// zoom in
 		case 'i':
 		case 'I':
-			vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] - 1.0f;
+			vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] - 10.0f;
 			break;
 
 			// zoom out
 		case 'o':
 		case 'O':
-			vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] + 1.0f;
+			vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] + 10.0f;
 			break;
 
 		case 'j':
 		case 'J':
-			vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] - 1.0f;
+			vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] - 10.0f;
 			break;
 
 		case 'k':
 		case 'K':
-			vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + 1.0f;
+			vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + 10.0f;
 			break;
 
 			// camera center
 
 		case 'w':
 		case 'W':
-			vmath_camera_center_coord[1] = vmath_camera_center_coord[1] + 1.0f;
+			vmath_camera_center_coord[1] = vmath_camera_center_coord[1] + 10.0f;
 			break;
 
 		case 's':
 		case 'S':
-			vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - 1.0f;
+			vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - 10.0f;
 			break;
 
 
 		case 'A':
 		case 'a':
-			vmath_camera_center_coord[0] = vmath_camera_center_coord[0] - 1.0f;
+			vmath_camera_center_coord[0] = vmath_camera_center_coord[0] - 10.0f;
 			break;
 
 		case 'D':
 		case 'd':
-			vmath_camera_center_coord[0] = vmath_camera_center_coord[0] + 1.0f;
+			vmath_camera_center_coord[0] = vmath_camera_center_coord[0] + 10.0f;
 			break;
 
 		case 'p':
@@ -463,8 +464,9 @@ int initialize(void)
 	//
 	// ................................................................................................
 
-	initialize_perFragmentLight();
-
+	//initialize_perFragmentLight();
+	initialize_pointLight();
+	
 	initialize_krishnaAnimate();
 
 	Clothintialize();
@@ -504,7 +506,8 @@ void display(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//call your scene Display here
-	display_perFragmentLight();
+	//display_perFragmentLight();
+	display_pointLight();
 	
 	display_krishnaAnimate();
 	
@@ -518,7 +521,8 @@ void display(void)
 void update(void)
 {
 	//call your scene Update here
-	update_perFragmentLight();
+	//update_perFragmentLight();
+	update_pointLight();
 	update_krishnaAnimate();
 }
 
@@ -586,7 +590,8 @@ void uninitialize(int i_Exit_Flag)
 	//
 	// ....................................................................................
 
-	uninitialize_perFragmentLight();
+	//uninitialize_perFragmentLight();
+	uninitialize_pointLight();
 
 	uninitialize_krishnaAnimate();
 
