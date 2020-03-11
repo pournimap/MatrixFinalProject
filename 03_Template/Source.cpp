@@ -3,7 +3,7 @@
 
 //Add your header files here
 #include "Scene/PerFragment.h"
-//#include "Scene/Light/PointLight.h"
+#include "Scene/Light/PointLight.h"
 #include"Scene/Fire/Fire.h"
 #include"Scene/KrishnaAnimate/KrishnaAnimate.h"
 
@@ -475,7 +475,7 @@ int initialize(void)
 	// ................................................................................................
 
 	initialize_perFragmentLight();
-	//initialize_pointLight();
+	initialize_pointLight();
 	
 	initialize_krishnaAnimate();
 
@@ -517,7 +517,7 @@ void display(void)
 
 	//call your scene Display here
 	display_perFragmentLight();
-	//display_pointLight();
+	display_pointLight();
 	
 	display_krishnaAnimate();
 	
@@ -532,7 +532,7 @@ void update(void)
 {
 	//call your scene Update here
 	update_perFragmentLight();
-	//update_pointLight();
+	update_pointLight();
 	update_krishnaAnimate();
 }
 
@@ -601,7 +601,7 @@ void uninitialize(int i_Exit_Flag)
 	// ....................................................................................
 
 	uninitialize_perFragmentLight();
-	//uninitialize_pointLight();
+	uninitialize_pointLight();
 
 	uninitialize_krishnaAnimate();
 

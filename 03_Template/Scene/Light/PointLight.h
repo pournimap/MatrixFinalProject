@@ -18,7 +18,7 @@ GLuint gLKeyPressedUniform_pointLight;
 GLuint gTextureSamplerUniform_pointLight, gTextureActiveUniform_pointLight, gAlphaUniform_pointLight;
 GLuint gViewPosUniform_pointLight, gNumPointLightsUniform_pointLight;
 
-#define gNumPointLights_pointLight  3
+#define gNumPointLights_pointLight  16
 struct PointLightUniform
 {
 	GLuint u_La;
@@ -56,7 +56,7 @@ struct PointLight
 };
 
 
-GLfloat lightAmbient[] = { 0.0f,0.0f,0.0f,1.0f };
+/*GLfloat lightAmbient[] = { 0.0f,0.0f,0.0f,1.0f };
 GLfloat lightDiffuse[] = { 1.0f,1.0f,1.0f,1.0f };
 GLfloat lightSpecular[] = { 1.0f,1.0f,1.0f,1.0f };
 GLfloat lightPosition[] = { 100.0f,100.0f,100.0f,1.0f };
@@ -64,7 +64,7 @@ GLfloat lightPosition[] = { 100.0f,100.0f,100.0f,1.0f };
 GLfloat material_ambient[] = { 0.0f,0.0f,0.0f,1.0f };
 GLfloat material_diffuse[] = { 1.0f,1.0f,1.0f,1.0f };
 GLfloat material_specular[] = { 1.0f,1.0f,1.0f,1.0f };
-GLfloat material_shininess = 50.0f;
+GLfloat material_shininess = 50.0f;*/
 
 // FOR CAMERA
 /*
@@ -73,12 +73,12 @@ vec3 vmath_camera_center_coord	= { -1000.0f,200.00f,0.0f };
 vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
 */
 
-vec3 vmath_camera_eye_coord		= { 3190.0f, 80.0f, 610.0f };
+/*vec3 vmath_camera_eye_coord		= { 3190.0f, 80.0f, 610.0f };
 vec3 vmath_camera_center_coord	= { 0.0f,-235.0f,0.0f };
 vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
 
 bool gbStartCamera			= false;
-bool gbZoomOutForFullView	= false;
+bool gbZoomOutForFullView	= false;*/
  
 
 void initPointLightShader()
@@ -152,7 +152,7 @@ void initPointLightShader()
 		"};" \
 		
 		"uniform int gNumPointLights;" \
-		"uniform PointLight pointLight[3];" \
+		"uniform PointLight pointLight[16];" \
 		"uniform vec3 viewPos;" \
 	
 		"in vec3 transformed_normals;" \
@@ -180,7 +180,7 @@ void initPointLightShader()
 		"vec3 pointLightColor;" \
 		
 		"vec3 normalized_transformed_normals=normalize(transformed_normals);" \
-		"vec3 normalized_light_direction=normalize(pointLight[index].position);" \
+		"vec3 normalized_light_direction=normalize(pointLight[index].position - fragment_position);" \
 		"vec3 normalized_viewer_vector=normalize(viewPos - fragment_position);" \
 		
 		"vec3 ambient = pointLight[index].u_La * u_Ka;" \
@@ -329,9 +329,11 @@ void initialize_pointLight()
 {
 	initPointLightShader();
 
-	initSphereShape();
+	initCubeShape();
 
-	LoadAllModels();
+	//initSphereShape();
+
+	//LoadAllModels();
 
 	glShadeModel(GL_SMOOTH);
 
@@ -348,6 +350,10 @@ void initialize_pointLight()
 
 }
 
+vec3 positionLamp[] = { vec3(-250.0f, 300.0f, 700.0f), vec3(320.0f, 300.0f, 700.0f), vec3(900.0f, 300.0f, 700.0f),vec3(1500.0f, 300.0f, 700.0f) , vec3(2100.0f, 300.0f, 700.0f) , vec3(2700.0f, 300.0f, 700.0f) ,
+						vec3(3300.0f, 300.0f, 700.0f) , vec3(4000.0f, 300.0f, 700.0f) ,  
+						vec3(-250.0f, 300.0f, -700.0f), vec3(320.0f, 300.0f, -700.0f), vec3(900.0f, 300.0f, -700.0f),vec3(1500.0f, 300.0f, -700.0f) , vec3(2100.0f, 300.0f, -700.0f) , vec3(2700.0f, 300.0f, -700.0f) ,
+						vec3(3300.0f, 300.0f, -700.0f) , vec3(4000.0f, 300.0f, -700.0f) , };
 void display_pointLight()
 {
 	float PI = 3.14;
@@ -356,43 +362,33 @@ void display_pointLight()
 		gAngle = 0.0f;
 	gAngle += 0.001f;
 	PointLight pointLight[gNumPointLights_pointLight];
-	pointLight[0].u_La = vec3(0.00f, 0.00f, 0.00f);
-	pointLight[0].u_Ld = vec3(0.0f, 0.0f, 1.0f);
-	pointLight[0].u_Ls = vec3(0.0f, 0.0f, 1.0f);
-	pointLight[0].u_linear = 0.001;
+	/*pointLight[0].u_La = vec3(0.00f, 0.00f, 0.00f);
+	pointLight[0].u_Ld = vec3(1.0f, 0.0f, 0.0f);
+	pointLight[0].u_Ls = vec3(1.0f, 0.0f, 0.0f);
+	pointLight[0].u_linear = 0.01;
 	pointLight[0].u_constant = 0.01;
 	pointLight[0].u_quadratic = 0.0;
-	pointLight[0].DiffuseIntensity = 0.5f;
+	pointLight[0].DiffuseIntensity = 1.0f;
 	
 	//pointLight[0].position = vec3(0.0, 5.0f * cos(2 * PI * gAngle), 5.0f * sin(2 * PI * gAngle));
 	
-		pointLight[0].position = vec3(-300.0f, 0.0f, 0.0f);
+	pointLight[0].position = positionLamp[0];
+	*/
+
 	
 
-	pointLight[1].u_La = vec3(0.00f, 0.0f, 0.0f);
-	pointLight[1].u_Ld = vec3(0.0f, 1.0f, 0.0f);
-	pointLight[1].u_Ls = vec3(0.0f, 1.0f, 0.0f);
-	pointLight[1].u_linear = 0.001;
-	pointLight[1].u_constant = 0.01;
-	pointLight[1].u_quadratic = 0.0;
-	pointLight[1].DiffuseIntensity = 0.5f;
-	
-	//pointLight[1].position = vec3(5.0f * cos(2 * PI * gAngle), 5.0f * sin(2 * PI * gAngle), 0.0);
-	
-	pointLight[1].position = vec3(-150.0f, 0.0f, 0.0f);
+	for (int i = 0; i < gNumPointLights_pointLight; i++)
+	{
+		pointLight[i].u_La = vec3(0.0f, 0.0f, 0.0f);
+		pointLight[i].u_Ld = vec3(1.0f, 1.0f, 1.0f);
+		pointLight[i].u_Ls = vec3(1.0f, 1.0f, 1.0f);
+		pointLight[i].u_linear = 0.01;
+		pointLight[i].u_constant = 0.01;
+		pointLight[i].u_quadratic = 0.0;
+		pointLight[i].DiffuseIntensity = 1.0f;
 
-
-	pointLight[2].u_La = vec3(0.0f, 0.0f, 0.0f);
-	pointLight[2].u_Ld = vec3(1.0f, 0.0f, 0.0f);
-	pointLight[2].u_Ls = vec3(1.0f, 0.0f, 0.0f);
-	pointLight[2].u_linear = 0.001;
-	pointLight[2].u_constant = 0.01;
-	pointLight[2].u_quadratic = 0.0;
-	pointLight[2].DiffuseIntensity = 0.5f;
-	
-	//pointLight[2].position = vec3(5.0f * cos(2 * PI * gAngle), 0.0f, 5.0f * sin(2 * PI * gAngle));
-	
-	pointLight[2].position = vec3(-0.0f, 0.0f, 0.0);
+		pointLight[i].position = positionLamp[i];
+	}
 	
 	
 	glUseProgram(gShaderProgramObject_pointLight);
@@ -407,7 +403,7 @@ void display_pointLight()
 		glUniform4fv(gLightPositionUniform_pointLight, 1, lightPosition);
 		
 		//pointLight
-		glUniform1i(gNumPointLightsUniform_pointLight, 3);
+		glUniform1i(gNumPointLightsUniform_pointLight, gNumPointLights_pointLight);
 		for (int i = 0; i < gNumPointLights_pointLight; i++)
 		{
 		glUniform3fv(m_pointLightsLocation[i].u_La, 1, pointLight[i].u_La);
@@ -530,7 +526,7 @@ void display_pointLight()
 
 	// shishupal model
 
-	modelMatrix = mat4::identity();
+	/*modelMatrix = mat4::identity();
 	scaleMatrix = mat4::identity();
 	
 	modelMatrix = vmath::translate(2500.0f, 0.0f, 600.0f);
@@ -556,16 +552,33 @@ void display_pointLight()
 				glBindTexture(GL_TEXTURE_2D, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].gTexture);
 				glUniform1i(gTextureSamplerUniform_pointLight, 0);
 				glUniform1i(gTextureActiveUniform_pointLight, 1);
-				/*fprintf(gpFile, "perFragmentLight Krishna ismapKd true \n");
-				fflush(gpFile);*/
+				
 			}
 			else
 				glUniform1i(gTextureActiveUniform_pointLight, 0);
 		}
 		glDrawArrays(GL_TRIANGLES, gModel_Krishna.model_mesh_data[i].vertex_Index, gModel_Krishna.model_mesh_data[i].vertex_Count);
 	}
-	glBindVertexArray(0);
+	glBindVertexArray(0);*/
 
+
+	for (int i = 0; i < gNumPointLights_pointLight; i++)
+	{
+		modelMatrix = mat4::identity();
+		scaleMatrix = mat4::identity();
+		rotateMatrix = mat4::identity();
+
+		modelMatrix = vmath::translate(positionLamp[i]);
+		scaleMatrix = scale(20.0f, 20.0f, 20.0f);
+		//rotateMatrix = rotate(230.0f, 0.0f, 1.0f, 0.0f);
+
+		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
+
+		glUniformMatrix4fv(gModelMatrixUniform_pointLight, 1, GL_FALSE, modelMatrix);
+
+		drawCubeShape();
+	}
+	
 
 	glUseProgram(0);
 }
@@ -668,6 +681,8 @@ void update_pointLight()
 
 void uninitialize_pointLight()
 {
+	uninitializeCubeShape();
+
 	uninitializeAllModelData();
 
 	uninitializeSphereShape();

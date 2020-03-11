@@ -69,6 +69,7 @@ void LoadAllModels()
 
 	/*****************Load Krishna Model*****************/
 	std::string krishnaModelFilePath = "Resources/krishna/krishna.obj";
+	//std::string krishnaModelFilePath = "11MarchKrishnaModel/krishna.obj";
 
 	LoadMeshData(krishnaModelFilePath.c_str(), gModel_Krishna.model_vertices, gModel_Krishna.model_textures, gModel_Krishna.model_normals, gModel_Krishna.model_mesh_data, gModel_Krishna.model_materialFileName);
 

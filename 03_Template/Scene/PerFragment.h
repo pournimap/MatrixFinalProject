@@ -265,7 +265,7 @@ void display_perFragmentLight()
 	
 	//object
 	//Draw Mahal Model
-	modelMatrix = mat4::identity();
+	/*modelMatrix = mat4::identity();
 	//modelMatrix = vmath::translate(0.0f, 0.0f, -6.0f);
 	modelMatrix = vmath::translate(0.0f, -2.0f, -6.0f);
 	scaleMatrix = scale(10.0f, 10.0f, 10.0f);
@@ -290,15 +290,14 @@ void display_perFragmentLight()
 				glBindTexture(GL_TEXTURE_2D, gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].gTexture);
 				glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
 				glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
-				/*fprintf(gpFile, "perFragmentLight Mahal ismapKd true \n");
-				fflush(gpFile);*/
+				
 			}
 			else
 				glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
 		}
 		glDrawArrays(GL_TRIANGLES, gModel_Mahal.model_mesh_data[i].vertex_Index, gModel_Mahal.model_mesh_data[i].vertex_Count);
 	}
-	glBindVertexArray(0);
+	glBindVertexArray(0);*/
 	
 	/*
 	// KRISHNA MODEL
