@@ -340,7 +340,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			vmath_camera_center_coord[1] = 91.00f;
 			vmath_camera_center_coord[2] = 0.0f;
 
-			*/
+			
 
 			vmath_camera_eye_coord[0] = 245.0f;
 			vmath_camera_eye_coord[1] = 95.0f;
@@ -349,7 +349,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			vmath_camera_center_coord[0] = -260.0f;
 			vmath_camera_center_coord[1] = 260.0f;
 			vmath_camera_center_coord[2] = 0.0f;
+			*/
+			
+			vmath_camera_eye_coord[0] = -35.0f;
+			vmath_camera_eye_coord[1] = 105.0f;
+			vmath_camera_eye_coord[2] = 10.0f;
 
+			vmath_camera_center_coord[0] = -350.0f;
+			vmath_camera_center_coord[1] = 100.0f;
+			vmath_camera_center_coord[2] = 0.0f;
+			
 			gbStartCamera	= !gbStartCamera;
 			break;
 
@@ -532,7 +541,7 @@ void update(void)
 {
 	//call your scene Update here
 	update_perFragmentLight();
-	update_pointLight();
+	//update_pointLight();
 	update_krishnaAnimate();
 }
 

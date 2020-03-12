@@ -389,11 +389,15 @@ void update_perFragmentLight()
 		//if (vmath_camera_eye_coord[0] < 20.0f && vmath_camera_eye_coord[1] < 840.0f && vmath_camera_center_coord[1] < 1270.0f && gbZoomOutForFullView == false)
 		//if (vmath_camera_eye_coord[0] < 20.0f && vmath_camera_eye_coord[1] < 820.0f && vmath_camera_center_coord[1] < 1270.0f && gbZoomOutForFullView == false)
 		//if (vmath_camera_eye_coord[0] < 207.0f && vmath_camera_eye_coord[1] < 395.0f && vmath_camera_center_coord[1] < 514.0f && gbZoomOutForFullView == false)
-		if (vmath_camera_eye_coord[0] < 585.0f && vmath_camera_eye_coord[1] > 60.0f && vmath_camera_center_coord[1] < 460.0f && gbZoomOutForFullView == false)
+		//if (vmath_camera_eye_coord[0] < 585.0f && vmath_camera_eye_coord[1] > 60.0f && vmath_camera_center_coord[1] < 460.0f && gbZoomOutForFullView == false)
+		if (vmath_camera_eye_coord[0] < 585.0f && vmath_camera_eye_coord[1] > 20.0f && vmath_camera_eye_coord[2] > -340.0f && vmath_camera_center_coord[0] < -260.0f && vmath_camera_center_coord[1] < 440.0f && gbZoomOutForFullView == false)
 		{
-			vmath_camera_eye_coord[0]		= vmath_camera_eye_coord[0]		+ ((585.0f	- 245.0f)	/ 2000.0f);				// 244.0f	: inital,585.0f : final, 2000 number of steps 
-			vmath_camera_eye_coord[1]		= vmath_camera_eye_coord[1]		- ((95.0f - 60.0f)	/ 2000.0f);					// 60.0f	: final, 95.0f : initial
-			vmath_camera_center_coord[1]	= vmath_camera_center_coord[1]	+ ((460.0f - 260.0f)	/ 2000.0f);					// 91.0f	: final,  461.0f: initial
+			vmath_camera_eye_coord[0]		= vmath_camera_eye_coord[0]		+ ((585.0f + 35.0f) / 3000.0f);				// -35.0f	: inital,585.0f : final, 2000 number of steps 
+			vmath_camera_eye_coord[1]		= vmath_camera_eye_coord[1]		- ((105.0f - 20.0f)	/ 3000.0f);					// 60.0f	: final, 105.0f : initial
+			vmath_camera_eye_coord[2]		= vmath_camera_eye_coord[2]		- ((340.0f + 10.0f)	/ 3000.0f);					// -240.0f	: final, 10.0f : initial
+
+			vmath_camera_center_coord[0]	= vmath_camera_center_coord[0]	+ ((350.0f - 260.0f)	/ 3000.0f);					
+			vmath_camera_center_coord[1]	= vmath_camera_center_coord[1]	+ ((440.0f - 100.0f)	/ 3000.0f);	
 		}
 		/*
 		else

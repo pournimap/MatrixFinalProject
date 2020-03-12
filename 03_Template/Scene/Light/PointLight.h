@@ -350,8 +350,8 @@ void initialize_pointLight()
 
 }
 
-vec3 positionLamp[] = { vec3(-250.0f, 300.0f, 700.0f), vec3(320.0f, 300.0f, 700.0f), vec3(900.0f, 300.0f, 700.0f),vec3(1500.0f, 300.0f, 700.0f) , vec3(2100.0f, 300.0f, 700.0f) , vec3(2700.0f, 300.0f, 700.0f) ,
-						vec3(3300.0f, 300.0f, 700.0f) , vec3(4000.0f, 300.0f, 700.0f) ,  
+vec3 positionLamp[] = { vec3(-250.0f, 300.0f, 700.0f), vec3(320.0f, 300.0f, 700.0f), vec3(900.0f, 300.0f, 700.0f),vec3(1500.0f, 300.0f, 700.0f) , vec3(2100.0f, 300.0f, 700.0f) , vec3(2400.0f, 300.0f, 700.0f) ,
+						vec3(3100.0f, 300.0f, 700.0f) , vec3(3650.0f, 300.0f, 700.0f) ,  
 						vec3(-250.0f, 300.0f, -700.0f), vec3(320.0f, 300.0f, -700.0f), vec3(900.0f, 300.0f, -700.0f),vec3(1500.0f, 300.0f, -700.0f) , vec3(2100.0f, 300.0f, -700.0f) , vec3(2700.0f, 300.0f, -700.0f) ,
 						vec3(3300.0f, 300.0f, -700.0f) , vec3(4000.0f, 300.0f, -700.0f) , };
 void display_pointLight()
@@ -569,8 +569,9 @@ void display_pointLight()
 		rotateMatrix = mat4::identity();
 
 		modelMatrix = vmath::translate(positionLamp[i]);
-		scaleMatrix = scale(20.0f, 20.0f, 20.0f);
-		//rotateMatrix = rotate(230.0f, 0.0f, 1.0f, 0.0f);
+		scaleMatrix = scale(10.0f, 10.0f, 10.0f);
+		//if(i < 8)
+		//rotateMatrix = rotate(180.0f, 0.0f, 0.0f, 1.0f);
 
 		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
 
