@@ -2,17 +2,16 @@
 
 #include "../../Include/BasicShapeLoader/Model/Matrix_Obj_Loader.h"
 
+// SHADER 1
 GLuint gVertexShaderObject_krishnaAnimate;
 GLuint gGeometryShaderObject_krishnaAnimate;
-
 GLuint gFragmentShaderObject_krishnaAnimate;
 GLuint gShaderProgramObject_krishnaAnimate;
 
+// SHADER 2
 GLuint gGeometryShaderObject_2_krishnaAnimate;
 GLuint gFragmentShaderObject_2_krishnaAnimate;
 GLuint gShaderProgramObject_2_krishnaAnimate;
-
-
 
 GLuint gModelMatrixUniform_krishnaAnimate;
 GLuint gViewMatrixUniform_krishnaAnimate;
@@ -25,11 +24,11 @@ GLuint gLKeyPressedUniform_krishnaAnimate;
 GLuint gTextureSamplerUniform_krishnaAnimate, gTextureActiveUniform_krishnaAnimate, gAlphaUniform_krishnaAnimate;
 GLuint gTimeUniform_krishnaAnimate;
 
-bool startExplode_krishnaAnimate = false;
-bool startJoin_krishnaAnimate = false;
-bool exploded_krishnaAnimate = false;
-bool Done_krishnaAnimate = false;
-int DoneFlag_krishnaAnimate = 0;
+bool startExplode_krishnaAnimate	= false;
+bool startJoin_krishnaAnimate		= false;
+bool exploded_krishnaAnimate		= false;
+bool Done_krishnaAnimate			= false;
+int DoneFlag_krishnaAnimate			= 0;
 
 float ftime_krishnaAnimate = 0.0f;
 
@@ -43,13 +42,12 @@ GLfloat lightPosition_krishnaAnimate[] = { 100.0f,100.0f,100.0f,1.0f };
 GLfloat gfKrishnaModelScale = 70.0f;
 
 
-
 void initKrishnaAnimate()
 {
 	void uninitialize(int);
 
 	// SHADER PROGRAM OBJECT 1
-
+#pragma region SHADER1
 	//VERTEX SHADER
 	gVertexShaderObject_krishnaAnimate = glCreateShader(GL_VERTEX_SHADER);
 
@@ -73,24 +71,24 @@ void initKrishnaAnimate()
 
 		"out VS_OUT "\
 		"{" \
-		"vec3 transformed_normals;" \
-		"vec3 light_direction;" \
-		"vec3 viewer_vector;" \
-		"vec2 out_texcord;" \
+			"vec3 transformed_normals;" \
+			"vec3 light_direction;" \
+			"vec3 viewer_vector;" \
+			"vec2 out_texcord;" \
 		"}vs_out;" \
 
 		"void main(void)" \
 		"{" \
-		"if(u_LKeyPressed == 1)" \
-		"{" \
-		"vec4 eye_coordinates			= u_view_matrix * u_model_matrix * vPosition;" \
-		"vs_out.transformed_normals		= mat3(u_view_matrix * u_model_matrix) * vNormal;" \
-		"vs_out.light_direction			= vec3(u_light_position) - eye_coordinates.xyz;" \
-		"vs_out.viewer_vector			= -eye_coordinates.xyz;" \
-		"}"\
+			"if(u_LKeyPressed == 1)" \
+			"{" \
+				"vec4 eye_coordinates			= u_view_matrix * u_model_matrix * vPosition;" \
+				"vs_out.transformed_normals		= mat3(u_view_matrix * u_model_matrix) * vNormal;" \
+				"vs_out.light_direction			= vec3(u_light_position) - eye_coordinates.xyz;" \
+				"vs_out.viewer_vector			= -eye_coordinates.xyz;" \
+			"}"\
 
-		"vs_out.out_texcord = vTexcoord;" \
-		"gl_Position		= u_projection_matrix * u_view_matrix * u_model_matrix * vPosition;" \
+			"vs_out.out_texcord = vTexcoord;" \
+			"gl_Position		= u_projection_matrix * u_view_matrix * u_model_matrix * vPosition;" \
 		"}";
 
 	glShaderSource(gVertexShaderObject_krishnaAnimate, 1, (const GLchar**)&vertextShaderSourceCode, NULL);
@@ -113,10 +111,10 @@ void initKrishnaAnimate()
 
 		"in VS_OUT "\
 		"{" \
-		"vec3 transformed_normals;" \
-		"vec3 light_direction;" \
-		"vec3 viewer_vector;" \
-		"vec2 out_texcord;" \
+			"vec3 transformed_normals;" \
+			"vec3 light_direction;" \
+			"vec3 viewer_vector;" \
+			"vec2 out_texcord;" \
 		"}gs_in[];" \
 
 		"out vec3 transformed_normals;" \
@@ -129,47 +127,51 @@ void initKrishnaAnimate()
 
 		"vec4 explode(vec4 position, vec3 normal)" \
 		"{" \
-		/*"float magnitude	= 50.0;" \*/
-		"float magnitude	= position.y / 10.0;" \
-		"vec3 direction		= vec3( normal * time * magnitude);" \
-		"position			= position + vec4(direction, 0.0); " \
-		"return position;" \
+			"normal = vec3(0.0,-1.0,0.0);" 
+			"float magnitude	= 0.0;" \
+			"float temp_time    = 1500.0f - time;" \
+			"if(position.y > temp_time)" \
+				"magnitude	= 50.0;" \
+			/*"float magnitude	= position.y / 10.0;" \*/
+			"vec3 direction		= vec3( normal * time * magnitude);" \
+			"position			= position + vec4(direction, 0.0); " \
+			"return position;" \
 		"}" \
 
 		"vec3 getNormal()" \
 		"{" \
-		"vec3 a = vec3(gl_in[0].gl_Position) - vec3(gl_in[1].gl_Position) ;" \
-		"vec3 b = vec3(gl_in[2].gl_Position) - vec3(gl_in[1].gl_Position) ;" \
-		"return normalize(cross(a, b));" \
+			"vec3 a = vec3(gl_in[0].gl_Position) - vec3(gl_in[1].gl_Position) ;" \
+			"vec3 b = vec3(gl_in[2].gl_Position) - vec3(gl_in[1].gl_Position) ;" \
+			"return normalize(cross(a, b));" \
 		"}" \
 
 		"void main(void)" \
 		"{" \
+			
+			"vec3 normal = getNormal();" \
 
-		"vec3 normal = getNormal();" \
+			"gl_Position			= explode(gl_in[0].gl_Position, normal);" \
+			"out_texcord			= gs_in[0].out_texcord;" \
+			"transformed_normals	= gs_in[0].transformed_normals;" \
+			"light_direction		= gs_in[0].light_direction;" \
+			"viewer_vector			= gs_in[0].viewer_vector;" \
+			"EmitVertex();" \
+		
+			"gl_Position			= explode(gl_in[1].gl_Position , normal);" \
+			"out_texcord			= gs_in[1].out_texcord;" \
+			"transformed_normals	= gs_in[1].transformed_normals;" \
+			"light_direction		= gs_in[1].light_direction;" \
+			"viewer_vector			= gs_in[1].viewer_vector;" \
+			"EmitVertex();" \
+		
+			"gl_Position			= explode(gl_in[2].gl_Position , normal);" \
+			"out_texcord			= gs_in[2].out_texcord;" \
+			"transformed_normals	= gs_in[2].transformed_normals;" \
+			"light_direction		= gs_in[2].light_direction;" \
+			"viewer_vector			= gs_in[2].viewer_vector;" \
+			"EmitVertex();" \
 
-		"gl_Position			= explode(gl_in[0].gl_Position, normal);" \
-		"out_texcord			= gs_in[0].out_texcord;" \
-		"transformed_normals	= gs_in[0].transformed_normals;" \
-		"light_direction		= gs_in[0].light_direction;" \
-		"viewer_vector			= gs_in[0].viewer_vector;" \
-		"EmitVertex();" \
-
-		"gl_Position			= explode(gl_in[1].gl_Position , normal);" \
-		"out_texcord			= gs_in[1].out_texcord;" \
-		"transformed_normals	= gs_in[1].transformed_normals;" \
-		"light_direction		= gs_in[1].light_direction;" \
-		"viewer_vector			= gs_in[1].viewer_vector;" \
-		"EmitVertex();" \
-
-		"gl_Position			= explode(gl_in[2].gl_Position , normal);" \
-		"out_texcord			= gs_in[2].out_texcord;" \
-		"transformed_normals	= gs_in[2].transformed_normals;" \
-		"light_direction		= gs_in[2].light_direction;" \
-		"viewer_vector			= gs_in[2].viewer_vector;" \
-		"EmitVertex();" \
-
-		"EndPrimitive();" \
+			"EndPrimitive();" \
 		"}";
 
 	glShaderSource(gGeometryShaderObject_krishnaAnimate, 1, (const GLchar**)&geometryShaderSourceCode, NULL);
@@ -209,35 +211,36 @@ void initKrishnaAnimate()
 
 		"void main(void)" \
 		"{" \
-		"vec3 phong_ads_color;" \
-		"vec4 Final_Texture;" \
-		"if(u_LKeyPressed==1)" \
-		"{" \
-		"vec3 normalized_transformed_normals	= normalize(transformed_normals);" \
-		"vec3 normalized_light_direction		= normalize(light_direction);" \
-		"vec3 normalized_viewer_vector			= normalize(viewer_vector);" \
-		"vec3 ambient							= u_La * u_Ka;" \
-		"float tn_dot_ld						= max(dot(normalized_transformed_normals, normalized_light_direction),0.0);" \
-		"vec3 diffuse							= u_Ld * u_Kd * tn_dot_ld;" \
-		"vec3 reflection_vector					= reflect(-normalized_light_direction, normalized_transformed_normals);" \
-		"vec3 specular							= u_Ls * u_Ks * pow(max(dot(reflection_vector, normalized_viewer_vector), 0.0), u_material_shininess);" \
-		"phong_ads_color						= ambient + diffuse + specular;" \
-		"}" \
-		"else" \
-		"{" \
-		"phong_ads_color = vec3(1.0, 1.0, 1.0);" \
-		"}" \
-		"if(u_is_texture == 1)" \
-		"{" \
-		"Final_Texture	= texture(u_texture0_sampler, out_texcord); " \
-		"FragColor		= vec4(phong_ads_color, u_alpha) * Final_Texture;" \
-		"}" \
-		"else" \
-		"{" \
-		"FragColor		= vec4(phong_ads_color,u_alpha);" \
-		"}" \
+			"vec3 phong_ads_color;" \
+			"vec4 Final_Texture;" \
+			"if(u_LKeyPressed==1)" \
+			"{" \
+				"vec3 normalized_transformed_normals	= normalize(transformed_normals);" \
+				"vec3 normalized_light_direction		= normalize(light_direction);" \
+				"vec3 normalized_viewer_vector			= normalize(viewer_vector);" \
+				"vec3 ambient							= u_La * u_Ka;" \
+				"float tn_dot_ld						= max(dot(normalized_transformed_normals, normalized_light_direction),0.0);" \
+				"vec3 diffuse							= u_Ld * u_Kd * tn_dot_ld;" \
+				"vec3 reflection_vector					= reflect(-normalized_light_direction, normalized_transformed_normals);" \
+				"vec3 specular							= u_Ls * u_Ks * pow(max(dot(reflection_vector, normalized_viewer_vector), 0.0), u_material_shininess);" \
+				"phong_ads_color						= ambient + diffuse + specular;" \
+			"}" \
+			"else" \
+			"{" \
+				"phong_ads_color = vec3(1.0, 1.0, 1.0);" \
+			"}" \
+			"if(u_is_texture == 1)" \
+			"{" \
+				"Final_Texture	= texture(u_texture0_sampler, out_texcord); " \
+				"FragColor		= vec4(phong_ads_color, u_alpha) * Final_Texture;" \
+			"}" \
+			"else" \
+			"{" \
+				/*"FragColor		= vec4(phong_ads_color,u_alpha);" \*/
+				"FragColor		= vec4(phong_ads_color,1.0f);" \
+			"}" \
 		"}";
-
+	
 	glShaderSource(gFragmentShaderObject_krishnaAnimate, 1, (const GLchar**)&fragmentShaderSourceCode, NULL);
 	glCompileShader(gFragmentShaderObject_krishnaAnimate);
 
@@ -279,21 +282,20 @@ void initKrishnaAnimate()
 	gKsUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "u_Ks");
 	gKaUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "u_Ka");
 
-	gLightPositionUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "u_light_position");
-	gMaterialShininessUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "u_material_shininess");
+	gLightPositionUniform_krishnaAnimate		= glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "u_light_position");
+	gMaterialShininessUniform_krishnaAnimate	= glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "u_material_shininess");
 
 	gTextureSamplerUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "u_texture0_sampler");
 
-	gTextureActiveUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "u_is_texture");
-	gAlphaUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "u_alpha");
+	gTextureActiveUniform_krishnaAnimate	= glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "u_is_texture");
+	gAlphaUniform_krishnaAnimate			= glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "u_alpha");
 
 	gTimeUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "time");
+#pragma endregion
 
-
-
+	
 	// SHADER PROGRAM OBJECT 2
-	// change in Geometry shader only
-	// change of only 1 line. but still we need to write whole new shader program object and other stuffs
+#pragma region SHADER2
 
 	gGeometryShaderObject_2_krishnaAnimate = glCreateShader(GL_GEOMETRY_SHADER);
 
@@ -302,7 +304,7 @@ void initKrishnaAnimate()
 		"\n" \
 		"layout(triangles)in;" \
 		"layout(points, max_vertices = 3)out;" \
-
+	
 		"in VS_OUT "\
 		"{" \
 		"vec3 transformed_normals;" \
@@ -321,47 +323,51 @@ void initKrishnaAnimate()
 
 		"vec4 explode(vec4 position, vec3 normal)" \
 		"{" \
-		/*"float magnitude	= 50.0;" \*/
-		"float magnitude	= position.y / 10.0;" \
-		"vec3 direction		= vec3( normal * time * magnitude);" \
-		"position			= position + vec4(direction, 0.0); " \
-		"return position;" \
+			"normal = vec3(0.0,-1.0,0.0);"
+			"float magnitude	= 0.0;" \
+			"float temp_time    = 1250.0f - time;" \
+			"if(position.y > temp_time)" \
+				"magnitude	= 50.0;" \
+			/*"float magnitude	= position.y / 10.0;" \*/
+			"vec3 direction		= vec3( normal * time * magnitude);" \
+			"position			= position + vec4(direction, 0.0); " \
+			"return position;" \
 		"}" \
 
 		"vec3 getNormal()" \
 		"{" \
-		"vec3 a = vec3(gl_in[0].gl_Position) - vec3(gl_in[1].gl_Position) ;" \
-		"vec3 b = vec3(gl_in[2].gl_Position) - vec3(gl_in[1].gl_Position) ;" \
-		"return normalize(cross(a, b));" \
+			"vec3 a = vec3(gl_in[0].gl_Position) - vec3(gl_in[1].gl_Position) ;" \
+			"vec3 b = vec3(gl_in[2].gl_Position) - vec3(gl_in[1].gl_Position) ;" \
+			"return normalize(cross(a, b));" \
 		"}" \
 
 		"void main(void)" \
 		"{" \
 
-		"vec3 normal = getNormal();" \
+			"vec3 normal = getNormal();" \
 
-		"gl_Position			= explode(gl_in[0].gl_Position, normal);" \
-		"out_texcord			= gs_in[0].out_texcord;" \
-		"transformed_normals	= gs_in[0].transformed_normals;" \
-		"light_direction		= gs_in[0].light_direction;" \
-		"viewer_vector			= gs_in[0].viewer_vector;" \
-		"EmitVertex();" \
+			"gl_Position			= explode(gl_in[0].gl_Position, normal);" \
+			"out_texcord			= gs_in[0].out_texcord;" \
+			"transformed_normals	= gs_in[0].transformed_normals;" \
+			"light_direction		= gs_in[0].light_direction;" \
+			"viewer_vector			= gs_in[0].viewer_vector;" \
+			"EmitVertex();" \
 
-		"gl_Position			= explode(gl_in[1].gl_Position , normal);" \
-		"out_texcord			= gs_in[1].out_texcord;" \
-		"transformed_normals	= gs_in[1].transformed_normals;" \
-		"light_direction		= gs_in[1].light_direction;" \
-		"viewer_vector			= gs_in[1].viewer_vector;" \
-		"EmitVertex();" \
+			"gl_Position			= explode(gl_in[1].gl_Position , normal);" \
+			"out_texcord			= gs_in[1].out_texcord;" \
+			"transformed_normals	= gs_in[1].transformed_normals;" \
+			"light_direction		= gs_in[1].light_direction;" \
+			"viewer_vector			= gs_in[1].viewer_vector;" \
+			"EmitVertex();" \
 
-		"gl_Position			= explode(gl_in[2].gl_Position , normal);" \
-		"out_texcord			= gs_in[2].out_texcord;" \
-		"transformed_normals	= gs_in[2].transformed_normals;" \
-		"light_direction		= gs_in[2].light_direction;" \
-		"viewer_vector			= gs_in[2].viewer_vector;" \
-		"EmitVertex();" \
+			"gl_Position			= explode(gl_in[2].gl_Position , normal);" \
+			"out_texcord			= gs_in[2].out_texcord;" \
+			"transformed_normals	= gs_in[2].transformed_normals;" \
+			"light_direction		= gs_in[2].light_direction;" \
+			"viewer_vector			= gs_in[2].viewer_vector;" \
+			"EmitVertex();" \
 
-		"EndPrimitive();" \
+			"EndPrimitive();" \
 		"}";
 
 	glShaderSource(gGeometryShaderObject_2_krishnaAnimate, 1, (const GLchar**)&geometryShaderSourceCode_2, NULL);
@@ -375,7 +381,7 @@ void initKrishnaAnimate()
 	gFragmentShaderObject_2_krishnaAnimate = glCreateShader(GL_FRAGMENT_SHADER);
 
 	const GLchar* fragmentShaderSourceCode_2 =
-		"#version 400" \
+		"#version 450" \
 		"\n" \
 		"in vec3 transformed_normals;" \
 		"in vec3 light_direction;" \
@@ -400,34 +406,35 @@ void initKrishnaAnimate()
 
 		"void main(void)" \
 		"{" \
-		"vec3 phong_ads_color;" \
-		"vec4 Final_Texture;" \
-		"if(u_LKeyPressed==1)" \
-		"{" \
-		"vec3 normalized_transformed_normals	= normalize(transformed_normals);" \
-		"vec3 normalized_light_direction		= normalize(light_direction);" \
-		"vec3 normalized_viewer_vector			= normalize(viewer_vector);" \
-		"vec3 ambient							= u_La * u_Ka;" \
-		"float tn_dot_ld						= max(dot(normalized_transformed_normals, normalized_light_direction),0.0);" \
-		"vec3 diffuse							= u_Ld * u_Kd * tn_dot_ld;" \
-		"vec3 reflection_vector					= reflect(-normalized_light_direction, normalized_transformed_normals);" \
-		"vec3 specular							= u_Ls * u_Ks * pow(max(dot(reflection_vector, normalized_viewer_vector), 0.0), u_material_shininess);" \
-		"phong_ads_color						= ambient + diffuse + specular;" \
-		"}" \
-		"else" \
-		"{" \
-		"phong_ads_color = vec3(1.0, 1.0, 1.0);" \
-		"}" \
-		"if(u_is_texture == 1)" \
-		"{" \
-		"Final_Texture	= texture(u_texture0_sampler, out_texcord); " \
-		"FragColor		= vec4(phong_ads_color, u_alpha) * Final_Texture;" \
-		"}" \
-		"else" \
-		"{" \
-		"FragColor		= vec4(phong_ads_color,u_alpha);" \
-		"}" \
-		"FragColor.a = 1 - (time / 20.0f);" \
+			"vec3 phong_ads_color;" \
+			"vec4 Final_Texture;" \
+			"if(u_LKeyPressed==1)" \
+			"{" \
+				"vec3 normalized_transformed_normals	= normalize(transformed_normals);" \
+				"vec3 normalized_light_direction		= normalize(light_direction);" \
+				"vec3 normalized_viewer_vector			= normalize(viewer_vector);" \
+				"vec3 ambient							= u_La * u_Ka;" \
+				"float tn_dot_ld						= max(dot(normalized_transformed_normals, normalized_light_direction),0.0);" \
+				"vec3 diffuse							= u_Ld * u_Kd * tn_dot_ld;" \
+				"vec3 reflection_vector					= reflect(-normalized_light_direction, normalized_transformed_normals);" \
+				"vec3 specular							= u_Ls * u_Ks * pow(max(dot(reflection_vector, normalized_viewer_vector), 0.0), u_material_shininess);" \
+				"phong_ads_color						= ambient + diffuse + specular;" \
+			"}" \
+			"else" \
+			"{" \
+				"phong_ads_color = vec3(1.0, 1.0, 1.0);" \
+			"}" \
+			"if(u_is_texture == 1)" \
+			"{" \
+				"Final_Texture	= texture(u_texture0_sampler, out_texcord); " \
+				"FragColor		= vec4(phong_ads_color, u_alpha) * Final_Texture;" \
+			"}" \
+			"else" \
+			"{" \
+				"FragColor		= vec4(phong_ads_color,u_alpha);" \
+			"}" \
+			/*"FragColor.a = 1 - (time / 20.0f);" \*/
+			"FragColor.a = 1;" \
 		"}";
 
 	glShaderSource(gFragmentShaderObject_2_krishnaAnimate, 1, (const GLchar**)&fragmentShaderSourceCode_2, NULL);
@@ -442,9 +449,7 @@ void initKrishnaAnimate()
 	gShaderProgramObject_2_krishnaAnimate = glCreateProgram();
 
 	glAttachShader(gShaderProgramObject_2_krishnaAnimate, gVertexShaderObject_krishnaAnimate);
-
 	glAttachShader(gShaderProgramObject_2_krishnaAnimate, gGeometryShaderObject_2_krishnaAnimate);
-
 	glAttachShader(gShaderProgramObject_2_krishnaAnimate, gFragmentShaderObject_2_krishnaAnimate);
 
 	glBindAttribLocation(gShaderProgramObject_2_krishnaAnimate, MATRIX_ATTRIBUTE_POSITION, "vPosition");
@@ -457,8 +462,8 @@ void initKrishnaAnimate()
 	checkLinkLog((char*)"gShaderProgramObject_2_krishnaAnimate", gShaderProgramObject_2_krishnaAnimate);
 
 
-	gModelMatrixUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_2_krishnaAnimate, "u_model_matrix");
-	gViewMatrixUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_2_krishnaAnimate, "u_view_matrix");
+	gModelMatrixUniform_krishnaAnimate		= glGetUniformLocation(gShaderProgramObject_2_krishnaAnimate, "u_model_matrix");
+	gViewMatrixUniform_krishnaAnimate		= glGetUniformLocation(gShaderProgramObject_2_krishnaAnimate, "u_view_matrix");
 	gProjectionMatrixUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_2_krishnaAnimate, "u_projection_matrix");
 
 	gLKeyPressedUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_2_krishnaAnimate, "u_LKeyPressed");
@@ -471,16 +476,16 @@ void initKrishnaAnimate()
 	gKsUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_2_krishnaAnimate, "u_Ks");
 	gKaUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_2_krishnaAnimate, "u_Ka");
 
-	gLightPositionUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_2_krishnaAnimate, "u_light_position");
-	gMaterialShininessUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_2_krishnaAnimate, "u_material_shininess");
+	gLightPositionUniform_krishnaAnimate		= glGetUniformLocation(gShaderProgramObject_2_krishnaAnimate, "u_light_position");
+	gMaterialShininessUniform_krishnaAnimate	= glGetUniformLocation(gShaderProgramObject_2_krishnaAnimate, "u_material_shininess");
 
 	gTextureSamplerUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_2_krishnaAnimate, "u_texture0_sampler");
 
-	gTextureActiveUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_2_krishnaAnimate, "u_is_texture");
-	gAlphaUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_2_krishnaAnimate, "u_alpha");
+	gTextureActiveUniform_krishnaAnimate	= glGetUniformLocation(gShaderProgramObject_2_krishnaAnimate, "u_is_texture");
+	gAlphaUniform_krishnaAnimate			= glGetUniformLocation(gShaderProgramObject_2_krishnaAnimate, "u_alpha");
 
 	gTimeUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_2_krishnaAnimate, "time");
-
+#pragma endregion
 
 }
 
@@ -511,27 +516,34 @@ void initialize_krishnaAnimate()
 
 void display_krishnaAnimate()
 {
-
-
-	if (ftime_krishnaAnimate < 0.01)
+	if (startJoin_krishnaAnimate)
 	{
-		glUseProgram(0);
-		glUseProgram(gShaderProgramObject_krishnaAnimate);
+		if (ftime_krishnaAnimate < 0.1f)
+		{
+			glUseProgram(0);
+			glUseProgram(gShaderProgramObject_krishnaAnimate);
+		}
+		else
+		{
+			glUseProgram(0);
+			glUseProgram(gShaderProgramObject_2_krishnaAnimate);
+		
+			glEnable(GL_ALPHA_TEST);
+			glAlphaFunc(GL_NOTEQUAL, 0);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+			glEnable(GL_POINT_SMOOTH);
+			glPointSize(2.0);
+		}
+		gfKrishnaModelScale = 250.0f;
 	}
 	else
 	{
+		gfKrishnaModelScale = 70.0f;
 		glUseProgram(0);
-		glUseProgram(gShaderProgramObject_2_krishnaAnimate);
-
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_NOTEQUAL, 0);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-		glEnable(GL_POINT_SMOOTH);
-		glPointSize(2.5);
+		glUseProgram(gShaderProgramObject_krishnaAnimate);
 	}
-
 
 	glUniform1i(gLKeyPressedUniform_krishnaAnimate, 1);
 
@@ -539,38 +551,29 @@ void display_krishnaAnimate()
 	glUniform3fv(gLaUniform_krishnaAnimate, 1, lightAmbient_krishnaAnimate);
 	glUniform3fv(gLsUniform_krishnaAnimate, 1, lightSpecular_krishnaAnimate);
 	glUniform4fv(gLightPositionUniform_krishnaAnimate, 1, lightPosition_krishnaAnimate);
+	
 
-
-	mat4 modelMatrix = mat4::identity();
-
-	//mat4 viewMatrix = mat4::identity();
-	mat4 scaleMatrix = mat4::identity();
-	mat4 rotateMatrix = mat4::identity();
+	mat4 modelMatrix	 = mat4::identity();
+	//mat4 viewMatrix	= mat4::identity();
+	mat4 scaleMatrix	= mat4::identity();
+	mat4 rotateMatrix	= mat4::identity();
 
 	//gViewMatrix = lookat(vmath_camera_eye_coord, vmath_camera_center_coord, vmath_camera_up_coord);
 	glUniformMatrix4fv(gViewMatrixUniform_krishnaAnimate, 1, GL_FALSE, gViewMatrix);
-	modelMatrix = vmath::translate(0.0f, 0.0f, -2.0f);
-
 	glUniformMatrix4fv(gProjectionMatrixUniform_krishnaAnimate, 1, GL_FALSE, gPerspectiveProjectionMatrix);
 
-
+	
 	// KRISHNA MODEL
-	modelMatrix = mat4::identity();
-	scaleMatrix = mat4::identity();
-	modelMatrix = vmath::translate(-300.0f, 55.0f, 1.0f);
-	if (startJoin_krishnaAnimate)
-	{
-		gfKrishnaModelScale = 250.0f;
-	}
-	else
-	{
-		gfKrishnaModelScale = 70.0f;
-	}
-	scaleMatrix = scale(gfKrishnaModelScale, gfKrishnaModelScale, gfKrishnaModelScale);
-	rotateMatrix = rotate(90.0f, 0.0f, 1.0f, 0.0f);
-
+	modelMatrix		= mat4::identity();
+	scaleMatrix		= mat4::identity();
+	modelMatrix		= vmath::translate(-300.0f, 55.0f, 1.0f);
+	//modelMatrix		= vmath::translate(-300.0f, 120.0f, 1.0f);
+	
+	scaleMatrix		= scale(gfKrishnaModelScale, gfKrishnaModelScale, gfKrishnaModelScale);
+	rotateMatrix	= rotate(90.0f, 0.0f, 1.0f, 0.0f);
+	
 	modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
-
+	
 	glUniformMatrix4fv(gModelMatrixUniform_krishnaAnimate, 1, GL_FALSE, modelMatrix);
 	glUniform1f(gTimeUniform_krishnaAnimate, ftime_krishnaAnimate);
 
@@ -603,90 +606,18 @@ void display_krishnaAnimate()
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
 	glDisable(GL_POINT_SMOOTH);
-
+	
 }
 
 void update_krishnaAnimate()
 {
-	if (Done_krishnaAnimate == false)
+	if (startJoin_krishnaAnimate)
 	{
-		if (exploded_krishnaAnimate && startJoin_krishnaAnimate)
+		if (ftime_krishnaAnimate > 0.0f)
 		{
-
-			ftime_krishnaAnimate = ftime_krishnaAnimate - 0.01f;
-			if (ftime_krishnaAnimate < 0.0f)
-			{
-				ftime_krishnaAnimate = 0.0f;
-				exploded_krishnaAnimate = false;
-				Done_krishnaAnimate = true;
-				startExplode_krishnaAnimate = false;
-			}
-		}
-		else
-		{
-			if (startExplode_krishnaAnimate)
-			{
-				ftime_krishnaAnimate = ftime_krishnaAnimate + 0.1f;
-				if (ftime_krishnaAnimate >= 20.0f)
-				{
-					ftime_krishnaAnimate = 20.0f;
-					exploded_krishnaAnimate = true;
-				}
-
-			}
+			ftime_krishnaAnimate = ftime_krishnaAnimate - 0.3f;
 		}
 	}
-
-
-	/*
-	if (gbIsAnimate)
-	{
-		if (gfKrishnaModelScale < 250.0f)
-		{
-			gfKrishnaModelScale = 250.0f;
-			//gfKrishnaModelScale = gfKrishnaModelScale + 1.0f;
-		}
-	}
-	if (gbStartCamera)
-	{
-
-		//if (vmath_camera_eye_coord[0] < 20.0f && vmath_camera_eye_coord[1] < 840.0f && vmath_camera_center_coord[1] < 1270.0f && gbZoomOutForFullView == false)
-		if (vmath_camera_eye_coord[0] < 20.0f && vmath_camera_eye_coord[1] < 820.0f && vmath_camera_center_coord[1] < 1270.0f && gbZoomOutForFullView == false)
-		{
-			vmath_camera_eye_coord[0]		= vmath_camera_eye_coord[0]		+ ((40.0f	+ 20.0f)	/ 2000.0f);				// -40: inital, 20 : final, 1000 number of steps
-			vmath_camera_eye_coord[1]		= vmath_camera_eye_coord[1]		+ ((820.0f	- 180.0f)	/ 2000.0f);			// 840 : final, 180 : initial
-			vmath_camera_center_coord[1]	= vmath_camera_center_coord[1]	+ ((1270.0f - 200.0f)	/ 2000.0f);		// 1270.0f : final, 200 : initial
-		}
-		else
-		{
-			gbZoomOutForFullView = true;
-		}
-
-		if (gbZoomOutForFullView == true)
-		{
-
-			if (vmath_camera_eye_coord[0] < 480.0f)
-			{
-				vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + ((480.0f - 20.0f) / 1000.0f);			// 20.0f is old position , 480.0f is new, so old position to final position in 1000 steps
-			}
-			if (vmath_camera_eye_coord[1] > 20.0f)
-			{
-				vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] - ((840.0f - 20.0f) / 1000.0f);
-			}
-			if (vmath_camera_eye_coord[2] > -340.50f)
-			{
-				vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] - ((340.50f - 1.0f) / 1000.0f);				// 1 old postion, 11 new position
-			}
-
-			if (vmath_camera_center_coord[1] > 1030.0f)
-			{
-				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - ((1270.0f - 1030.0f) / 1000.0f);
-			}
-
-		}
-
-	}
-	*/
 }
 
 void uninitialize_krishnaAnimate()

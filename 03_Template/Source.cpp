@@ -5,7 +5,7 @@
 #include "Scene/PerFragment.h"
 #include "Scene/Light/PointLight.h"
 #include"Scene/Fire/Fire.h"
-#include"Scene/KrishnaAnimate/KrishnaAnimate.h"
+#include"Scene/KrishnaAnimate/KrishnaAnimate2.h"
 
 
 // Callback
@@ -316,6 +316,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			fprintf(gpFile, "center coodinates :  %f     , %f     , %f  \n", vmath_camera_center_coord[0], vmath_camera_center_coord[1], vmath_camera_center_coord[2]);
 			fprintf(gpFile, "up coodinates     :  %f     , %f     , %f  \n", vmath_camera_up_coord[0], vmath_camera_up_coord[1], vmath_camera_up_coord[2]);
 			fprintf(gpFile, "___________________________________________________ \n");
+			fprintf(gpFile, "ftime_krishnaAnimate : %f \n", ftime_krishnaAnimate);
+			fprintf(gpFile, "___________________________________________________ \n");
 			fflush(gpFile);
 			break;
 
@@ -360,6 +362,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			vmath_camera_center_coord[2] = 0.0f;
 			
 			gbStartCamera	= !gbStartCamera;
+			startJoin_krishnaAnimate = true;
+			ftime_krishnaAnimate = 1250.0f;
 			break;
 
 		case 'q':
@@ -382,6 +386,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 		case 'R':
 		case 'r':
+			
 			startJoin_krishnaAnimate = true;
 			DoneFlag_krishnaAnimate  = !DoneFlag_krishnaAnimate;
 			break;
@@ -491,9 +496,6 @@ int initialize(void)
 	Clothintialize();
 
 	initialize_fire();
-
-
-
 
 	// ................................................................................................
 	//
@@ -611,7 +613,6 @@ void uninitialize(int i_Exit_Flag)
 
 	uninitialize_perFragmentLight();
 	uninitialize_pointLight();
-
 	uninitialize_krishnaAnimate();
 
 	//Clothunintialize();
