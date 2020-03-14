@@ -495,10 +495,6 @@ void initialize_krishnaAnimate()
 {
 	initKrishnaAnimate();
 
-	//initSphereShape();
-
-	LoadAllModels();
-
 	glShadeModel(GL_SMOOTH);
 
 	glClearDepth(1.0f);
