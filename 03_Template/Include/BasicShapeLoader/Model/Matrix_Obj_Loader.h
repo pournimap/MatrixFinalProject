@@ -26,6 +26,8 @@ Model gModel_Krishna_Seated;
 Model gModel_KrishnaChair;
 Model gModel_OtherChair;
 
+Model gModel_Mashal;
+
 void LoadAllModels()
 {
 
@@ -231,6 +233,48 @@ void LoadAllModels()
 	glGenBuffers(1, &gVbo_Model_Texture);
 	glBindBuffer(GL_ARRAY_BUFFER, gVbo_Model_Texture);
 	glBufferData(GL_ARRAY_BUFFER, gModel_OtherChair.model_textures.size() * sizeof(float), &gModel_OtherChair.model_textures[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(MATRIX_ATTRIBUTE_TEXTURE0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_TEXTURE0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindVertexArray(0);
+	
+	
+	
+	/*****************Mashal Model*****************/
+	std::string MashalModelFilePath = "Resources/Mashal/Mashal.obj";
+
+	LoadMeshData(MashalModelFilePath.c_str(), gModel_Mashal.model_vertices, gModel_Mashal.model_textures, gModel_Mashal.model_normals, gModel_Mashal.model_mesh_data, gModel_Mashal.model_materialFileName);
+
+	LoadMaterialData(gModel_Mashal.model_materialFileName, gModel_Mashal.model_material);
+
+	Rearrange_Material_Data(gModel_Mashal.model_mesh_data, gModel_Mashal.model_material);
+
+
+	/*****************VAO For Model*****************/
+	glGenVertexArrays(1, &gModel_Mashal.Vao);
+	glBindVertexArray(gModel_Mashal.Vao);
+
+	/*****************Model Position****************/
+	glGenBuffers(1, &gVbo_Model_Position);
+	glBindBuffer(GL_ARRAY_BUFFER, gVbo_Model_Position);
+	glBufferData(GL_ARRAY_BUFFER, gModel_Mashal.model_vertices.size() * sizeof(float), &gModel_Mashal.model_vertices[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(MATRIX_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_POSITION);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	/*****************Model Color****************/
+	glGenBuffers(1, &gVbo_Model_Normal);
+	glBindBuffer(GL_ARRAY_BUFFER, gVbo_Model_Normal);
+	glBufferData(GL_ARRAY_BUFFER, gModel_Mashal.model_normals.size() * sizeof(float), &gModel_Mashal.model_normals[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(MATRIX_ATTRIBUTE_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_NORMAL);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	/*******************Texture******************/
+	glGenBuffers(1, &gVbo_Model_Texture);
+	glBindBuffer(GL_ARRAY_BUFFER, gVbo_Model_Texture);
+	glBufferData(GL_ARRAY_BUFFER, gModel_Mashal.model_textures.size() * sizeof(float), &gModel_Mashal.model_textures[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(MATRIX_ATTRIBUTE_TEXTURE0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_TEXTURE0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
