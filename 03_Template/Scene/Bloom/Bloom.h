@@ -1,8 +1,6 @@
 #pragma once
 
-bool bPause = false;
-bool bShowBloom = false;
-bool bBloomIsActive = false;
+bool bShowBloom_bloom = true;
 
 enum {
 	MAX_SCENE_WIDTH = 2048,
@@ -14,12 +12,7 @@ GLsizei currentHeight;
 
 struct {
 	struct {
-		GLuint bloom_thresh_min;
-		GLuint bloom_thresh_max;
-	} scene;
-
-	struct {
-		GLuint exposure;
+		GLuint exposure_bloom;
 		GLuint bloom_factor;
 		GLuint scene_factor;
 	} resolve;
@@ -27,43 +20,25 @@ struct {
 
 float bloomFactor = 1.5f;
 
-GLuint uboMaterial;
-GLuint uboTransform;
-
-GLuint mvpMatrixFramebufferQuadDisplay;
-GLuint vao_quad_framebuffer_display;
-GLuint vbo_quad_framebuffer_display;
-
-GLuint mvpUniform;
 GLuint bloomIsActiveUniform;
 
-GLuint vao_pyramid;	
-GLuint vao_cube;
+GLuint render_fbo_bloom;
+GLuint gaussian_blur_fbo_bloom[2];
 
-GLuint vbo_position_pyramid;
-GLuint vbo_color_pyramid;
+GLuint texLUT_bloom;
+GLuint texScene_bloom;
+GLuint texBrightPass_bloom;
+GLuint texDepth_bloom;
+GLuint texGaussianBlur_bloom[2];
 
-GLuint vbo_position_cube;
-GLuint vbo_color_cube;
+GLuint vao_framebuffer_bloom;
 
-GLuint render_fbo;
-GLuint filter_fbo[2];
+float exposure_bloom = 1.0f;
 
-GLuint texLUT;
-GLuint texScene;
-GLuint texBrightPass;
-GLuint texDepth;
-GLuint texFilter[2];
-
-GLuint vao_bloom_framebuffer;
-
-int mode = 0;
-float exposure = 1.0f;
-
-GLuint hdrBloomSceneShaderProgramObject;
-GLuint hdrBloomFilterShaderProgramObject;
-GLuint hdrBloomXFilterShaderProgramObject;
-GLuint hdrBloomResolveShaderProgramObject;
+GLuint ShaderProgramObject_hdrBloomScene;
+GLuint ShaderProgramObject_GaussianBlur_Y_Direction;
+GLuint ShaderProgramObject_GaussianBlur_X_Direction;
+GLuint ShaderProgramObject_Final_Display_Resolution;
 
 void initializeBloom(void) {
 	// Shader Objects
@@ -133,26 +108,23 @@ void initializeBloom(void) {
 	checkCompilationLog("hdrBloomSceneFragmentShaderObject", hdrBloomSceneFragmentShaderObject);
 
 	// ****** HDRBloom Scene Shader Program Object ******
-	hdrBloomSceneShaderProgramObject = glCreateProgram();
+	ShaderProgramObject_hdrBloomScene = glCreateProgram();
 
-	glAttachShader(hdrBloomSceneShaderProgramObject, hdrBloomSceneVertexShaderObject);
-	glAttachShader(hdrBloomSceneShaderProgramObject, hdrBloomSceneFragmentShaderObject);
+	glAttachShader(ShaderProgramObject_hdrBloomScene, hdrBloomSceneVertexShaderObject);
+	glAttachShader(ShaderProgramObject_hdrBloomScene, hdrBloomSceneFragmentShaderObject);
 
 	// Pre-linking
-	glBindAttribLocation(hdrBloomSceneShaderProgramObject, MATRIX_ATTRIBUTE_POSITION, "vPosition");
-	glBindAttribLocation(hdrBloomSceneShaderProgramObject, MATRIX_ATTRIBUTE_COLOR, "vColor");
+	glBindAttribLocation(ShaderProgramObject_hdrBloomScene, MATRIX_ATTRIBUTE_POSITION, "vPosition");
+	glBindAttribLocation(ShaderProgramObject_hdrBloomScene, MATRIX_ATTRIBUTE_COLOR, "vColor");
 
 	// Link Program
-	glLinkProgram(hdrBloomSceneShaderProgramObject);
+	glLinkProgram(ShaderProgramObject_hdrBloomScene);
 
 	// Link Log
-	checkLinkLog("hdrBloomSceneShaderProgramObject", hdrBloomSceneShaderProgramObject);
+	checkLinkLog("ShaderProgramObject_hdrBloomScene", ShaderProgramObject_hdrBloomScene);
 
 	// Post-linking
-	//uniforms.scene.bloom_thresh_min = glGetUniformLocation(hdrBloomSceneShaderProgramObject, "bloom_thresh_min");
-	//uniforms.scene.bloom_thresh_max = glGetUniformLocation(hdrBloomSceneShaderProgramObject, "bloom_thresh_max");
-	bloomIsActiveUniform = glGetUniformLocation(hdrBloomSceneShaderProgramObject, "u_bloom_is_active");
-	mvpUniform = glGetUniformLocation(hdrBloomSceneShaderProgramObject, "u_mvp_matrix");
+	bloomIsActiveUniform = glGetUniformLocation(ShaderProgramObject_hdrBloomScene, "u_bloom_is_active");
 
 	// **** HDRBloom Filter Vertex Shader *****
 	hdrBloomFilterVertexShaderObject = glCreateShader(GL_VERTEX_SHADER);
@@ -277,30 +249,30 @@ void initializeBloom(void) {
 	checkCompilationLog("hdrBloomXFilterFragmentShaderObject", hdrBloomXFilterFragmentShaderObject);
 
 	// ***** Filter Shader Program Object ****
-	hdrBloomXFilterShaderProgramObject = glCreateProgram();
+	ShaderProgramObject_GaussianBlur_X_Direction = glCreateProgram();
 
 	// Attach Shaders
-	glAttachShader(hdrBloomXFilterShaderProgramObject, hdrBloomFilterVertexShaderObject);
-	glAttachShader(hdrBloomXFilterShaderProgramObject, hdrBloomXFilterFragmentShaderObject);
+	glAttachShader(ShaderProgramObject_GaussianBlur_X_Direction, hdrBloomFilterVertexShaderObject);
+	glAttachShader(ShaderProgramObject_GaussianBlur_X_Direction, hdrBloomXFilterFragmentShaderObject);
 
 	// Link Program
-	glLinkProgram(hdrBloomXFilterShaderProgramObject);
+	glLinkProgram(ShaderProgramObject_GaussianBlur_X_Direction);
 
 	// Error checking
-	checkLinkLog("hdrBloomXFilterShaderProgramObject", hdrBloomXFilterShaderProgramObject);
+	checkLinkLog("ShaderProgramObject_GaussianBlur_X_Direction", ShaderProgramObject_GaussianBlur_X_Direction);
 
 	// ***** Filter Shader Program Object ****
-	hdrBloomFilterShaderProgramObject = glCreateProgram();
+	ShaderProgramObject_GaussianBlur_Y_Direction = glCreateProgram();
 
 	// Attach Shaders
-	glAttachShader(hdrBloomFilterShaderProgramObject, hdrBloomFilterVertexShaderObject);
-	glAttachShader(hdrBloomFilterShaderProgramObject, hdrBloomFilterFragmentShaderObject);
+	glAttachShader(ShaderProgramObject_GaussianBlur_Y_Direction, hdrBloomFilterVertexShaderObject);
+	glAttachShader(ShaderProgramObject_GaussianBlur_Y_Direction, hdrBloomFilterFragmentShaderObject);
 
 	// Link Program
-	glLinkProgram(hdrBloomFilterShaderProgramObject);
+	glLinkProgram(ShaderProgramObject_GaussianBlur_Y_Direction);
 
 	// Error checking
-	checkLinkLog("hdrBloomFilterShaderProgramObject", hdrBloomFilterShaderProgramObject);
+	checkLinkLog("ShaderProgramObject_GaussianBlur_Y_Direction", ShaderProgramObject_GaussianBlur_Y_Direction);
 
 	// ****** HDRBloom Resolve Vertex Shader ******
 	hdrBloomResolveVertexShaderObject = glCreateShader(GL_VERTEX_SHADER);
@@ -361,66 +333,66 @@ void initializeBloom(void) {
 	checkCompilationLog("hdrBloomResolveFragmentShaderObject", hdrBloomResolveFragmentShaderObject);
 
 	// ***** HDRBloom Resolve Shader Program Object *****
-	hdrBloomResolveShaderProgramObject = glCreateProgram();
+	ShaderProgramObject_Final_Display_Resolution = glCreateProgram();
 
 	// Attach shaders
-	glAttachShader(hdrBloomResolveShaderProgramObject, hdrBloomResolveVertexShaderObject);
-	glAttachShader(hdrBloomResolveShaderProgramObject, hdrBloomResolveFragmentShaderObject);
+	glAttachShader(ShaderProgramObject_Final_Display_Resolution, hdrBloomResolveVertexShaderObject);
+	glAttachShader(ShaderProgramObject_Final_Display_Resolution, hdrBloomResolveFragmentShaderObject);
 	
 	// Pre-linking
-	//glBindAttribLocation(hdrBloomResolveShaderProgramObject, MATRIX_ATTRIBUTE_POSITION, "vPosition");
+	//glBindAttribLocation(ShaderProgramObject_Final_Display_Resolution, MATRIX_ATTRIBUTE_POSITION, "vPosition");
 
 	// Link Program
-	glLinkProgram(hdrBloomResolveShaderProgramObject);
+	glLinkProgram(ShaderProgramObject_Final_Display_Resolution);
 
 	// Error checking
-	checkLinkLog("hdrBloomResolveShaderProgramObject", hdrBloomResolveShaderProgramObject);
+	checkLinkLog("ShaderProgramObject_Final_Display_Resolution", ShaderProgramObject_Final_Display_Resolution);
 
 	// Post-linking
-	uniforms.resolve.exposure = glGetUniformLocation(hdrBloomResolveShaderProgramObject, "exposure");
-	//mvpMatrixFramebufferQuadDisplay = glGetUniformLocation(hdrBloomResolveShaderProgramObject, "u_mvp_matrix");
-	uniforms.resolve.bloom_factor = glGetUniformLocation(hdrBloomResolveShaderProgramObject, "bloom_factor");
-	uniforms.resolve.scene_factor = glGetUniformLocation(hdrBloomResolveShaderProgramObject, "scene_factor");
+	uniforms.resolve.exposure_bloom = glGetUniformLocation(ShaderProgramObject_Final_Display_Resolution, "exposure");
+	//mvpMatrixFramebufferQuadDisplay = glGetUniformLocation(ShaderProgramObject_Final_Display_Resolution, "u_mvp_matrix");
+	uniforms.resolve.bloom_factor = glGetUniformLocation(ShaderProgramObject_Final_Display_Resolution, "bloom_factor");
+	uniforms.resolve.scene_factor = glGetUniformLocation(ShaderProgramObject_Final_Display_Resolution, "scene_factor");
 
 	// **** Framebuffer With Two Color Attachment ****
 	static const GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 
-	glGenVertexArrays(1, &vao_bloom_framebuffer);
-	glBindVertexArray(vao_bloom_framebuffer);
+	glGenVertexArrays(1, &vao_framebuffer_bloom);
+	glBindVertexArray(vao_framebuffer_bloom);
 
-	glGenFramebuffers(1, &render_fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo);
+	glGenFramebuffers(1, &render_fbo_bloom);
+	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo_bloom);
 
-	glGenTextures(1, &texScene);
-	glBindTexture(GL_TEXTURE_2D, texScene);
+	glGenTextures(1, &texScene_bloom);
+	glBindTexture(GL_TEXTURE_2D, texScene_bloom);
 	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA16F, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texScene, 0);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texScene_bloom, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	glGenTextures(1, &texBrightPass);
-	glBindTexture(GL_TEXTURE_2D, texBrightPass);
+	glGenTextures(1, &texBrightPass_bloom);
+	glBindTexture(GL_TEXTURE_2D, texBrightPass_bloom);
 	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA16F, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, texBrightPass, 0);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, texBrightPass_bloom, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	glGenTextures(1, &texDepth);
-	glBindTexture(GL_TEXTURE_2D, texDepth);
+	glGenTextures(1, &texDepth_bloom);
+	glBindTexture(GL_TEXTURE_2D, texDepth_bloom);
 	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texDepth, 0);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texDepth_bloom, 0);
 	glDrawBuffers(2, buffers);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Array of Framebuffer Object
-	glGenFramebuffers(2, &filter_fbo[0]);
-	glGenTextures(2, &texFilter[0]);
+	glGenFramebuffers(2, &gaussian_blur_fbo_bloom[0]);
+	glGenTextures(2, &texGaussianBlur_bloom[0]);
 
 	for (int i = 0; i < 2; i++) {
-		glBindFramebuffer(GL_FRAMEBUFFER, filter_fbo[i]);
-		glBindTexture(GL_TEXTURE_2D, texFilter[i]);
+		glBindFramebuffer(GL_FRAMEBUFFER, gaussian_blur_fbo_bloom[i]);
+		glBindTexture(GL_TEXTURE_2D, texGaussianBlur_bloom[i]);
 		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA16F, i ? MAX_SCENE_WIDTH : MAX_SCENE_HEIGHT, i ? MAX_SCENE_HEIGHT : MAX_SCENE_WIDTH);
 		//glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB16F, 4096, 4096);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texFilter[i], 0);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texGaussianBlur_bloom[i], 0);
 		glDrawBuffers(1, buffers);
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -434,8 +406,8 @@ void initializeBloom(void) {
 		1.40f, 1.30f, 1.20f, 1.10f, 1.00f
 	};
 
-	glGenTextures(1, &texLUT);
-	glBindTexture(GL_TEXTURE_1D, texLUT);
+	glGenTextures(1, &texLUT_bloom);
+	glBindTexture(GL_TEXTURE_1D, texLUT_bloom);
 
 	glTexStorage1D(GL_TEXTURE_1D, 1, GL_R32F, 20);
 	glTexSubImage1D(GL_TEXTURE_1D, 0, 0, 20, GL_RED, GL_FLOAT, exposureLUT);
@@ -477,9 +449,7 @@ void applyBloom(void) {
 	static const GLfloat black[] = { 0.0f, 0.0f, 0.0, 1.0f };
 
 	// code
-	bBloomIsActive = true;
-	
-	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo_bloom);
 
 	glClearBufferfv(GL_COLOR, 0, black);	// GL_COLOR_ATTACHMENT0
 	glClearBufferfv(GL_COLOR, 1, black);	// GL_COLOR_ATTACHMENT1
@@ -488,15 +458,8 @@ void applyBloom(void) {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	glUseProgram(hdrBloomSceneShaderProgramObject);
+	glUseProgram(ShaderProgramObject_hdrBloomScene);
 	glUniform1i(bloomIsActiveUniform, (GLint)one);
-
-	glUniform1f(uniforms.scene.bloom_thresh_min, 0.0f);
-	glUniform1f(uniforms.scene.bloom_thresh_max, 2.0f);
-
-	if (!bPause) {
-		t_time += 0.02f;
-	}
 }
 
 void stopApplyingBloom(void) {
@@ -505,38 +468,40 @@ void stopApplyingBloom(void) {
 
 	// code
 	glUseProgram(0);
+	
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glDisable(GL_DEPTH_TEST);
 
-	glUseProgram(hdrBloomFilterShaderProgramObject);
+	glUseProgram(ShaderProgramObject_GaussianBlur_Y_Direction);
 
-	glBindVertexArray(vao_bloom_framebuffer);
+	glBindVertexArray(vao_framebuffer_bloom);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, filter_fbo[0]);
+	glBindFramebuffer(GL_FRAMEBUFFER, gaussian_blur_fbo_bloom[0]);
 	glClearBufferfv(GL_COLOR, 0, black);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texBrightPass);
+	glBindTexture(GL_TEXTURE_2D, texBrightPass_bloom);
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	glUseProgram(hdrBloomXFilterShaderProgramObject);
-	glBindFramebuffer(GL_FRAMEBUFFER, filter_fbo[1]);
+	glUseProgram(ShaderProgramObject_GaussianBlur_X_Direction);
+	glBindFramebuffer(GL_FRAMEBUFFER, gaussian_blur_fbo_bloom[1]);
 	glClearBufferfv(GL_COLOR, 0, black);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texFilter[0]);
+	glBindTexture(GL_TEXTURE_2D, texGaussianBlur_bloom[0]);
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glUseProgram(0);
 
-	glUseProgram(hdrBloomResolveShaderProgramObject);
+	glUseProgram(ShaderProgramObject_Final_Display_Resolution);
 
-	glUniform1f(uniforms.resolve.exposure, exposure);
+	glUniform1f(uniforms.resolve.exposure_bloom, exposure_bloom);
 	glUniform1f(uniforms.resolve.scene_factor, 1.0f);
-	glUniform1f(uniforms.resolve.bloom_factor, bShowBloom ? bloomFactor : 0.0f);
+	glUniform1f(uniforms.resolve.bloom_factor, bShowBloom_bloom ? bloomFactor : 0.0f);
 	
 	//mat4 modelMatrix = mat4::identity();
 	
@@ -544,25 +509,23 @@ void stopApplyingBloom(void) {
 	
 	//glUniformMatrix4fv(mvpMatrixFramebufferQuadDisplay, 1, GL_FALSE, gPerspectiveProjectionMatrix * gViewMatrix * modelMatrix);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glActiveTexture(GL_TEXTURE1);
-	//glBindTexture(GL_TEXTURE_2D, texScene);
-	glBindTexture(GL_TEXTURE_2D, texFilter[1]);
+	//glBindTexture(GL_TEXTURE_2D, texScene_bloom);
+	glBindTexture(GL_TEXTURE_2D, texGaussianBlur_bloom[1]);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texScene);
-	//glBindTexture(GL_TEXTURE_2D, texFilter[1]);
+	glBindTexture(GL_TEXTURE_2D, texScene_bloom);
+	//glBindTexture(GL_TEXTURE_2D, texGaussianBlur_bloom[1]);
 
 	//glBindVertexArray(vao_quad_framebuffer_display);
-	glBindVertexArray(vao_bloom_framebuffer);
+	glBindVertexArray(vao_framebuffer_bloom);
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 	glBindVertexArray(0);
 
 	glUseProgram(0);
-
-	bBloomIsActive = false;
 
 	glClearDepth(1.0f);
 	glDepthFunc(GL_LEQUAL);
@@ -572,50 +535,50 @@ void stopApplyingBloom(void) {
 void uninitializeBloom(void) {
 	// code
 	// Safe Release
-	if (render_fbo) {
-		glDeleteFramebuffers(1, &render_fbo);
-		render_fbo = 0;
+	if (render_fbo_bloom) {
+		glDeleteFramebuffers(1, &render_fbo_bloom);
+		render_fbo_bloom = 0;
 	}
 
-	if (filter_fbo[0]) {
-		glDeleteFramebuffers(2, filter_fbo);
-		filter_fbo[0] = 0;
-		filter_fbo[1] = 0;
+	if (gaussian_blur_fbo_bloom[0]) {
+		glDeleteFramebuffers(2, gaussian_blur_fbo_bloom);
+		gaussian_blur_fbo_bloom[0] = 0;
+		gaussian_blur_fbo_bloom[1] = 0;
 	}
 
-	if (texFilter[0]) {
-		glDeleteTextures(2, texFilter);
-		texFilter[0] = 0;
-		texFilter[1] = 0;
+	if (texGaussianBlur_bloom[0]) {
+		glDeleteTextures(2, texGaussianBlur_bloom);
+		texGaussianBlur_bloom[0] = 0;
+		texGaussianBlur_bloom[1] = 0;
 	}
 
-	if (texDepth) {
-		glDeleteTextures(1, &texDepth);
-		texDepth = 0;
+	if (texDepth_bloom) {
+		glDeleteTextures(1, &texDepth_bloom);
+		texDepth_bloom = 0;
 	}
 
-	if (texBrightPass) {
-		glDeleteTextures(1, &texBrightPass);
-		texBrightPass = 0;
+	if (texBrightPass_bloom) {
+		glDeleteTextures(1, &texBrightPass_bloom);
+		texBrightPass_bloom = 0;
 	}
 
-	if (texScene) {
-		glDeleteTextures(1, &texScene);
-		texScene = 0;
+	if (texScene_bloom) {
+		glDeleteTextures(1, &texScene_bloom);
+		texScene_bloom = 0;
 	}
 
-	if (texLUT) {
-		glDeleteTextures(1, &texLUT);
-		texLUT = 0;
+	if (texLUT_bloom) {
+		glDeleteTextures(1, &texLUT_bloom);
+		texLUT_bloom = 0;
 	}
 
-	if (vao_bloom_framebuffer) {
-		glDeleteVertexArrays(1, &vao_bloom_framebuffer);
-		vao_bloom_framebuffer = 0;
+	if (vao_framebuffer_bloom) {
+		glDeleteVertexArrays(1, &vao_framebuffer_bloom);
+		vao_framebuffer_bloom = 0;
 	}
 
-	programObjectSafeRelease(hdrBloomResolveShaderProgramObject);
-	programObjectSafeRelease(hdrBloomXFilterShaderProgramObject);
-	programObjectSafeRelease(hdrBloomFilterShaderProgramObject);
-	programObjectSafeRelease(hdrBloomSceneShaderProgramObject);
+	programObjectSafeRelease(ShaderProgramObject_Final_Display_Resolution);
+	programObjectSafeRelease(ShaderProgramObject_GaussianBlur_X_Direction);
+	programObjectSafeRelease(ShaderProgramObject_GaussianBlur_Y_Direction);
+	programObjectSafeRelease(ShaderProgramObject_hdrBloomScene);
 }
