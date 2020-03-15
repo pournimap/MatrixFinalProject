@@ -147,7 +147,7 @@ int Clothparticle_width =CLOTHWIDTH_NOOFPARTICLES, Clothparticle_height =CLOTHHE
 float mass = 1.0;
 float3 Clothaccelaration={0.0 * TIME_STEPSIZE2, -0.8 * TIME_STEPSIZE2, 0.05 * TIME_STEPSIZE2};
 
-float3 ClothwindForce = {0.0 * TIME_STEPSIZE2, windForceY * TIME_STEPSIZE2, 0.005 * TIME_STEPSIZE2};
+float3 ClothwindForce = {0.0f * TIME_STEPSIZE2, windForceY * TIME_STEPSIZE2, 0.005f * TIME_STEPSIZE2};
 int widthaddjustment = 0;
 //********* Global function declaration ***********//
 

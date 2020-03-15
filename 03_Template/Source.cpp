@@ -6,6 +6,7 @@
 #include "Scene/Light/PointLight.h"
 #include"Scene/Fire/Fire.h"
 #include"Scene/KrishnaAnimate/KrishnaAnimate2.h"
+#include "Scene/Bloom/Bloom.h"
 
 
 // Callback
@@ -244,6 +245,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	case WM_CHAR:
 		switch (LOWORD(wParam))
 		{
+		case 'B':
+		case 'b':
+			bShowBloom = !bShowBloom;
+			break;
+			
 		case 'F':
 		case 'f':
 			ToggleFullScreen();
@@ -497,6 +503,8 @@ int initialize(void)
 
 	initialize_fire();
 
+	initializeBloom();
+
 	// ................................................................................................
 	//
 	// Initialize your specific scene here above
@@ -528,11 +536,12 @@ void display(void)
 
 	//call your scene Display here
 	display_perFragmentLight();
+	
 	display_pointLight();
 	
-	display_krishnaAnimate();
-	
 	Clothdisplay();
+	
+	display_krishnaAnimate();
 
 	display_fire();
 	
@@ -618,7 +627,9 @@ void uninitialize(int i_Exit_Flag)
 	//Clothunintialize();
 
 	uninitialize_fire();
-
+	
+	uninitializeBloom();
+	
 	// ....................................................................................
 	//
 	// call your scene uninitialize here above
