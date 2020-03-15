@@ -28,3 +28,17 @@ MAIN
  |    |- MP3
  |    |- TEXTURES
 ```
+
+# Bloom Applying Step:
+## PRESS 'B' or 'b' TO START THE BLOOM EFFECT. Its toggling is there in the WndProc function.
+i) Call applyBloom() function.
+ii) Call your object/model rendering immediately after the call to applyBloom().
+iii) Call stopApplyingBloom() at the end of it.
+
+# For e.g., to render a sinhasan,
+=> 	applyBloom();
+	renderSinhasan();
+	stopApplyingBloom();
+Should be the sequence of function calls.	
+	
+

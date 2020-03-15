@@ -1,5 +1,5 @@
 Log File Successfully Created.
-4.6.0 NVIDIA 436.48
+4.6.0 NVIDIA 418.96
 Shading Lang Version : 4.60 NVIDIA 
 Initialization Succeeded.
 Log File Closed Successfully
