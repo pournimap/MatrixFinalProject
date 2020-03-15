@@ -247,7 +247,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		{
 		case 'B':
 		case 'b':
-			bShowBloom = !bShowBloom;
+			bShowBloom_bloom = !bShowBloom_bloom;
 			break;
 			
 		case 'F':
@@ -542,7 +542,7 @@ void display(void)
 	Clothdisplay();
 	
 	display_krishnaAnimate();
-
+	
 	display_fire();
 	
 	SwapBuffers(ghdc);
