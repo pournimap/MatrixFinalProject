@@ -180,8 +180,21 @@ void initPointLightShader()
 		"vec3 pointLightColor;" \
 		
 		"vec3 normalized_transformed_normals=normalize(transformed_normals);" \
-		"vec3 normalized_light_direction=normalize(pointLight[index].position - fragment_position);" \
-		"vec3 normalized_viewer_vector=normalize(viewPos - fragment_position);" \
+		
+		"vec3 normalized_light_direction;" \
+		"vec3 normalized_viewer_vector;" \
+		
+		"if(index > 7)" \
+		"{" \
+		"normalized_light_direction = normalize(pointLight[index].position - fragment_position); " \
+		"normalized_viewer_vector=normalize(viewPos - fragment_position);" \
+		"}" \
+		"else if(index <= 7)" \
+		"{" \
+		"normalized_light_direction = normalize(pointLight[index].position + fragment_position); " \
+		"normalized_viewer_vector=normalize(viewPos + fragment_position);" \
+		"}" \
+		
 		
 		"vec3 ambient = pointLight[index].u_La * u_Ka;" \
 		"float tn_dot_ld = max(dot(normalized_transformed_normals, normalized_light_direction), 0.0);" \
@@ -350,10 +363,10 @@ void initialize_pointLight()
 
 }
 
-vec3 positionLamp[] = { vec3(-250.0f, 300.0f, 700.0f), vec3(320.0f, 300.0f, 700.0f), vec3(900.0f, 300.0f, 700.0f),vec3(1500.0f, 300.0f, 700.0f) , vec3(2100.0f, 300.0f, 700.0f) , vec3(2400.0f, 300.0f, 700.0f) ,
-						vec3(3100.0f, 300.0f, 700.0f) , vec3(3650.0f, 300.0f, 700.0f) ,  
-						vec3(-250.0f, 300.0f, -700.0f), vec3(320.0f, 300.0f, -700.0f), vec3(900.0f, 300.0f, -700.0f),vec3(1500.0f, 300.0f, -700.0f) , vec3(2100.0f, 300.0f, -700.0f) , vec3(2700.0f, 300.0f, -700.0f) ,
-						vec3(3300.0f, 300.0f, -700.0f) , vec3(4000.0f, 300.0f, -700.0f) , };
+vec3 positionLamp[] = { vec3(-250.0f, 400.0f, 750.0f), vec3(320.0f, 400.0f, 750.0f), vec3(850.0f, 400.0f, 750.0f),vec3(1420.0f, 400.0f, 750.0f) , vec3(1950.0f, 400.0f, 750.0f) , vec3(2520.0f, 400.0f, 750.0f) ,
+						vec3(3105.0f, 400.0f, 750.0f) , vec3(3650.0f,400.0f, 750.0f) ,  
+						vec3(-250.0f, 400.0f, -810.0f), vec3(320.0f, 400.0f, -810.0f), vec3(850.0f, 400.0f, -810.0f),vec3(1420.0f, 400.0f, -810.0f) , vec3(2000.0f, 400.0f, -810.0f) , vec3(2570.0f, 400.0f, -810.0f) ,
+						vec3(3100.0f, 400.0f, -810.0f) , vec3(3700.0f, 400.0f, -810.0f) , };
 void display_pointLight()
 {
 	float PI = 3.14;
@@ -561,6 +574,53 @@ void display_pointLight()
 	}
 	glBindVertexArray(0);*/
 
+	//mashal
+	for (int i = 0; i < gNumPointLights_pointLight; i++)
+	{
+		modelMatrix = mat4::identity();
+		scaleMatrix = mat4::identity();
+		rotateMatrix = mat4::identity();
+		
+		scaleMatrix = scale(2.0f, 2.0f, 2.0f);
+		if (i < 8)
+		{
+			modelMatrix = vmath::translate(positionLamp[i][0], positionLamp[i][1] - 65.0f, positionLamp[i][2] + 20.0f);
+			rotateMatrix = rotate(-20.0f, 1.0f, 0.0f, 0.0f);
+		}
+		else
+		{
+			modelMatrix = vmath::translate(positionLamp[i][0], positionLamp[i][1] -65.0f, positionLamp[i][2] - 20.0f);
+			rotateMatrix = rotate(20.0f, 1.0f, 0.0f, 0.0f);
+		}
+		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
+
+		glUniformMatrix4fv(gModelMatrixUniform_pointLight, 1, GL_FALSE, modelMatrix);
+		glBindVertexArray(gModel_Mashal.Vao);
+		for (int i = 0; i < gModel_Mashal.model_mesh_data.size(); i++)
+		{
+			if (gbLight == true)
+			{
+				glUniform3fv(gKaUniform_pointLight, 1, gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].Ka);
+				glUniform3fv(gKdUniform_pointLight, 1, gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].Kd);
+				glUniform3fv(gKsUniform_pointLight, 1, gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].Ks);
+				glUniform1f(gMaterialShininessUniform_pointLight, material_shininess);
+				glUniform1f(gAlphaUniform_pointLight, gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].d);
+				if (gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].ismap_Kd == true)
+				{
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].gTexture);
+					glUniform1i(gTextureSamplerUniform_pointLight, 0);
+					glUniform1i(gTextureActiveUniform_pointLight, 1);
+					
+				}
+				else
+					glUniform1i(gTextureActiveUniform_pointLight, 0);
+			}
+			glDrawArrays(GL_TRIANGLES, gModel_Mashal.model_mesh_data[i].vertex_Index, gModel_Mashal.model_mesh_data[i].vertex_Count);
+		}
+		glBindVertexArray(0);
+	}
+	//*/
 
 	for (int i = 0; i < gNumPointLights_pointLight; i++)
 	{
@@ -569,7 +629,7 @@ void display_pointLight()
 		rotateMatrix = mat4::identity();
 
 		modelMatrix = vmath::translate(positionLamp[i]);
-		scaleMatrix = scale(10.0f, 10.0f, 10.0f);
+		scaleMatrix = scale(5.0f, 5.0f, 5.0f);
 		//if(i < 8)
 		//rotateMatrix = rotate(180.0f, 0.0f, 0.0f, 1.0f);
 
