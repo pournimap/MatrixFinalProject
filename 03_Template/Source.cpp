@@ -5,7 +5,7 @@
 #include "Scene/PerFragment.h"
 #include "Scene/Light/PointLight.h"
 #include"Scene/Fire/Fire.h"
-#include"Scene/KrishnaAnimate/KrishnaAnimate4.h"
+#include"Scene/KrishnaAnimate/KrishnaAnimate5.h"
 #include "Scene/Bloom/Bloom.h"
 
 
@@ -369,7 +369,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			
 			gbStartCamera	= !gbStartCamera;
 			startJoin_krishnaAnimate = true;
-			ftime_krishnaAnimate = 1250.0f;
+			//ftime_krishnaAnimate = 1250.0f;
 			break;
 
 		case 'q':
@@ -385,16 +385,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		
 		case 'E':
 		case 'e':
-			Done_krishnaAnimate			= false;
-			startExplode_krishnaAnimate = true;
-			startJoin_krishnaAnimate	= false;
+			//Done_krishnaAnimate			= false;
+			//startExplode_krishnaAnimate = true;
+			//startJoin_krishnaAnimate	= false;
 			break;
 
 		case 'R':
 		case 'r':
 			
-			startJoin_krishnaAnimate = true;
-			DoneFlag_krishnaAnimate  = !DoneFlag_krishnaAnimate;
+			//startJoin_krishnaAnimate = true;
+			//DoneFlag_krishnaAnimate  = !DoneFlag_krishnaAnimate;
 			break;
 
 
