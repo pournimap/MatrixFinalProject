@@ -535,10 +535,12 @@ void display(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//call your scene Display here
+
 	display_perFragmentLight();
 	
 	display_pointLight();
 	
+
 	Clothdisplay();
 	
 	display_krishnaAnimate();
