@@ -7,6 +7,7 @@
 #include"Scene/Fire/Fire.h"
 #include"Scene/KrishnaAnimate/KrishnaAnimate5.h"
 #include "Scene/Bloom/Bloom.h"
+#include "Scene/DepthOfField/DepthOfField.h"
 
 
 // Callback
@@ -169,6 +170,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_SIZE:
+		currentWidth = LOWORD(lParam);
+		currentHeight = HIWORD(lParam);
+	
 		resize(LOWORD(lParam), HIWORD(lParam));
 		break;
 
@@ -245,6 +249,26 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	case WM_CHAR:
 		switch (LOWORD(wParam))
 		{
+		case '2':
+		//case 'q':
+			focal_distance *= 1.1f;
+			break;
+
+		case '1':
+		//case 'a':
+			focal_distance /= 1.1f;
+			break;
+
+		case '0':
+		//case 'w':
+			focal_depth *= 1.1f;
+			break; 
+		
+		case '9':
+		//	case 's':
+			focal_depth /= 1.1f;
+			break;
+			
 		case 'B':
 		case 'b':
 			bShowBloom_bloom = !bShowBloom_bloom;
@@ -324,6 +348,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			fprintf(gpFile, "___________________________________________________ \n");
 			fprintf(gpFile, "ftime_krishnaAnimate : %f \n", ftime_krishnaAnimate);
 			fprintf(gpFile, "___________________________________________________ \n");
+			
+			fprintf(gpFile, "Depth Of Field Variables: \n");
+			fprintf(gpFile, "____________________________________________________\n");
+			fprintf(gpFile, "focal_distance: %f\n", focal_distance);
+			fprintf(gpFile, "focal_depth: %f\n", focal_depth);
+			fprintf(gpFile, "____________________________________________________\n");
+			
 			fflush(gpFile);
 			break;
 
@@ -504,6 +535,8 @@ int initialize(void)
 	initialize_fire();
 
 	initializeBloom();
+	
+	initializeDepthOfField();
 
 	// ................................................................................................
 	//
@@ -536,6 +569,8 @@ void display(void)
 
 	//call your scene Display here
 
+	applyDOF();
+	
 	display_perFragmentLight();
 	
 	display_pointLight();
@@ -546,6 +581,8 @@ void display(void)
 	display_krishnaAnimate();
 	
 	display_fire();
+	
+	stopApplyingDOF();
 	
 	SwapBuffers(ghdc);
 }
@@ -631,6 +668,8 @@ void uninitialize(int i_Exit_Flag)
 	uninitialize_fire();
 	
 	uninitializeBloom();
+	
+	uninitializeDOF();
 	
 	// ....................................................................................
 	//

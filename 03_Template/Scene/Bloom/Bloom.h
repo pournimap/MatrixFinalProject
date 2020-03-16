@@ -4,11 +4,12 @@ bool bShowBloom_bloom = true;
 
 enum {
 	MAX_SCENE_WIDTH = 2048,
-	MAX_SCENE_HEIGHT = 2048
+	MAX_SCENE_HEIGHT = 2048,
+	FBO_SIZE = 2048
 };
 
-GLsizei currentWidth;
-GLsizei currentHeight;
+//GLsizei currentWidth;
+//GLsizei currentHeight;
 
 struct {
 	struct {
