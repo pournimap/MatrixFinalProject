@@ -5,9 +5,10 @@
 #include "Arrange_Material.h"
 
 
+
 GLuint gVbo_Model_Position, gVbo_Model_Normal, gVbo_Model_Texture;
 
-struct Model
+struct Model_Obj
 {
 	GLuint Vao;
 	std::vector<float> model_vertices;
@@ -18,15 +19,16 @@ struct Model
 	char model_materialFileName[256];
 };
 
-Model gModel_Mahal;
+Model_Obj gModel_Mahal;
 
-Model gModel_Krishna;
-Model gModel_Krishna_Seated;
+Model_Obj gModel_Krishna;
+Model_Obj gModel_Krishna_Seated;
 
-Model gModel_KrishnaChair;
-Model gModel_OtherChair;
+Model_Obj gModel_KrishnaChair;
+Model_Obj gModel_OtherChair;
 
-Model gModel_Mashal;
+Model_Obj gModel_Mashal;
+
 
 void LoadAllModels()
 {

@@ -1,4 +1,6 @@
 #include "Include/Common_Header.h"
+
+
 #include "Include/BasicShapeLoader/Shapes/Matrix_BasicShapes.h"
 
 //Add your header files here
@@ -6,18 +8,22 @@
 #include "Scene/Light/PointLight.h"
 #include"Scene/Fire/Fire.h"
 #include"Scene/KrishnaAnimate/KrishnaAnimate5.h"
+#include"Scene/KrishnaAnimate/KrishnaAnimationUsingAssimp.h"
 #include "Scene/Bloom/Bloom.h"
 #include "Scene/DepthOfField/DepthOfField.h"
+
 
 
 // Callback
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-uint64_t initTime, initFrequency, changingTime;
 
 extern int Clothintialize();
 extern void Clothdisplay();
 extern void Clothunintialize(void);
+
+
+bool isAssimpAnimatedModelShow = false;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
 {
@@ -428,7 +434,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			//DoneFlag_krishnaAnimate  = !DoneFlag_krishnaAnimate;
 			break;
 
-
+		case 'Y':
+		case 'y':
+			isAssimpAnimatedModelShow = !isAssimpAnimatedModelShow;
+			break;
+		case 'z':
+		case 'Z':
+			isModelAnimationStart = !isModelAnimationStart;
+			break;
 		default:
 			break;
 		}
@@ -529,6 +542,8 @@ int initialize(void)
 	initialize_pointLight();
 	
 	initialize_krishnaAnimate();
+	initialize_AssimpModelLoader();
+	
 
 	Clothintialize();
 
@@ -544,12 +559,9 @@ int initialize(void)
 	//
 	// ................................................................................................
 
-	QueryPerformanceFrequency((LARGE_INTEGER*)&initFrequency);
-
-	QueryPerformanceCounter((LARGE_INTEGER*)&initTime);
-
 	gPerspectiveProjectionMatrix = mat4::identity();
 
+	timer.start();
 	resize(WIN_WIDTH, WIN_HEIGHT);
 
 	return(0);	// for successfull return
@@ -578,7 +590,10 @@ void display(void)
 
 	Clothdisplay();
 	
-	display_krishnaAnimate();
+	if(isAssimpAnimatedModelShow == true)
+		display_AssimpModelLoader();
+	else
+		display_krishnaAnimate();
 	
 	display_fire();
 	
@@ -593,12 +608,6 @@ void update(void)
 	update_perFragmentLight();
 	//update_pointLight();
 	update_krishnaAnimate();
-}
-
-float getTime(void)
-{
-	float time = (float)(QueryPerformanceCounter((LARGE_INTEGER*)&changingTime) - initTime) / initFrequency;
-	return(time);
 }
 
 void resize(int width, int height)
