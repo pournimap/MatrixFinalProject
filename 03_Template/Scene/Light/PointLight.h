@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Include/BasicShapeLoader/Model/Matrix_Obj_Loader.h"
+#include "../../Include/BasicShapeLoader/Model/BasicOBJLoader/Matrix_Obj_Loader.h"
 
 GLuint gVertexShaderObject_pointLight;
 GLuint gFragmentShaderObject_pointLight;

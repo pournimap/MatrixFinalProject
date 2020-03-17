@@ -3,7 +3,7 @@
 #include<stdio.h>
 #include<gl/GL.h>
 #include<vector>
-#include "../../stb/stb_image.h"
+#include "../../../stb/stb_image.h"
 
 #pragma comment(lib,"user32.lib")
 
