@@ -1073,6 +1073,151 @@ void Clothdisplay()
 	
 	//fifth cloth
 	
+	
+	modelMatrix = mat4::identity();
+	
+	translateMatrix = mat4::identity();
+	rotationMatrixX = mat4::identity();
+	rotationMatrixY = mat4::identity();
+	rotationMatrixZ = mat4::identity();
+	scalematrix = mat4::identity();
+	modelViewProjectionMatrix = mat4::identity();
+
+	//Do necessary transformation
+
+	//Do necessary Matrix multiplication
+	translateMatrix = translate(1500.0f, 750.0f, -900.0f);
+	scalematrix = scale(12.0f, 11.0f, 1.0f);
+	
+	translateMatrix = translateMatrix * scalematrix ;
+	modelMatrix = modelMatrix * translateMatrix;
+
+	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);
+	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);
+	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);
+
+
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);		
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
+			
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);		
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
+	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
+	
+	
+	
+	//sixth cloth
+	
+	
+	modelMatrix = mat4::identity();
+	
+	translateMatrix = mat4::identity();
+	rotationMatrixX = mat4::identity();
+	rotationMatrixY = mat4::identity();
+	rotationMatrixZ = mat4::identity();
+	scalematrix = mat4::identity();
+	modelViewProjectionMatrix = mat4::identity();
+
+	//Do necessary transformation
+
+	//Do necessary Matrix multiplication
+	translateMatrix = translate(2100.0f, 750.0f, -900.0f);
+	scalematrix = scale(12.0f, 11.0f, 1.0f);
+	
+	translateMatrix = translateMatrix * scalematrix ;
+	modelMatrix = modelMatrix * translateMatrix;
+
+	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);
+	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);
+	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);
+
+
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);		
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
+			
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);		
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
+	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
+	
+	
+	
+		//seventh cloth
+
+	modelMatrix = mat4::identity();
+	
+	translateMatrix = mat4::identity();
+	rotationMatrixX = mat4::identity();
+	rotationMatrixY = mat4::identity();
+	rotationMatrixZ = mat4::identity();
+	scalematrix = mat4::identity();
+	modelViewProjectionMatrix = mat4::identity();
+
+	//Do necessary transformation
+
+	//Do necessary Matrix multiplication
+	translateMatrix = translate(2600.0f, 750.0f, -900.0f);
+	scalematrix = scale(12.0f, 11.0f, 1.0f);
+	
+	translateMatrix = translateMatrix * scalematrix ;
+	modelMatrix = modelMatrix * translateMatrix;
+
+	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);
+	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);
+	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);
+
+
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);		
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
+			
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);		
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
+	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
+	
+	
+	
+		//eight cloth
+
+	modelMatrix = mat4::identity();
+	
+	translateMatrix = mat4::identity();
+	rotationMatrixX = mat4::identity();
+	rotationMatrixY = mat4::identity();
+	rotationMatrixZ = mat4::identity();
+	scalematrix = mat4::identity();
+	modelViewProjectionMatrix = mat4::identity();
+
+	//Do necessary transformation
+
+	//Do necessary Matrix multiplication
+	translateMatrix = translate(3200.0f, 750.0f, -900.0f);
+	scalematrix = scale(12.0f, 11.0f, 1.0f);
+	
+	translateMatrix = translateMatrix * scalematrix ;
+	modelMatrix = modelMatrix * translateMatrix;
+
+	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);
+	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);
+	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);
+
+
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);		
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
+			
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);		
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
+	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
+	
+	//////////////////////
+	
+	
 	modelMatrix = mat4::identity();
 	
 	translateMatrix = mat4::identity();
@@ -1103,6 +1248,231 @@ void Clothdisplay()
 	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));	
 		
 		
+		//2nd left
+	modelMatrix = mat4::identity();
+	
+	translateMatrix = mat4::identity();
+	rotationMatrixX = mat4::identity();
+	rotationMatrixY = mat4::identity();
+	rotationMatrixZ = mat4::identity();
+	scalematrix = mat4::identity();
+	modelViewProjectionMatrix = mat4::identity();
+
+	//Do necessary transformation
+
+	//Do necessary Matrix multiplication	
+	translateMatrix = translate(200.0f, 750.0f, 900.0f);	
+	scalematrix = scale(12.0f, 11.0f, 1.0f);	
+	rotationMatrixY = rotate(180.0f, 0.0f, 1.0f, 0.0f);	
+	translateMatrix = translateMatrix * scalematrix ;	
+	modelMatrix = modelMatrix * translateMatrix *rotationMatrixY;	
+	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);	
+	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);	
+	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);	
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);			
+	glBindBuffer(GL_ARRAY_BUFFER, 0);	
+		
+				
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);			
+	glBindBuffer(GL_ARRAY_BUFFER, 0);	
+		
+	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));	
+		
+		
+			//3rd left
+	modelMatrix = mat4::identity();
+	
+	translateMatrix = mat4::identity();
+	rotationMatrixX = mat4::identity();
+	rotationMatrixY = mat4::identity();
+	rotationMatrixZ = mat4::identity();
+	scalematrix = mat4::identity();
+	modelViewProjectionMatrix = mat4::identity();
+
+	//Do necessary transformation
+
+	//Do necessary Matrix multiplication	
+	translateMatrix = translate(700.0f, 750.0f, 900.0f);	
+	scalematrix = scale(12.0f, 11.0f, 1.0f);	
+	rotationMatrixY = rotate(180.0f, 0.0f, 1.0f, 0.0f);	
+	translateMatrix = translateMatrix * scalematrix ;	
+	modelMatrix = modelMatrix * translateMatrix *rotationMatrixY;	
+	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);	
+	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);	
+	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);	
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);			
+	glBindBuffer(GL_ARRAY_BUFFER, 0);	
+		
+				
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);			
+	glBindBuffer(GL_ARRAY_BUFFER, 0);	
+		
+	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));	
+	
+	
+	
+	
+			//4rth left
+	modelMatrix = mat4::identity();
+	
+	translateMatrix = mat4::identity();
+	rotationMatrixX = mat4::identity();
+	rotationMatrixY = mat4::identity();
+	rotationMatrixZ = mat4::identity();
+	scalematrix = mat4::identity();
+	modelViewProjectionMatrix = mat4::identity();
+
+	//Do necessary transformation
+
+	//Do necessary Matrix multiplication	
+	translateMatrix = translate(1200.0f, 750.0f, 900.0f);	
+	scalematrix = scale(12.0f, 11.0f, 1.0f);	
+	rotationMatrixY = rotate(180.0f, 0.0f, 1.0f, 0.0f);	
+	translateMatrix = translateMatrix * scalematrix ;	
+	modelMatrix = modelMatrix * translateMatrix *rotationMatrixY;	
+	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);	
+	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);	
+	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);	
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);			
+	glBindBuffer(GL_ARRAY_BUFFER, 0);	
+		
+				
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);			
+	glBindBuffer(GL_ARRAY_BUFFER, 0);	
+		
+	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));	
+		
+		
+		
+		
+				//5th left
+	modelMatrix = mat4::identity();
+	
+	translateMatrix = mat4::identity();
+	rotationMatrixX = mat4::identity();
+	rotationMatrixY = mat4::identity();
+	rotationMatrixZ = mat4::identity();
+	scalematrix = mat4::identity();
+	modelViewProjectionMatrix = mat4::identity();
+
+	//Do necessary transformation
+
+	//Do necessary Matrix multiplication	
+	translateMatrix = translate(1700.0f, 750.0f, 900.0f);	
+	scalematrix = scale(12.0f, 11.0f, 1.0f);	
+	rotationMatrixY = rotate(180.0f, 0.0f, 1.0f, 0.0f);	
+	translateMatrix = translateMatrix * scalematrix ;	
+	modelMatrix = modelMatrix * translateMatrix *rotationMatrixY;	
+	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);	
+	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);	
+	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);	
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);			
+	glBindBuffer(GL_ARRAY_BUFFER, 0);	
+		
+				
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);			
+	glBindBuffer(GL_ARRAY_BUFFER, 0);	
+		
+	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));	
+	
+	
+	
+	
+			//6th left
+	modelMatrix = mat4::identity();
+	
+	translateMatrix = mat4::identity();
+	rotationMatrixX = mat4::identity();
+	rotationMatrixY = mat4::identity();
+	rotationMatrixZ = mat4::identity();
+	scalematrix = mat4::identity();
+	modelViewProjectionMatrix = mat4::identity();
+
+	//Do necessary transformation
+
+	//Do necessary Matrix multiplication	
+	translateMatrix = translate(2200.0f, 750.0f, 900.0f);	
+	scalematrix = scale(12.0f, 11.0f, 1.0f);	
+	rotationMatrixY = rotate(180.0f, 0.0f, 1.0f, 0.0f);	
+	translateMatrix = translateMatrix * scalematrix ;	
+	modelMatrix = modelMatrix * translateMatrix *rotationMatrixY;	
+	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);	
+	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);	
+	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);	
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);			
+	glBindBuffer(GL_ARRAY_BUFFER, 0);	
+		
+				
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);			
+	glBindBuffer(GL_ARRAY_BUFFER, 0);	
+		
+	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));	
+	
+	
+	
+			//7th left
+	modelMatrix = mat4::identity();
+	
+	translateMatrix = mat4::identity();
+	rotationMatrixX = mat4::identity();
+	rotationMatrixY = mat4::identity();
+	rotationMatrixZ = mat4::identity();
+	scalematrix = mat4::identity();
+	modelViewProjectionMatrix = mat4::identity();
+
+	//Do necessary transformation
+
+	//Do necessary Matrix multiplication	
+	translateMatrix = translate(2700.0f, 750.0f, 900.0f);	
+	scalematrix = scale(12.0f, 11.0f, 1.0f);	
+	rotationMatrixY = rotate(180.0f, 0.0f, 1.0f, 0.0f);	
+	translateMatrix = translateMatrix * scalematrix ;	
+	modelMatrix = modelMatrix * translateMatrix *rotationMatrixY;	
+	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);	
+	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);	
+	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);	
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);			
+	glBindBuffer(GL_ARRAY_BUFFER, 0);	
+		
+				
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);			
+	glBindBuffer(GL_ARRAY_BUFFER, 0);	
+		
+	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
+
+
+
+
+		//6th left
+	modelMatrix = mat4::identity();
+	
+	translateMatrix = mat4::identity();
+	rotationMatrixX = mat4::identity();
+	rotationMatrixY = mat4::identity();
+	rotationMatrixZ = mat4::identity();
+	scalematrix = mat4::identity();
+	modelViewProjectionMatrix = mat4::identity();
+
+	//Do necessary transformation
+
+	//Do necessary Matrix multiplication	
+	translateMatrix = translate(3200.0f, 750.0f, 900.0f);	
+	scalematrix = scale(12.0f, 11.0f, 1.0f);	
+	rotationMatrixY = rotate(180.0f, 0.0f, 1.0f, 0.0f);	
+	translateMatrix = translateMatrix * scalematrix ;	
+	modelMatrix = modelMatrix * translateMatrix *rotationMatrixY;	
+	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);	
+	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);	
+	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);	
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);			
+	glBindBuffer(GL_ARRAY_BUFFER, 0);	
+		
+				
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);			
+	glBindBuffer(GL_ARRAY_BUFFER, 0);	
+		
+	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));		
+		//////////////////////////////////////////////////////
 	//Front cloth , Stage cloth , Center cloth	
 		
 	modelMatrix = mat4::identity();	

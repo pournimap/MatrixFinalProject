@@ -18,7 +18,7 @@ GLuint gLKeyPressedUniform_pointLight;
 GLuint gTextureSamplerUniform_pointLight, gTextureActiveUniform_pointLight, gAlphaUniform_pointLight;
 GLuint gViewPosUniform_pointLight, gNumPointLightsUniform_pointLight;
 
-#define gNumPointLights_pointLight  16
+#define gNumPointLights_pointLight  18
 struct PointLightUniform
 {
 	GLuint u_La;
@@ -152,7 +152,7 @@ void initPointLightShader()
 		"};" \
 		
 		"uniform int gNumPointLights;" \
-		"uniform PointLight pointLight[16];" \
+		"uniform PointLight pointLight[18];" \
 		"uniform vec3 viewPos;" \
 	
 		"in vec3 transformed_normals;" \
@@ -184,12 +184,12 @@ void initPointLightShader()
 		"vec3 normalized_light_direction;" \
 		"vec3 normalized_viewer_vector;" \
 		
-		"if(index > 7)" \
+		"if(index > 8)" \
 		"{" \
 		"normalized_light_direction = normalize(pointLight[index].position - fragment_position); " \
 		"normalized_viewer_vector=normalize(viewPos - fragment_position);" \
 		"}" \
-		"else if(index <= 7)" \
+		"else if(index <= 8)" \
 		"{" \
 		"normalized_light_direction = normalize(pointLight[index].position + fragment_position); " \
 		"normalized_viewer_vector=normalize(viewPos + fragment_position);" \
@@ -363,9 +363,9 @@ void initialize_pointLight()
 
 }
 
-vec3 positionLamp[] = { vec3(-250.0f, 400.0f, 750.0f), vec3(320.0f, 400.0f, 750.0f), vec3(850.0f, 400.0f, 750.0f),vec3(1420.0f, 400.0f, 750.0f) , vec3(1950.0f, 400.0f, 750.0f) , vec3(2520.0f, 400.0f, 750.0f) ,
+vec3 positionLamp[] = { vec3(-720.0f, 600.0f, 750.0f), vec3(-250.0f, 400.0f, 750.0f), vec3(320.0f, 400.0f, 750.0f), vec3(850.0f, 400.0f, 750.0f),vec3(1420.0f, 400.0f, 750.0f) , vec3(1950.0f, 400.0f, 750.0f) , vec3(2520.0f, 400.0f, 750.0f) ,
 						vec3(3105.0f, 400.0f, 750.0f) , vec3(3650.0f,400.0f, 750.0f) ,  
-						vec3(-250.0f, 400.0f, -810.0f), vec3(320.0f, 400.0f, -810.0f), vec3(850.0f, 400.0f, -810.0f),vec3(1420.0f, 400.0f, -810.0f) , vec3(2000.0f, 400.0f, -810.0f) , vec3(2570.0f, 400.0f, -810.0f) ,
+						vec3(-750.0f, 600.0f, -810.0f), vec3(-250.0f, 400.0f, -810.0f), vec3(320.0f, 400.0f, -810.0f), vec3(850.0f, 400.0f, -810.0f),vec3(1420.0f, 400.0f, -810.0f) , vec3(2000.0f, 400.0f, -810.0f) , vec3(2570.0f, 400.0f, -810.0f) ,
 						vec3(3100.0f, 400.0f, -810.0f) , vec3(3700.0f, 400.0f, -810.0f) , };
 void display_pointLight()
 {
