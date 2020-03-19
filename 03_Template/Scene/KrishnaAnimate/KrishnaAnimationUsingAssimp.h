@@ -116,7 +116,9 @@ void initAssimpModelLoaderShader()
 		"uniform sampler2D u_texture0_sampler;"\
 		"uniform int u_is_texture;" \
 		"uniform float u_alpha;" \
-
+		"uniform vec3 material_diffuse;" \
+		"uniform vec3 material_ambient;" \
+		"uniform vec3 material_specular;" \
 
 		"void main(void)" \
 		"{" \
@@ -129,9 +131,9 @@ void initAssimpModelLoaderShader()
 				"vec3 normalized_viewer_vector			= normalize(viewer_vector);" \
 				"vec3 ambient							= u_La * u_Ka;" \
 				"float tn_dot_ld						= max(dot(normalized_transformed_normals, normalized_light_direction),0.0);" \
-				"vec3 diffuse							= u_Ld * u_Kd * tn_dot_ld;" \
+				"vec3 diffuse							= u_Ld * u_Kd * tn_dot_ld * material_diffuse;" \
 				"vec3 reflection_vector					= reflect(-normalized_light_direction, normalized_transformed_normals);" \
-				"vec3 specular							= u_Ls * u_Ks * pow(max(dot(reflection_vector, normalized_viewer_vector), 0.0), u_material_shininess);" \
+				"vec3 specular							= u_Ls * u_Ks * pow(max(dot(reflection_vector, normalized_viewer_vector), 0.0), u_material_shininess) * material_specular;" \
 				"phong_ads_color						= ambient + diffuse + specular;" \
 			"}" \
 			"else" \

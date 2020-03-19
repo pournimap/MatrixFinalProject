@@ -32,16 +32,12 @@ struct Texture
 	aiString path;
 };
 
-/*struct Material
+struct Material
 {
 	//unsigned int id;
 	std::string type;
-	glm::vec4 ka;
-	glm::vec4 kd;
-	glm::vec4 ks;
-
-
-};*/
+	float Value[3];
+};
 
 struct VertexBoneData
 {
@@ -74,7 +70,7 @@ void VertexBoneData::addBoneData(UINT bone_id, float weight)
 class Mesh
 {
 public:
-	Mesh(std::vector<Vertex> vertex, std::vector<GLuint> ind, std::vector<Texture> texture,  std::vector<VertexBoneData> bone_id_weights);
+	Mesh(std::vector<Vertex> vertex, std::vector<GLuint> ind, std::vector<Texture> texture, std::vector<Material> material, std::vector<VertexBoneData> bone_id_weights);
 
 	Mesh() {};
 
@@ -88,7 +84,7 @@ private:
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
 	std::vector<Texture> textures;
-	//std::vector<Material> materials;
+	std::vector<Material> materials;
 	std::vector<VertexBoneData> bones_id_weights_for_each_vertex;
 
 	//buffers
@@ -104,12 +100,12 @@ private:
 
 
 
-Mesh::Mesh(std::vector<Vertex> vertex, std::vector<GLuint> ind, std::vector<Texture> texture, std::vector<VertexBoneData> bone_id_weights)
+Mesh::Mesh(std::vector<Vertex> vertex, std::vector<GLuint> ind, std::vector<Texture> texture, std::vector<Material> material, std::vector<VertexBoneData> bone_id_weights)
 {
 	vertices = vertex;
 	indices = ind;
 	textures = texture;
-	//materials = material;
+	materials = material;
 
 	bones_id_weights_for_each_vertex = bone_id_weights;
 
@@ -183,9 +179,10 @@ void Mesh::Draw(GLuint shaders_program)
 	unsigned int normalNr = 1;
 	unsigned int heightNr = 1;
 
-
+	bool isTexturePresent = false;
 	for (int i = 0; i < textures.size(); i++)
 	{
+		isTexturePresent = true;
 		glActiveTexture(GL_TEXTURE0 + i);
 		std::string number;
 		std::string name = textures[i].type;
@@ -209,27 +206,19 @@ void Mesh::Draw(GLuint shaders_program)
 		glUniform1i(glGetUniformLocation(shaders_program, (name + number).c_str()), i);
 	}
 
-	/*fopen_s(&gpFile, "Log.txt", "a+");
-	fprintf(gpFile, "After texture in Mesh draw\n");
-	fclose(gpFile);*/
-	/*unsigned int diffuse_mr = 1;
-	unsigned int specular_mr = 1;
-	unsigned int ambient_mr = 1;
 	for (int i = 0; i < materials.size(); i++)
 	{
-		std::string number;
 		std::string name = materials[i].type;
-		if (name == "material_diffuse")
+		if ((name == "material_ambient") || (name == "material_diffuse") || (name == "material_specular"))
 		{
-			number = std::to_string(diffuse_mr++);
+			glUniform3fv(glGetUniformLocation(shaders_program, (name).c_str()), 1, materials[i].Value);
 		}
-		else if (name == "material_specular")
-			number = std::to_string(specular_mr++); // transfer unsigned int to stream
-		else if (name == "material_ambient")
-			number = std::to_string(ambient_mr++); // transfer unsigned int to stream
-
-		glUniform1i(glGetUniformLocation(shaders_program, (name + number).c_str()), i);
-	}*/
+	}
+	
+	if(isTexturePresent == true)
+		glUniform1i(glGetUniformLocation(shaders_program, "u_is_texture"), 1);
+	else
+		glUniform1i(glGetUniformLocation(shaders_program, "u_is_texture"), 0);
 
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_Vertices);

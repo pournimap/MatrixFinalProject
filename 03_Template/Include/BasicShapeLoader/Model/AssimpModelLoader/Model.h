@@ -49,7 +49,7 @@ private:
 	void processNode(aiNode* node, const aiScene* scene);
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
 	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string type_name);
-	//std::vector<Material> loadMaterialColor(aiMaterial* mat, const char* type, int one, int two, std::string typeName);
+	std::vector<Material> loadMaterialColor(aiMaterial* mat, const char* type, int one, int two, std::string typeName);
 
 
 	int findPosition(float p_animation_time, const aiNodeAnim* p_node_anim);
@@ -199,7 +199,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 	std::vector<Vertex> vertices;
 	std::vector<GLuint>indices;
 	std::vector<Texture> textures;
-	//std::vector<Material>materials;
+	std::vector<Material>materials;
 	std::vector<VertexBoneData> bones_id_weights_for_each_vertex;
 
 	vertices.reserve(mesh->mNumVertices);
@@ -292,7 +292,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
 
 		//ambient
-		/*std::vector<Material> MaterialAmbientColorMaps = loadMaterialColor(material, AI_MATKEY_COLOR_AMBIENT, "material_ambient");
+		std::vector<Material> MaterialAmbientColorMaps = loadMaterialColor(material, AI_MATKEY_COLOR_AMBIENT, "material_ambient");
 		materials.insert(materials.end(), MaterialAmbientColorMaps.begin(), MaterialAmbientColorMaps.end());
 		//diffuse
 		std::vector<Material> MaterialDiffuseColorMaps = loadMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, "material_diffuse");
@@ -300,7 +300,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		//specular
 		std::vector<Material> MaterialSpecularColorMaps = loadMaterialColor(material, AI_MATKEY_COLOR_SPECULAR, "material_specular");
 		materials.insert(materials.end(), MaterialSpecularColorMaps.begin(), MaterialSpecularColorMaps.end());
-		*/
+		
 	}
 
 	//load bones
@@ -335,7 +335,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		}
 	}
 
-	return Mesh(vertices, indices, textures, bones_id_weights_for_each_vertex);
+	return Mesh(vertices, indices, textures, materials, bones_id_weights_for_each_vertex);
 }
 
 
@@ -362,17 +362,21 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 	return textures;
 }
 
-/*std::vector<Material> Model::loadMaterialColor(aiMaterial* mat, const char* type, int one, int two, std::string typeName)
+std::vector<Material> Model::loadMaterialColor(aiMaterial* mat, const char* type, int one, int two, std::string typeName)
 {
 	std::vector<Material> materials;
 
-	aiColor4D color;
-	aiGetMaterialColor(mat, type, one, two, &color);
+	aiColor3D color;
+	mat->Get(type, one, two, color);
 
 	Material materialInfo;
-
+	materialInfo.type = typeName;
+	materialInfo.Value[0] = color[0];
+	materialInfo.Value[1] = color[1];
+	materialInfo.Value[2] = color[2];
+	materials.push_back(materialInfo);
 	return materials;
-}*/
+}
 
 
 int Model::findPosition(float p_animation_time, const aiNodeAnim* p_node_anim)
