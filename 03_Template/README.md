@@ -17,16 +17,12 @@ iii) Call stopApplyingBloom() at the end of it.
 Should be the sequence of function calls.	
 	
 	
-# IMP :: Please Get two folders from below link
-https://drive.google.com/drive/u/1/folders/1stK3hyfdjbEUtzetIpRNuTf-Mvk2FLwM
+# IMP :: 
+1.ExternalLibraries.zip
 
-This link contains two folders: (IMP : DO not try to rename folders)
-1.ExternalLibraries
-2.11MarchKrishnaModel.zip
+Please Extract this ExternalLibraries.zip folder present in Include folder as it is.
 
-Put ExternalLibraries folder in Include folder.
-
-Unzip 11MarchKrishnaModel.zip, it contains folder "11MarchKrishnaModel",
-put this folder into Resources folder.
+it contains folder "ExternalLibraries",
+put this folder into Include folder.
 
 

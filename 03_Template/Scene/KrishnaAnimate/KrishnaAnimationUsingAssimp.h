@@ -216,7 +216,7 @@ void initialize_AssimpModelLoader()
 
 	krishna_Animated.initShaders(gShaderProgramObject_krishnaAnimateAssimp);
 	
-	krishna_Animated.loadModel("Resources/11MarchKrishnaModel/SeatToStandWithOrnament.fbx");
+	krishna_Animated.loadModel("Resources/11MarchKrishnaModel/standingExported20March02.fbx");
 	//initCubeShape();
 
 	//initSphereShape();

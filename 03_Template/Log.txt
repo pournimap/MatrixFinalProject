@@ -4,8 +4,8 @@ Shading Lang Version : 4.60 NVIDIA
 Success::ASSIMP::MODEL::ReadFile success
 ASSIMP::MODEL:: Directory-> Resources/11MarchKrishnaModel
 scene->HasAnimations() 1: 1
-scene->mNumMeshes 1: 17
-scene->mAnimations[0]->mNumChannels 1: 51
+scene->mNumMeshes 1: 15
+scene->mAnimations[0]->mNumChannels 1: 53
 scene->mAnimations[0]->mDuration 1: 39.000000
 scene->mAnimations[0]->mTicksPerSecond 1:  24.000000
 		name nodes : 
@@ -14,346 +14,298 @@ Data : Light
 Data : Camera
 Data : Armature
 Data : Main
-Data : polySurface238
+Data : Abdo
 Data : Stomach
-Data : Down_chest
+Data : Stomach_up
 Data : Chest
 Data : Neck
-Data : joint6
-Data : joint6_end
+Data : Head
+Data : joint8
+Data : joint8_end
 Data : L_sho
-Data : L_elb
-Data : L_wri
-Data : joint16
-Data : joint17
-Data : joint18
-Data : joint18_end
-Data : joint36
-Data : joint23
-Data : joint24
-Data : joint24_end
-Data : joint22
-Data : joint23.001
-Data : joint24.001
-Data : joint24.001_end
-Data : joint25
+Data : L_elbow
+Data : L_Wri
 Data : joint26
-Data : joint27
-Data : joint27_end
-Data : joint28
-Data : joint29
-Data : joint30
-Data : joint30_end
+Data : joint21
+Data : joint22
+Data : joint22_end
+Data : joint20
+Data : joint21.001
+Data : joint22.001
+Data : joint22.001_end
+Data : joint23
+Data : joint21.002
+Data : joint22.002
+Data : joint22.002_end
+Data : joint24
+Data : joint21.003
+Data : joint22.003
+Data : joint22.003_end
+Data : joint25
+Data : joint21.004
+Data : joint22.004
+Data : joint22.004_end
 Data : R_sho
-Data : R_elb
-Data : R_wri
-Data : joint34
-Data : joint29.001
-Data : joint30.001
-Data : joint30.001_end
-Data : joint33
-Data : joint26.001
-Data : joint27.001
-Data : joint27.001_end
-Data : joint32
-Data : joint23.002
-Data : joint24.002
-Data : joint24.002_end
-Data : joint37
-Data : joint23.003
-Data : joint24.003
-Data : joint24.003_end
-Data : joint35
-Data : joint17.001
-Data : joint18.001
-Data : joint18.001_end
-Data : R_leg
-Data : R_knee
-Data : R_ank
-Data : R_toe
-Data : R_toe_end
+Data : R_elbow
+Data : R_Wri
+Data : joint27
+Data : joint21.005
+Data : joint22.005
+Data : joint22.005_end
+Data : joint28
+Data : joint21.006
+Data : joint22.006
+Data : joint22.006_end
+Data : joint29
+Data : joint21.007
+Data : joint22.007
+Data : joint22.007_end
+Data : joint30
+Data : joint21.008
+Data : joint22.008
+Data : joint22.008_end
+Data : joint31
+Data : joint21.009
+Data : joint22.009
+Data : joint22.009_end
 Data : L_leg
 Data : L_knee
-Data : L_ank
-Data : L_toe
-Data : L_toe_end
-Data : polySurface1
-bones: 0 , vertices: 20856
-bones: 0 , vertices: 164
-Texture load at path : KrishnaCrown2.png 
-bones: 0 , vertices: 302
-Texture load at path : KrishnaCrown_Back2.png 
-bones: 0 , vertices: 114
-Texture load at path : KrishnaBracelet.png 
-bones: 50 , vertices: 76360
-Texture load at path : KrishnaFace_2.jpg 
-MODEL::Main 
-MODEL::Stomach 
-MODEL::Down_chest 
-MODEL::Chest 
-MODEL::Neck 
-MODEL::joint6 
-MODEL::L_sho 
-MODEL::L_elb 
-MODEL::L_wri 
-MODEL::joint16 
-MODEL::joint17 
-MODEL::joint18 
-MODEL::joint36 
-MODEL::joint23 
-MODEL::joint24 
-MODEL::joint22 
-MODEL::joint23.001 
-MODEL::joint24.001 
-MODEL::joint25 
-MODEL::joint26 
-MODEL::joint27 
-MODEL::joint28 
-MODEL::joint29 
-MODEL::joint30 
-MODEL::R_sho 
-MODEL::R_elb 
-MODEL::R_wri 
-MODEL::joint34 
-MODEL::joint29.001 
-MODEL::joint30.001 
-MODEL::joint33 
-MODEL::joint26.001 
-MODEL::joint27.001 
-MODEL::joint32 
-MODEL::joint23.002 
-MODEL::joint24.002 
-MODEL::joint37 
-MODEL::joint23.003 
-MODEL::joint24.003 
-MODEL::joint35 
-MODEL::joint17.001 
-MODEL::joint18.001 
-MODEL::R_leg 
-MODEL::R_knee 
-MODEL::R_ank 
-MODEL::R_toe 
-MODEL::L_leg 
-MODEL::L_knee 
-MODEL::L_ank 
-MODEL::L_toe 
-bones: 7 , vertices: 1000
+Data : L_foot
+Data : R_toe
+Data : R_toe_end
+Data : R_leg
+Data : R_knee
+Data : R_foot
+Data : R_toe.001
+Data : R_toe.001_end
+Data : God
+bones: 11 , vertices: 2756
 Texture load at path : Jewelry_Misc.png 
 MODEL::Stomach 
-MODEL::Down_chest 
+MODEL::Stomach_up 
 MODEL::Chest 
+MODEL::Neck 
+MODEL::Head 
+MODEL::joint8 
 MODEL::L_sho 
-MODEL::L_elb 
+MODEL::L_elbow 
 MODEL::R_sho 
-MODEL::R_elb 
-bones: 17 , vertices: 1522
-Texture load at path : KrishnaBracelet.png 
-MODEL::L_sho 
-MODEL::L_elb 
-MODEL::L_wri 
-MODEL::joint16 
-MODEL::joint17 
-MODEL::joint36 
-MODEL::joint22 
-MODEL::joint25 
-MODEL::joint28 
-MODEL::R_sho 
-MODEL::R_elb 
-MODEL::R_wri 
-MODEL::joint34 
-MODEL::joint33 
-MODEL::joint37 
-MODEL::joint35 
-MODEL::joint17.001 
-bones: 6 , vertices: 28236
-MODEL::Down_chest 
+MODEL::R_elbow 
+MODEL::R_Wri 
+bones: 5 , vertices: 1760
+MODEL::Stomach_up 
 MODEL::Chest 
 MODEL::Neck 
-MODEL::joint6 
-MODEL::L_sho 
-MODEL::R_sho 
-bones: 4 , vertices: 248
-Texture load at path : KrishnaCrown2.png 
-MODEL::Down_chest 
+MODEL::Head 
+MODEL::joint8 
+bones: 5 , vertices: 640
+MODEL::Stomach_up 
 MODEL::Chest 
 MODEL::Neck 
-MODEL::joint6 
-bones: 4 , vertices: 80
-Texture load at path : Feather.jpg 
-MODEL::Down_chest 
+MODEL::Head 
+MODEL::joint8 
+bones: 5 , vertices: 120
+MODEL::Stomach_up 
 MODEL::Chest 
 MODEL::Neck 
-MODEL::joint6 
-bones: 4 , vertices: 3600
-Texture load at path : KrishnaCrown_Back2.png 
-MODEL::Down_chest 
-MODEL::Chest 
-MODEL::Neck 
-MODEL::joint6 
-bones: 6 , vertices: 1760
-MODEL::Down_chest 
-MODEL::Chest 
-MODEL::Neck 
-MODEL::joint6 
-MODEL::L_sho 
-MODEL::R_sho 
-bones: 4 , vertices: 640
-MODEL::Down_chest 
-MODEL::Chest 
-MODEL::Neck 
-MODEL::joint6 
-bones: 4 , vertices: 120
-MODEL::Down_chest 
-MODEL::Chest 
-MODEL::Neck 
-MODEL::joint6 
-bones: 9 , vertices: 1383
-MODEL::Main 
-MODEL::Stomach 
-MODEL::Down_chest 
-MODEL::R_leg 
-MODEL::R_knee 
-MODEL::R_ank 
-MODEL::L_leg 
-MODEL::L_knee 
-MODEL::L_ank 
-bones: 12 , vertices: 836
-MODEL::Main 
-MODEL::Stomach 
-MODEL::R_elb 
-MODEL::R_wri 
-MODEL::R_leg 
-MODEL::R_knee 
-MODEL::R_ank 
-MODEL::R_toe 
-MODEL::L_leg 
-MODEL::L_knee 
-MODEL::L_ank 
-MODEL::L_toe 
+MODEL::Head 
+MODEL::joint8 
 bones: 7 , vertices: 17664
 Texture load at path : Hair2.jpg 
 MODEL::Stomach 
-MODEL::Down_chest 
+MODEL::Stomach_up 
 MODEL::Chest 
 MODEL::Neck 
-MODEL::joint6 
+MODEL::Head 
+MODEL::joint8 
+MODEL::L_sho 
+bones: 10 , vertices: 6540
+MODEL::Main 
+MODEL::Abdo 
+MODEL::Stomach 
+MODEL::Stomach_up 
+MODEL::L_leg 
+MODEL::L_knee 
+MODEL::L_foot 
+MODEL::R_leg 
+MODEL::R_knee 
+MODEL::R_foot 
+bones: 7 , vertices: 132
+MODEL::Stomach 
+MODEL::Stomach_up 
+MODEL::Chest 
+MODEL::L_sho 
+MODEL::L_elbow 
+MODEL::R_sho 
+MODEL::R_elbow 
+bones: 5 , vertices: 80
+Texture load at path : Feather.jpg 
+MODEL::Stomach_up 
+MODEL::Chest 
+MODEL::Neck 
+MODEL::Head 
+MODEL::joint8 
+bones: 5 , vertices: 248
+Texture load at path : KrishnaCrown2.png 
+MODEL::Stomach_up 
+MODEL::Chest 
+MODEL::Neck 
+MODEL::Head 
+MODEL::joint8 
+bones: 5 , vertices: 3600
+Texture load at path : KrishnaCrown_Back2.png 
+MODEL::Stomach_up 
+MODEL::Chest 
+MODEL::Neck 
+MODEL::Head 
+MODEL::joint8 
+bones: 12 , vertices: 34356
+MODEL::Main 
+MODEL::Abdo 
+MODEL::Stomach 
+MODEL::Stomach_up 
+MODEL::Chest 
+MODEL::Neck 
+MODEL::Head 
+MODEL::joint8 
 MODEL::L_sho 
 MODEL::R_sho 
+MODEL::L_leg 
+MODEL::R_leg 
+bones: 12 , vertices: 3344
+MODEL::Main 
+MODEL::Abdo 
+MODEL::Stomach 
+MODEL::L_elbow 
+MODEL::L_leg 
+MODEL::L_knee 
+MODEL::L_foot 
+MODEL::R_toe 
+MODEL::R_leg 
+MODEL::R_knee 
+MODEL::R_foot 
+MODEL::R_toe.001 
+bones: 52 , vertices: 305440
+Texture load at path : KrishnaFace_2.jpg 
+MODEL::Main 
+MODEL::Abdo 
+MODEL::Stomach 
+MODEL::Stomach_up 
+MODEL::Chest 
+MODEL::Neck 
+MODEL::Head 
+MODEL::joint8 
+MODEL::L_sho 
+MODEL::L_elbow 
+MODEL::L_Wri 
+MODEL::joint26 
+MODEL::joint21 
+MODEL::joint22 
+MODEL::joint20 
+MODEL::joint21.001 
+MODEL::joint22.001 
+MODEL::joint23 
+MODEL::joint21.002 
+MODEL::joint22.002 
+MODEL::joint24 
+MODEL::joint21.003 
+MODEL::joint22.003 
+MODEL::joint25 
+MODEL::joint21.004 
+MODEL::joint22.004 
+MODEL::R_sho 
+MODEL::R_elbow 
+MODEL::R_Wri 
+MODEL::joint27 
+MODEL::joint21.005 
+MODEL::joint22.005 
+MODEL::joint28 
+MODEL::joint21.006 
+MODEL::joint22.006 
+MODEL::joint29 
+MODEL::joint21.007 
+MODEL::joint22.007 
+MODEL::joint30 
+MODEL::joint21.008 
+MODEL::joint22.008 
+MODEL::joint31 
+MODEL::joint21.009 
+MODEL::joint22.009 
+MODEL::L_leg 
+MODEL::L_knee 
+MODEL::L_foot 
+MODEL::R_toe 
+MODEL::R_leg 
+MODEL::R_knee 
+MODEL::R_foot 
+MODEL::R_toe.001 
+bones: 5 , vertices: 164
+Texture load at path : KrishnaCrown2.png 
+MODEL::Main 
+MODEL::Abdo 
+MODEL::Stomach 
+MODEL::Stomach_up 
+MODEL::Chest 
+bones: 6 , vertices: 302
+Texture load at path : KrishnaCrown_Back2.png 
+MODEL::Abdo 
+MODEL::Stomach 
+MODEL::Stomach_up 
+MODEL::Chest 
+MODEL::Neck 
+MODEL::Head 
+nodes animation name : Abdo 
 nodes animation name : Armature 
 nodes animation name : Chest 
-nodes animation name : Down_chest 
-nodes animation name : L_ank 
-nodes animation name : L_elb 
+nodes animation name : Head 
+nodes animation name : L_Wri 
+nodes animation name : L_elbow 
+nodes animation name : L_foot 
 nodes animation name : L_knee 
 nodes animation name : L_leg 
 nodes animation name : L_sho 
-nodes animation name : L_toe 
-nodes animation name : L_wri 
 nodes animation name : Main 
 nodes animation name : Neck 
-nodes animation name : R_ank 
-nodes animation name : R_elb 
+nodes animation name : R_Wri 
+nodes animation name : R_elbow 
+nodes animation name : R_foot 
 nodes animation name : R_knee 
 nodes animation name : R_leg 
 nodes animation name : R_sho 
 nodes animation name : R_toe 
-nodes animation name : R_wri 
+nodes animation name : R_toe.001 
 nodes animation name : Stomach 
-nodes animation name : joint16 
-nodes animation name : joint17 
-nodes animation name : joint17.001 
-nodes animation name : joint18 
-nodes animation name : joint18.001 
+nodes animation name : Stomach_up 
+nodes animation name : joint20 
+nodes animation name : joint21 
+nodes animation name : joint21.001 
+nodes animation name : joint21.002 
+nodes animation name : joint21.003 
+nodes animation name : joint21.004 
+nodes animation name : joint21.005 
+nodes animation name : joint21.006 
+nodes animation name : joint21.007 
+nodes animation name : joint21.008 
+nodes animation name : joint21.009 
 nodes animation name : joint22 
+nodes animation name : joint22.001 
+nodes animation name : joint22.002 
+nodes animation name : joint22.003 
+nodes animation name : joint22.004 
+nodes animation name : joint22.005 
+nodes animation name : joint22.006 
+nodes animation name : joint22.007 
+nodes animation name : joint22.008 
+nodes animation name : joint22.009 
 nodes animation name : joint23 
-nodes animation name : joint23.001 
-nodes animation name : joint23.002 
-nodes animation name : joint23.003 
 nodes animation name : joint24 
-nodes animation name : joint24.001 
-nodes animation name : joint24.002 
-nodes animation name : joint24.003 
 nodes animation name : joint25 
 nodes animation name : joint26 
-nodes animation name : joint26.001 
 nodes animation name : joint27 
-nodes animation name : joint27.001 
 nodes animation name : joint28 
 nodes animation name : joint29 
-nodes animation name : joint29.001 
 nodes animation name : joint30 
-nodes animation name : joint30.001 
-nodes animation name : joint32 
-nodes animation name : joint33 
-nodes animation name : joint34 
-nodes animation name : joint35 
-nodes animation name : joint36 
-nodes animation name : joint37 
-nodes animation name : joint6 
+nodes animation name : joint31 
+nodes animation name : joint8 
 Initialization Succeeded.
-Current Positins  : 
-___________________________________________________ 
-eye coodinates    :  -241.049347     , 322.245972     , -653.685669  
-center coodinates :  -289.912445     , 327.005493     , 0.000000  
-up coodinates     :  0.000000     , 1.000000     , 0.000000  
-___________________________________________________ 
-ftime_krishnaAnimate : 1511.449951 
-___________________________________________________ 
-Depth Of Field Variables: 
-____________________________________________________
-focal_distance: 6800.000000
-focal_depth: 30120.000000
-____________________________________________________
-Current Positins  : 
-___________________________________________________ 
-eye coodinates    :  -241.049347     , 322.245972     , -653.685669  
-center coodinates :  -289.912445     , 327.005493     , 0.000000  
-up coodinates     :  0.000000     , 1.000000     , 0.000000  
-___________________________________________________ 
-ftime_krishnaAnimate : 1520.151367 
-___________________________________________________ 
-Depth Of Field Variables: 
-____________________________________________________
-focal_distance: 6800.000000
-focal_depth: 30120.000000
-____________________________________________________
-Current Positins  : 
-___________________________________________________ 
-eye coodinates    :  -241.049347     , 322.245972     , -653.685669  
-center coodinates :  -289.912445     , 327.005493     , 0.000000  
-up coodinates     :  0.000000     , 1.000000     , 0.000000  
-___________________________________________________ 
-ftime_krishnaAnimate : 1520.751465 
-___________________________________________________ 
-Depth Of Field Variables: 
-____________________________________________________
-focal_distance: 6800.000000
-focal_depth: 30120.000000
-____________________________________________________
-Current Positins  : 
-___________________________________________________ 
-eye coodinates    :  -241.049347     , 322.245972     , -653.685669  
-center coodinates :  -289.912445     , 327.005493     , 0.000000  
-up coodinates     :  0.000000     , 1.000000     , 0.000000  
-___________________________________________________ 
-ftime_krishnaAnimate : 1521.651611 
-___________________________________________________ 
-Depth Of Field Variables: 
-____________________________________________________
-focal_distance: 6800.000000
-focal_depth: 30120.000000
-____________________________________________________
-Current Positins  : 
-___________________________________________________ 
-eye coodinates    :  -241.049347     , 322.245972     , -653.685669  
-center coodinates :  -289.912445     , 327.005493     , 0.000000  
-up coodinates     :  0.000000     , 1.000000     , 0.000000  
-___________________________________________________ 
-ftime_krishnaAnimate : 1522.251709 
-___________________________________________________ 
-Depth Of Field Variables: 
-____________________________________________________
-focal_distance: 6800.000000
-focal_depth: 30120.000000
-____________________________________________________
 Log File Closed Successfully
