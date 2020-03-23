@@ -20,8 +20,8 @@ struct {
 } uniforms;
 
 float bloomFactor = 1.5f;
-
-GLuint bloomIsActiveUniform;
+float bloom_thresh_min = 0.8f;
+float bloom_thresh_max = 1.2f;
 
 GLuint render_fbo_bloom;
 GLuint gaussian_blur_fbo_bloom[2];
@@ -37,9 +37,22 @@ GLuint vao_framebuffer_bloom;
 float exposure_bloom = 1.0f;
 
 GLuint ShaderProgramObject_hdrBloomScene;
+GLuint bloomIsActiveUniform_hdrBloomScene;
+GLuint mvpUniform_hdrBloomScene;
+GLuint bloom_thresh_min_hdrBloomScene;
+GLuint bloom_thresh_max_hdrBloomScene;
+
 GLuint ShaderProgramObject_GaussianBlur_Y_Direction;
 GLuint ShaderProgramObject_GaussianBlur_X_Direction;
 GLuint ShaderProgramObject_Final_Display_Resolution;
+
+void GenerateVaoForAttractor();
+void StartAttractorLogic();
+bool startJoin_krishnaAnimate = false;
+
+GLfloat X_Pos_attractor = -400.0f;
+GLfloat Y_Pos_attractor = 150.0f;
+GLfloat Z_Pos_attractor = -10.0f;
 
 void initializeBloom(void) {
 	// Shader Objects
@@ -125,8 +138,10 @@ void initializeBloom(void) {
 	checkLinkLog("ShaderProgramObject_hdrBloomScene", ShaderProgramObject_hdrBloomScene);
 
 	// Post-linking
-	bloomIsActiveUniform = glGetUniformLocation(ShaderProgramObject_hdrBloomScene, "u_bloom_is_active");
-
+	bloomIsActiveUniform_hdrBloomScene = glGetUniformLocation(ShaderProgramObject_hdrBloomScene, "u_bloom_is_active");
+	mvpUniform_hdrBloomScene = glGetUniformLocation(ShaderProgramObject_hdrBloomScene, "u_mvp_matrix");
+	bloom_thresh_min_hdrBloomScene = glGetUniformLocation(ShaderProgramObject_hdrBloomScene, "bloom_thresh_min");
+	bloom_thresh_max_hdrBloomScene = glGetUniformLocation(ShaderProgramObject_hdrBloomScene, "bloom_thresh_max");
 	// **** HDRBloom Filter Vertex Shader *****
 	hdrBloomFilterVertexShaderObject = glCreateShader(GL_VERTEX_SHADER);
 
@@ -417,29 +432,8 @@ void initializeBloom(void) {
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	
-	// Quad
-	/*glGenVertexArrays(1, &vao_quad_framebuffer_display);
-	glBindVertexArray(vao_quad_framebuffer_display);
-	
-	// Position Array
-	const GLfloat position_quad_framebuffer_display[] = 
-	{
-		1.0f, 1.0f, 0.0f,
-		-1.0f, 1.0f, 0.0f,
-		-1.0f, -1.0f, 0.0f,
-		1.0f, -1.0f, 0.0
-	};
-	
-	glGenBuffers(1, &vbo_quad_framebuffer_display);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_quad_framebuffer_display);
-	
-	glBufferData(GL_ARRAY_BUFFER, sizeof(position_quad_framebuffer_display), position_quad_framebuffer_display, GL_STATIC_DRAW);
-	
-	glVertexAttribPointer(MATRIX_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_POSITION);
-	
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);*/
+
+	GenerateVaoForAttractor();
 }
 
 void applyBloom(void) {
@@ -456,23 +450,27 @@ void applyBloom(void) {
 	glClearBufferfv(GL_COLOR, 1, black);	// GL_COLOR_ATTACHMENT1
 	glClearBufferfv(GL_DEPTH, 0, &one);
 
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
+	/*glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);*/
 
 	glUseProgram(ShaderProgramObject_hdrBloomScene);
-	glUniform1i(bloomIsActiveUniform, (GLint)one);
+
+	glUniform1i(bloomIsActiveUniform_hdrBloomScene, (GLint)one);
+	glUniform1f(bloom_thresh_min_hdrBloomScene, bloom_thresh_min);
+	glUniform1f(bloom_thresh_max_hdrBloomScene, bloom_thresh_max);
 }
 
 void stopApplyingBloom(void) {
 	// variable declarations
 	static const GLfloat black[] = { 0.0f, 0.0f, 0.0, 1.0f };
+	static const GLfloat one = { 1.0f };
 
 	// code
 	glUseProgram(0);
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	glDisable(GL_DEPTH_TEST);
+	/*glDisable(GL_DEPTH_TEST);*/
 
 	glUseProgram(ShaderProgramObject_GaussianBlur_Y_Direction);
 
@@ -480,6 +478,7 @@ void stopApplyingBloom(void) {
 
 	glBindFramebuffer(GL_FRAMEBUFFER, gaussian_blur_fbo_bloom[0]);
 	glClearBufferfv(GL_COLOR, 0, black);
+	glClearBufferfv(GL_DEPTH, 0, &one);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texBrightPass_bloom);
@@ -490,6 +489,7 @@ void stopApplyingBloom(void) {
 	glUseProgram(ShaderProgramObject_GaussianBlur_X_Direction);
 	glBindFramebuffer(GL_FRAMEBUFFER, gaussian_blur_fbo_bloom[1]);
 	glClearBufferfv(GL_COLOR, 0, black);
+	glClearBufferfv(GL_DEPTH, 0, &one);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texGaussianBlur_bloom[0]);
@@ -498,6 +498,12 @@ void stopApplyingBloom(void) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glUseProgram(0);
 
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_for_Bloom);
+	glClearBufferfv(GL_COLOR, 0, black);
+	glClearBufferfv(GL_DEPTH, 0, &one);
+	//	glEnable(GL_DEPTH_TEST);
+		//// depth test to do
+	//	glDepthFunc(GL_LEQUAL);
 	glUseProgram(ShaderProgramObject_Final_Display_Resolution);
 
 	glUniform1f(uniforms.resolve.exposure_bloom, exposure_bloom);
@@ -528,14 +534,120 @@ void stopApplyingBloom(void) {
 
 	glUseProgram(0);
 
-	glClearDepth(1.0f);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//glClearDepth(1.0f);
 	glDepthFunc(GL_LEQUAL);
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
+}
+
+void ShowBloomAttractor()
+{
+	applyBloom();
+	StartAttractorLogic();
+	stopApplyingBloom();
+}
+
+std::vector<float> vertices_attractor;
+std::vector<float> vertices_color;
+GLuint VaoForAttractor;
+GLuint VboPositionForAttractor;
+GLuint VboColorForAttractor;
+
+void GenerateVaoForAttractor()
+{
+	for (GLfloat i = -2.0f; i <= 2.0f; i = i + 0.15f)
+	{
+		for (GLfloat j = -2.0f; j <= 2.0f; j = j + 0.15f)
+		{
+			for (GLfloat k = -2.0f; k <= 2.0f; k = k + 0.05f)
+			{
+				vertices_attractor.push_back(i);
+				vertices_attractor.push_back(j);
+				vertices_attractor.push_back(k);
+				vertices_color.push_back(255.0 / 255.0);
+				vertices_color.push_back(215.0 / 255.0);
+				vertices_color.push_back(0.0);
+			}
+		}
+	}
+	// create VaoForAttractor
+	glGenVertexArrays(1, &VaoForAttractor);
+	glBindVertexArray(VaoForAttractor);
+	// create VboForAttractorForAttractor
+	glGenBuffers(1, &VboPositionForAttractor);
+	glBindBuffer(GL_ARRAY_BUFFER, VboPositionForAttractor);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices), triangleVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices_attractor.size() * sizeof(float), NULL, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(MATRIX_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_POSITION);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glGenBuffers(1, &VboColorForAttractor);
+	glBindBuffer(GL_ARRAY_BUFFER, VboColorForAttractor);
+	glBufferData(GL_ARRAY_BUFFER, vertices_color.size() * sizeof(float), &vertices_color[0], GL_STATIC_DRAW);
+	//glBufferData(GL_ARRAY_BUFFER, vertices_attractor.size() * sizeof(float), NULL, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(MATRIX_ATTRIBUTE_COLOR, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_COLOR);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+void StartAttractorLogic()
+{
+	if (startJoin_krishnaAnimate)
+	{
+		//glEnable(GL_ALPHA_TEST);
+		//glAlphaFunc(GL_NOTEQUAL, 0);
+		//glEnable(GL_BLEND);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+		//glEnable(GL_POINT_SMOOTH);
+		//glPointSize(1.5);
+		mat4 modelMatrix = mat4::identity();
+		mat4 scaleMatrix = mat4::identity();
+		mat4 rotateMatrix = mat4::identity();
+		modelMatrix = vmath::translate(X_Pos_attractor, Y_Pos_attractor, Z_Pos_attractor);
+		scaleMatrix = scale(30.0f, 30.0f, 30.0f);
+		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
+		/*glUniformMatrix4fv(gModelMatrixUniform_krishnaAttractor, 1, GL_FALSE, modelMatrix);
+		glUniformMatrix4fv(gViewMatrixUniform_krishnaAttractor, 1, GL_FALSE, gViewMatrix);								    // globally camera set in perFrag file
+		glUniformMatrix4fv(gProjectionMatrixUniform_krishnaAttractor, 1, GL_FALSE, gPerspectiveProjectionMatrix);			// globally pojection set*/
+		mat4 mvpMatrix = mat4::identity();
+		mvpMatrix = gPerspectiveProjectionMatrix * gViewMatrix * modelMatrix;
+		glUniformMatrix4fv(mvpUniform_hdrBloomScene, 1, GL_FALSE, mvpMatrix);
+		glBindVertexArray(VaoForAttractor);
+		glBindBuffer(GL_ARRAY_BUFFER, VboPositionForAttractor);
+		glBufferData(GL_ARRAY_BUFFER, vertices_attractor.size() * sizeof(float), &vertices_attractor[0], GL_DYNAMIC_DRAW);
+		glDrawArrays(GL_POINTS, 0, vertices_attractor.size());
+		glBindVertexArray(0);
+		//glUseProgram(0);
+		//glDisable(GL_ALPHA_TEST);
+		//glDisable(GL_BLEND);
+		//glDisable(GL_POINT_SMOOTH);
+	}
+}
+
+void UninitializeVaoForAttractor()
+{
+	if (VboPositionForAttractor) {
+		glDeleteBuffers(1, &VboPositionForAttractor);
+		VboPositionForAttractor = 0;
+	}
+	if (VboColorForAttractor) {
+		glDeleteBuffers(1, &VboColorForAttractor);
+		VboColorForAttractor = 0;
+	}
+	if (VaoForAttractor) {
+		glDeleteVertexArrays(1, &VaoForAttractor);
+		VaoForAttractor = 0;
+	}
 }
 
 void uninitializeBloom(void) {
 	// code
 	// Safe Release
+
+	UninitializeVaoForAttractor();
+
 	if (render_fbo_bloom) {
 		glDeleteFramebuffers(1, &render_fbo_bloom);
 		render_fbo_bloom = 0;

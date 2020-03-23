@@ -2,15 +2,17 @@
 
 
 #include "Include/BasicShapeLoader/Shapes/Matrix_BasicShapes.h"
+#include "Scene/FrameBuffer/FrameBuffer.h"
 
 //Add your header files here
 #include "Scene/PerFragment.h"
 #include "Scene/Light/PointLight.h"
+#include "Scene/Bloom/Bloom.h"
 #include"Scene/Fire/Fire.h"
 #include"Scene/KrishnaAnimate/KrishnaAnimate5.h"
 #include"Scene/KrishnaAnimate/KrishnaAnimationUsingAssimp.h"
-#include "Scene/Bloom/Bloom.h"
 #include "Scene/DepthOfField/DepthOfField.h"
+#include "Scene/FinalScene/FinalScene.h"
 
 
 
@@ -274,7 +276,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		//	case 's':
 			focal_depth /= 1.1f;
 			break;
-			
+		
+		case '4':
+			bloom_thresh_min -= 0.1f;
+			break;
+		case '5':
+			bloom_thresh_min += 0.1f;
+			break;
+		case '6':
+			bloom_thresh_max -= 0.1f;
+			break;
+		case '7':
+			bloom_thresh_max += 0.1f;
+			break;
+
 		case 'B':
 		case 'b':
 			bShowBloom_bloom = !bShowBloom_bloom;
@@ -544,6 +559,11 @@ int initialize(void)
 	initQuadShape();
 	LoadAllModels();
 
+	//Init all FrameBuffer
+	initFramebufferForBloom();
+	initFramebufferForAll();
+
+	//Load All Scenes
 
 	initialize_perFragmentLight();
 	initialize_pointLight();
@@ -560,6 +580,7 @@ int initialize(void)
 	
 	initializeDepthOfField();
 
+	initFinalShaderProgramObject();
 	// ................................................................................................
 	//
 	// Initialize your specific scene here above
@@ -592,12 +613,18 @@ int initialize(void)
 
 void display(void)
 {
-	
+	static const GLfloat one = { 1.0f };
+	static const GLfloat black[] = { 0.0f, 0.0f, 0.0, 1.0f };
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//call your scene Display here
+	ShowBloomAttractor();
 
-	applyDOF();
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_for_All);
+	glClearBufferfv(GL_COLOR, 0, black);	// GL_COLOR_ATTACHMENT1
+	glClearBufferfv(GL_DEPTH, 0, &one);
+	//applyDOF();
 	
 	display_perFragmentLight();
 	
@@ -611,10 +638,13 @@ void display(void)
 	else
 		display_krishnaAnimate();
 	
-	display_fire();
+	//display_fire();
 	
-	stopApplyingDOF();
-	
+	//stopApplyingDOF();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	display_FinalScene();
+
 	SwapBuffers(ghdc);
 }
 
@@ -640,6 +670,11 @@ void resize(int width, int height)
 
 	gWidth = width;
 	gHeight = height;
+
+	static bool FirstTime = true;
+	if (FirstTime == false)
+		UpdateFrameBuffer(width, height);
+	FirstTime = false;
 }
 
 void ToggleFullScreen(void)

@@ -1,6 +1,8 @@
 Log File Successfully Created.
 4.6.0 NVIDIA 441.66
 Shading Lang Version : 4.60 NVIDIA 
+framebuffer_for_bloom frameBuffer  successful
+framebuffer_for_All frameBuffer  successful
 Success::ASSIMP::MODEL::ReadFile success
 ASSIMP::MODEL:: Directory-> Resources/11MarchKrishnaModel
 scene->HasAnimations() 1: 1
@@ -307,5 +309,17 @@ nodes animation name : joint29
 nodes animation name : joint30 
 nodes animation name : joint31 
 nodes animation name : joint8 
+framebuffer_for_bloom frameBuffer  successful
+framebuffer_for_All frameBuffer  successful
 Initialization Succeeded.
+framebuffer_for_bloom frameBuffer  successful
+framebuffer_for_All frameBuffer  successful
+framebuffer_for_bloom frameBuffer  successful
+framebuffer_for_All frameBuffer  successful
+framebuffer_for_bloom frameBuffer  successful
+framebuffer_for_All frameBuffer  successful
+framebuffer_for_bloom frameBuffer  successful
+framebuffer_for_All frameBuffer  successful
+framebuffer_for_bloom frameBuffer  successful
+framebuffer_for_All frameBuffer  successful
 Log File Closed Successfully
