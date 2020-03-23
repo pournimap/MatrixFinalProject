@@ -342,25 +342,6 @@ void initialize_pointLight()
 {
 	initPointLightShader();
 
-	initCubeShape();
-
-	//initSphereShape();
-
-	//LoadAllModels();
-
-	glShadeModel(GL_SMOOTH);
-
-	glClearDepth(1.0f);
-	// enable depth testing
-	glEnable(GL_DEPTH_TEST);
-	// depth test to do
-	glDepthFunc(GL_LEQUAL);
-
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	glEnable(GL_CULL_FACE);
-
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // blue
-
 }
 
 vec3 positionLamp[] = { vec3(-720.0f, 600.0f, 750.0f), vec3(-250.0f, 400.0f, 750.0f), vec3(320.0f, 400.0f, 750.0f), vec3(850.0f, 400.0f, 750.0f),vec3(1420.0f, 400.0f, 750.0f) , vec3(1950.0f, 400.0f, 750.0f) , vec3(2520.0f, 400.0f, 750.0f) ,

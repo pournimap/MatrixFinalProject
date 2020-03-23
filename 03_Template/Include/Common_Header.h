@@ -77,7 +77,7 @@ float _pitch = 0.0f;
 
 StopWatchWin timer;
 
-
+float gWidth, gHeight;
 void programObjectSafeRelease(GLuint shaderProgramObject) {
 	// code
 	if (shaderProgramObject) {

@@ -538,6 +538,13 @@ int initialize(void)
 	//
 	// ................................................................................................
 
+	//Load All Shapes and Model
+	initCubeShape();
+	initSphereShape();
+	initQuadShape();
+	LoadAllModels();
+
+
 	initialize_perFragmentLight();
 	initialize_pointLight();
 	
@@ -564,19 +571,28 @@ int initialize(void)
 	timer.start();
 	resize(WIN_WIDTH, WIN_HEIGHT);
 
+	gWidth = WIN_WIDTH;
+	gHeight = WIN_HEIGHT;
+
+	glShadeModel(GL_SMOOTH);
+
+	glClearDepth(1.0f);
+	// enable depth testing
+	glEnable(GL_DEPTH_TEST);
+	// depth test to do
+	glDepthFunc(GL_LEQUAL);
+
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	glEnable(GL_CULL_FACE);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // blue
+
 	return(0);	// for successfull return
 }
 
 void display(void)
 {
-	/*
-	float getTime(void);
-
-	currentFrame = getTime();
-	deltaTime = currentFrame - lastFrame;
-	lastFrame = currentFrame;
-	*/
-
+	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//call your scene Display here
@@ -621,6 +637,9 @@ void resize(int width, int height)
 	glViewport(0, 0, (GLsizei)width, (GLsizei)height);
 
 	gPerspectiveProjectionMatrix = perspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 10000.0f);
+
+	gWidth = width;
+	gHeight = height;
 }
 
 void ToggleFullScreen(void)
@@ -672,7 +691,7 @@ void uninitialize(int i_Exit_Flag)
 	uninitialize_pointLight();
 	uninitialize_krishnaAnimate();
 
-	//Clothunintialize();
+	Clothunintialize();
 
 	uninitialize_fire();
 	

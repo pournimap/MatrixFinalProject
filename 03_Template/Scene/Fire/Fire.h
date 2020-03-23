@@ -221,20 +221,6 @@ void initialize_fire(void)
 		fprintf(gpFile, "LoadGLTextures_fire Failed \n");
 	}
 
-	/*
-	glShadeModel(GL_SMOOTH);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	glClearDepth(1.0f);
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Right now of no use	- for this code
-	glEnable(GL_CULL_FACE);								// Right now of no use	- for this code
-
-	glEnable(GL_POINT_SPRITE);							// this is required to use texture on point
-	*/
-	//glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
-
 }
 
 void display_fire(void)

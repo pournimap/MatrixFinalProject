@@ -202,23 +202,6 @@ void initialize_perFragmentLight()
 {
 	initPerFragmentShader();
 
-	initSphereShape();
-
-	LoadAllModels();
-
-	glShadeModel(GL_SMOOTH);
-
-	glClearDepth(1.0f);
-	// enable depth testing
-	glEnable(GL_DEPTH_TEST);
-	// depth test to do
-	glDepthFunc(GL_LEQUAL);
-
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	glEnable(GL_CULL_FACE);
-
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // blue
-
 }
 
 float TranslateMeasure[] = {200.0f, 700.0f, 1200.0f, 1800.0f, 2300.0f, 2900.0f, 3500.0f};

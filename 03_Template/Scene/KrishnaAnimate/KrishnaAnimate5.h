@@ -348,20 +348,6 @@ void initialize_krishnaAnimate()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-
-	glShadeModel(GL_SMOOTH);
-
-	glClearDepth(1.0f);
-	// enable depth testing
-	glEnable(GL_DEPTH_TEST);
-	// depth test to do
-	glDepthFunc(GL_LEQUAL);
-
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	glEnable(GL_CULL_FACE);
-
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // blue
-
 }
 
 void display_krishnaAnimate()
