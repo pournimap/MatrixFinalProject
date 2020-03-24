@@ -271,7 +271,7 @@ void initPointLightShader()
 			"}" \
 			"else" \
 			"{" \
-			"BloomColor = vec4(phong_ads_color, 1.0);\n" \
+			"BloomColor = c;\n" \
 			"}" \
 			"}" \
 			"else" \

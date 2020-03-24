@@ -67,7 +67,8 @@ GLfloat Z_Pos_attractor = -10.0f;
 GLuint gModelMatrixUniform_krishnaAttractor;
 GLuint gViewMatrixUniform_krishnaAttractor;
 GLuint gProjectionMatrixUniform_krishnaAttractor;
-
+GLuint applyBloomUniform_krishnaAttractor, u_bloom_is_activeUniform_krishnaAttractor;
+GLuint bloom_thresh_minUniform_krishnaAttractor, bloom_thresh_maxUniform_krishnaAttractor;
 
 void initKrishnaAnimate()
 {
@@ -154,6 +155,11 @@ void initKrishnaAnimate()
 		"uniform float time;" \
 		"uniform int virat_roop_start;" \
 
+		"uniform int applyBloom;" \
+		"uniform float bloom_thresh_min = 0.8f;" \
+		"uniform float bloom_thresh_max = 1.2f;" \
+		"uniform int u_bloom_is_active;" \
+
 		"void main(void)" \
 		"{" \
 		"vec3 phong_ads_color;" \
@@ -184,6 +190,24 @@ void initKrishnaAnimate()
 		"FragColor		= vec4(phong_ads_color,1.0f);"\
 		"}" \
 
+		"if(applyBloom == 1)" \
+		"{" \
+		"vec4 c = vec4(phong_ads_color, 1.0);" \
+		"if (u_bloom_is_active == 1)" \
+		"{" \
+		"float Y = dot(vec4(phong_ads_color, 1.0), vec4(0.299, 0.587, 0.144, 1.0));\n" \
+		"c = vec4(phong_ads_color, 1.0) * 4.0 * smoothstep(bloom_thresh_min, bloom_thresh_max, Y);\n" \
+		"BloomColor = vec4(c);\n" \
+		"}" \
+		"else" \
+		"{" \
+		"BloomColor = c;\n" \
+		"}" \
+		"}" \
+		"else" \
+		"{" \
+		"BloomColor = vec4(0.0);" \
+		"}" \
 
 		//"if(virat_roop_start == 1)" \
 				"FragColor		= vec4(0.2,0.1,1.0,1.0f);" 
@@ -193,7 +217,7 @@ void initKrishnaAnimate()
 		"discard;" \
 		"}" \
 
-		"BloomColor = vec4(0.0);" \
+		/*"BloomColor = vec4(0.0);" \*/
 
 		"}";
 
@@ -246,6 +270,11 @@ void initKrishnaAnimate()
 	gTimeUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "time");
 	gViratRoopStartUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "virat_roop_start");
 
+	applyBloomUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "applyBloom");
+	u_bloom_is_activeUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "u_bloom_is_active");
+	bloom_thresh_minUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "bloom_thresh_min");
+	bloom_thresh_maxUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "bloom_thresh_max");
+
 #pragma endregion
 
 	// SHADER PROGRAM OBJECT 3
@@ -286,10 +315,34 @@ void initKrishnaAnimate()
 		"\n" \
 		"layout (location = 0) out vec4 FragColor;" \
 		"layout (location = 1) out vec4 BloomColor;" \
+
+		"uniform int applyBloom;" \
+		"uniform float bloom_thresh_min = 0.8f;" \
+		"uniform float bloom_thresh_max = 1.2f;" \
+		"uniform int u_bloom_is_active;" \
+
 		"void main(void)" \
 		"{" \
 		"FragColor = vec4(255.0/255.0,215.0/255.0,0.0,0.5);"
-		"BloomColor = vec4(0.0);" \
+		
+		"if(applyBloom == 1)" \
+		"{" \
+			"vec4 c = FragColor;" \
+			"if (u_bloom_is_active == 1)" \
+			"{" \
+			"float Y = dot(FragColor, vec4(0.299, 0.587, 0.144, 1.0));\n" \
+			"c = FragColor * 4.0 * smoothstep(bloom_thresh_min, bloom_thresh_max, Y);\n" \
+			"BloomColor = vec4(c);\n" \
+			"}" \
+			"else" \
+			"{" \
+			"BloomColor = c;\n" \
+			"}" \
+		"}" \
+		"else" \
+		"{" \
+			"BloomColor = vec4(0.0);" \
+		"}" \
 		//"FragColor = vec4(0.2,0.1,1.0,0.5);" 
 		"}";
 
@@ -319,6 +372,11 @@ void initKrishnaAnimate()
 	gModelMatrixUniform_krishnaAttractor = glGetUniformLocation(gShaderProgramObject_attractor_krishna, "u_model_matrix");
 	gViewMatrixUniform_krishnaAttractor = glGetUniformLocation(gShaderProgramObject_attractor_krishna, "u_view_matrix");
 	gProjectionMatrixUniform_krishnaAttractor = glGetUniformLocation(gShaderProgramObject_attractor_krishna, "u_projection_matrix");
+
+	applyBloomUniform_krishnaAttractor = glGetUniformLocation(gShaderProgramObject_attractor_krishna, "applyBloom");
+	u_bloom_is_activeUniform_krishnaAttractor = glGetUniformLocation(gShaderProgramObject_attractor_krishna, "u_bloom_is_active");
+	bloom_thresh_minUniform_krishnaAttractor = glGetUniformLocation(gShaderProgramObject_attractor_krishna, "bloom_thresh_min");
+	bloom_thresh_maxUniform_krishnaAttractor = glGetUniformLocation(gShaderProgramObject_attractor_krishna, "bloom_thresh_max");
 
 #pragma endregion
 }
@@ -376,6 +434,11 @@ void display_krishnaAnimate()
 	glUseProgram(0);
 	glUseProgram(gShaderProgramObject_krishnaAnimate);
 	
+
+	glUniform1i(u_bloom_is_activeUniform_krishnaAnimate, 1);
+	glUniform1f(bloom_thresh_minUniform_krishnaAnimate, bloom_thresh_min);
+	glUniform1f(bloom_thresh_maxUniform_krishnaAnimate, bloom_thresh_max);
+	glUniform1i(applyBloomUniform_krishnaAnimate, 0);
 
 	glUniform1i(gLKeyPressedUniform_krishnaAnimate, 1);
 
@@ -457,6 +520,11 @@ void display_krishnaAnimate()
 		glPointSize(1.5);
 		glUseProgram(gShaderProgramObject_attractor_krishna);
 
+		glUniform1i(u_bloom_is_activeUniform_krishnaAttractor, 1);
+		glUniform1f(bloom_thresh_minUniform_krishnaAttractor, bloom_thresh_min);
+		glUniform1f(bloom_thresh_maxUniform_krishnaAttractor, bloom_thresh_max);
+		glUniform1i(applyBloomUniform_krishnaAttractor, 1);
+
 		modelMatrix = mat4::identity();
 		scaleMatrix = mat4::identity();
 		rotateMatrix = mat4::identity();
@@ -476,6 +544,11 @@ void display_krishnaAnimate()
 		glBindVertexArray(0);
 
 		glUseProgram(0);
+
+		glDisable(GL_ALPHA_TEST);
+		glDisable(GL_BLEND);
+		glDisable(GL_POINT_SMOOTH);
+
 	}
 
 	glDisable(GL_ALPHA_TEST);
