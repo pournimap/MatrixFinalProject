@@ -2,7 +2,7 @@
 
 
 #include "Include/BasicShapeLoader/Shapes/Matrix_BasicShapes.h"
-#include "Scene/FrameBuffer/FrameBuffer.h"
+
 
 //Add your header files here
 #include "Scene/PerFragment.h"
@@ -12,8 +12,6 @@
 #include"Scene/KrishnaAnimate/KrishnaAnimate5.h"
 #include"Scene/KrishnaAnimate/KrishnaAnimationUsingAssimp.h"
 #include "Scene/DepthOfField/DepthOfField.h"
-#include "Scene/FinalScene/FinalScene.h"
-
 
 
 // Callback
@@ -559,10 +557,6 @@ int initialize(void)
 	initQuadShape();
 	LoadAllModels();
 
-	//Init all FrameBuffer
-	initFramebufferForBloom();
-	initFramebufferForAll();
-
 	//Load All Scenes
 
 	initialize_perFragmentLight();
@@ -571,7 +565,6 @@ int initialize(void)
 	initialize_krishnaAnimate();
 	initialize_AssimpModelLoader();
 	
-
 	Clothintialize();
 
 	initialize_fire();
@@ -580,7 +573,6 @@ int initialize(void)
 	
 	initializeDepthOfField();
 
-	initFinalShaderProgramObject();
 	// ................................................................................................
 	//
 	// Initialize your specific scene here above
@@ -617,33 +609,34 @@ void display(void)
 	static const GLfloat black[] = { 0.0f, 0.0f, 0.0, 1.0f };
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	glViewport(0, 0, gWidth, gHeight);
 	//call your scene Display here
-	ShowBloomAttractor();
 
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_for_All);
-	glClearBufferfv(GL_COLOR, 0, black);	// GL_COLOR_ATTACHMENT1
+	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo_bloom);
+	glClearBufferfv(GL_COLOR, 0, black);	// GL_COLOR_ATTACHMENT0
+	glClearBufferfv(GL_COLOR, 1, black);	// GL_COLOR_ATTACHMENT1
 	glClearBufferfv(GL_DEPTH, 0, &one);
+
 	//applyDOF();
 	
 	display_perFragmentLight();
 	
 	display_pointLight();
-	
-
+		
 	Clothdisplay();
-	
+
 	if(isAssimpAnimatedModelShow == true)
 		display_AssimpModelLoader();
 	else
 		display_krishnaAnimate();
 	
-	//display_fire();
+	display_fire();
 	
 	//stopApplyingDOF();
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	display_FinalScene();
+	ApplyingBloom();
 
 	SwapBuffers(ghdc);
 }
@@ -671,10 +664,6 @@ void resize(int width, int height)
 	gWidth = width;
 	gHeight = height;
 
-	static bool FirstTime = true;
-	if (FirstTime == false)
-		UpdateFrameBuffer(width, height);
-	FirstTime = false;
 }
 
 void ToggleFullScreen(void)

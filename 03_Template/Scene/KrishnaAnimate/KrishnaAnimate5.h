@@ -31,6 +31,11 @@ GLuint gTextureSamplerUniform_krishnaAnimate, gTextureActiveUniform_krishnaAnima
 GLuint gTimeUniform_krishnaAnimate;
 GLuint gViratRoopStartUniform_krishnaAnimate;
 
+GLuint applyBloomUniform_krishnaAnimate, u_bloom_is_activeUniform_krishnaAnimate;
+GLuint bloom_thresh_minUniform_krishnaAnimate, bloom_thresh_maxUniform_krishnaAnimate;
+
+bool startJoin_krishnaAnimate = false;
+
 float ftime_krishnaAnimate = 0.0f;
 
 GLfloat lightAmbient_krishnaAnimate[] = { 0.0f,0.0f,0.0f,1.0f };
@@ -43,17 +48,21 @@ GLfloat lightPosition_krishnaAnimate[] = { 100.0f,100.0f,100.0f,1.0f };
 GLfloat gfKrishnaModelScale = 70.0f;
 
 //
-//GLuint VaoForAttractor;
-//GLuint VboForAttractor;
+GLuint VaoForAttractor;
+GLuint VboForAttractor;
 
 
-//std::vector<float> vertices_attractor;
+std::vector<float> vertices_attractor;
 
 // for different attaractor
 //GLfloat t_for_attractor = 0.02f;
 GLfloat t_for_attractor = 0.03f;
 //GLfloat Rotate = 0.0f;
 GLfloat b_for_attractor = 0.037f;
+
+GLfloat X_Pos_attractor = -400.0f;
+GLfloat Y_Pos_attractor = 150.0f;
+GLfloat Z_Pos_attractor = -10.0f;
 
 GLuint gModelMatrixUniform_krishnaAttractor;
 GLuint gViewMatrixUniform_krishnaAttractor;
@@ -127,7 +136,8 @@ void initKrishnaAnimate()
 
 		"in vec4 out_gl_pos;" \
 
-		"out vec4 FragColor;" \
+		"layout (location = 0) out vec4 FragColor;" \
+		"layout (location = 1) out vec4 BloomColor;" \
 
 		"uniform vec3 u_La;" \
 		"uniform vec3 u_Ld;" \
@@ -167,12 +177,13 @@ void initKrishnaAnimate()
 		"if(u_is_texture == 1)" \
 		"{" \
 		"Final_Texture	= texture(u_texture0_sampler, out_texcord); " \
-		"FragColor		= vec4(phong_ads_color, u_alpha) * Final_Texture;" \
+		"FragColor		= vec4(phong_ads_color, 1.0f) * Final_Texture;" \
 		"}" \
 		"else" \
 		"{" \
 		"FragColor		= vec4(phong_ads_color,1.0f);"\
 		"}" \
+
 
 		//"if(virat_roop_start == 1)" \
 				"FragColor		= vec4(0.2,0.1,1.0,1.0f);" 
@@ -181,6 +192,8 @@ void initKrishnaAnimate()
 		"{" \
 		"discard;" \
 		"}" \
+
+		"BloomColor = vec4(0.0);" \
 
 		"}";
 
@@ -232,14 +245,114 @@ void initKrishnaAnimate()
 
 	gTimeUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "time");
 	gViratRoopStartUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "virat_roop_start");
+
 #pragma endregion
 
+	// SHADER PROGRAM OBJECT 3
+	// for attractors
+
+	//VERTEX SHADER
+	gVertexShaderObject_attractor_krishna = glCreateShader(GL_VERTEX_SHADER);
+
+	const GLchar* vertextShaderSourceCode_attractor_krishna =
+		"#version 440 core" \
+		"\n" \
+		"in vec4 vPosition;" \
+
+		"uniform mat4 u_model_matrix;" \
+		"uniform mat4 u_view_matrix;" \
+		"uniform mat4 u_projection_matrix;" \
+
+		"void main(void)" \
+		"{" \
+		"gl_Position		= u_projection_matrix * u_view_matrix * u_model_matrix * vPosition;" \
+		"}";
+
+	glShaderSource(gVertexShaderObject_attractor_krishna, 1, (const GLchar**)&vertextShaderSourceCode_attractor_krishna, NULL);
+
+	//compile shader
+	glCompileShader(gVertexShaderObject_attractor_krishna);
+
+	// Error checking
+	checkCompilationLog((char*)"gVertexShaderObject_attractor_krishna", gVertexShaderObject_attractor_krishna);
+
+
+	//FRAGMENT SHADER
+
+	gFragmentShaderObject_attractor_krishna = glCreateShader(GL_FRAGMENT_SHADER);
+
+	const GLchar* fragmentShaderSourceCode_attractor_krishna =
+		"#version 440 core" \
+		"\n" \
+		"layout (location = 0) out vec4 FragColor;" \
+		"layout (location = 1) out vec4 BloomColor;" \
+		"void main(void)" \
+		"{" \
+		"FragColor = vec4(255.0/255.0,215.0/255.0,0.0,0.5);"
+		"BloomColor = vec4(0.0);" \
+		//"FragColor = vec4(0.2,0.1,1.0,0.5);" 
+		"}";
+
+	glShaderSource(gFragmentShaderObject_attractor_krishna, 1, (const GLchar**)&fragmentShaderSourceCode_attractor_krishna, NULL);
+	glCompileShader(gFragmentShaderObject_attractor_krishna);
+
+	// Error checking
+	checkCompilationLog((char*)"gFragmentShaderObject_attractor_krishna", gFragmentShaderObject_attractor_krishna);
+
+
+	//Shader Program
+
+	gShaderProgramObject_attractor_krishna = glCreateProgram();
+
+	glAttachShader(gShaderProgramObject_attractor_krishna, gVertexShaderObject_attractor_krishna);
+	glAttachShader(gShaderProgramObject_attractor_krishna, gFragmentShaderObject_attractor_krishna);
+
+	glBindAttribLocation(gShaderProgramObject_attractor_krishna, MATRIX_ATTRIBUTE_POSITION, "vPosition");
+	//glBindAttribLocation(gShaderProgramObject_attractor_krishna, MATRIX_ATTRIBUTE_TEXTURE0, "vTexcoord");
+
+	glLinkProgram(gShaderProgramObject_attractor_krishna);
+
+	// Error checking
+	checkLinkLog((char*)"gShaderProgramObject_attractor_krishna", gShaderProgramObject_attractor_krishna);
+
+
+	gModelMatrixUniform_krishnaAttractor = glGetUniformLocation(gShaderProgramObject_attractor_krishna, "u_model_matrix");
+	gViewMatrixUniform_krishnaAttractor = glGetUniformLocation(gShaderProgramObject_attractor_krishna, "u_view_matrix");
+	gProjectionMatrixUniform_krishnaAttractor = glGetUniformLocation(gShaderProgramObject_attractor_krishna, "u_projection_matrix");
+
+#pragma endregion
 }
 
 void initialize_krishnaAnimate()
 {
 	initKrishnaAnimate();
 
+	for (GLfloat i = -2.0f; i <= 2.0f; i = i + 0.15f)
+	{
+		for (GLfloat j = -2.0f; j <= 2.0f; j = j + 0.15f)
+		{
+			for (GLfloat k = -2.0f; k <= 2.0f; k = k + 0.05f)
+			{
+				vertices_attractor.push_back(i);
+				vertices_attractor.push_back(j);
+				vertices_attractor.push_back(k);
+			}
+		}
+	}
+
+	// create VaoForAttractor
+	glGenVertexArrays(1, &VaoForAttractor);
+	glBindVertexArray(VaoForAttractor);
+
+	// create VboForAttractorForAttractor
+	glGenBuffers(1, &VboForAttractor);
+	glBindBuffer(GL_ARRAY_BUFFER, VboForAttractor);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices), triangleVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices_attractor.size() * sizeof(float), NULL, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(MATRIX_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_POSITION);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 }
 
 void display_krishnaAnimate()
@@ -332,6 +445,38 @@ void display_krishnaAnimate()
 	glBindVertexArray(0);
 
 	glUseProgram(0);
+
+	if (startJoin_krishnaAnimate)
+	{
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_NOTEQUAL, 0);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+		glEnable(GL_POINT_SMOOTH);
+		glPointSize(1.5);
+		glUseProgram(gShaderProgramObject_attractor_krishna);
+
+		modelMatrix = mat4::identity();
+		scaleMatrix = mat4::identity();
+		rotateMatrix = mat4::identity();
+
+		modelMatrix = vmath::translate(X_Pos_attractor, Y_Pos_attractor, Z_Pos_attractor);
+		scaleMatrix = scale(30.0f, 30.0f, 30.0f);
+		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
+
+		glUniformMatrix4fv(gModelMatrixUniform_krishnaAttractor, 1, GL_FALSE, modelMatrix);
+		glUniformMatrix4fv(gViewMatrixUniform_krishnaAttractor, 1, GL_FALSE, gViewMatrix);								    // globally camera set in perFrag file
+		glUniformMatrix4fv(gProjectionMatrixUniform_krishnaAttractor, 1, GL_FALSE, gPerspectiveProjectionMatrix);			// globally pojection set
+
+		glBindVertexArray(VaoForAttractor);
+		glBindBuffer(GL_ARRAY_BUFFER, VboForAttractor);
+		glBufferData(GL_ARRAY_BUFFER, vertices_attractor.size() * sizeof(float), &vertices_attractor[0], GL_DYNAMIC_DRAW);
+		glDrawArrays(GL_POINTS, 0, vertices_attractor.size());
+		glBindVertexArray(0);
+
+		glUseProgram(0);
+	}
 
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);

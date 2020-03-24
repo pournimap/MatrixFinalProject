@@ -15,6 +15,8 @@ GLuint gMaterialShininessUniform_krishnaAnimateAssimp;
 GLuint gLKeyPressedUniform_krishnaAnimateAssimp;
 GLuint gTextureSamplerUniform_krishnaAnimateAssimp, gTextureActiveUniform_krishnaAnimateAssimp, gAlphaUniform_krishnaAnimateAssimp;
 GLuint gViewPosUniform_krishnaAnimateAssimp, gNumPointLightsUniform_krishnaAnimateAssimp, gIs_animatedUniform_krishnaAnimateAssimp;
+GLuint applyBloomUniform_krishnaAnimateAssimp, u_bloom_is_activeUniform_krishnaAnimateAssimp;
+GLuint bloom_thresh_minUniform_krishnaAnimateAssimp, bloom_thresh_maxUniform_krishnaAnimateAssimp;
 
 Model krishna_Animated;
 
@@ -103,7 +105,8 @@ void initAssimpModelLoaderShader()
 		"in vec3 viewer_vector;" \
 		"in vec2 out_texcord;" \
 
-		"out vec4 FragColor;" \
+		"layout (location = 0) out vec4 FragColor;" \
+		"layout (location = 1) out vec4 BloomColor;" \
 
 		"uniform vec3 u_La;" \
 		"uniform vec3 u_Ld;" \
@@ -143,12 +146,14 @@ void initAssimpModelLoaderShader()
 			"if(u_is_texture == 1)" \
 			"{" \
 				"Final_Texture	= texture(u_texture0_sampler, out_texcord); " \
-				"FragColor		= vec4(phong_ads_color, u_alpha) * Final_Texture;" \
+				"FragColor		= vec4(phong_ads_color, 1.0f) * Final_Texture;" \
 			"}" \
 			"else" \
 			"{" \
 				"FragColor		= vec4(phong_ads_color,1.0f);"\
 			"}" \
+
+		"BloomColor = vec4(0.0);" \
 		"}";
 		
 	glShaderSource(gFragmentShaderObject_krishnaAnimateAssimp, 1, (const GLchar**)&fragmentShaderSourceCode, NULL);

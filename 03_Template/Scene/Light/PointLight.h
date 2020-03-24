@@ -17,6 +17,8 @@ GLuint gMaterialShininessUniform_pointLight;
 GLuint gLKeyPressedUniform_pointLight;
 GLuint gTextureSamplerUniform_pointLight, gTextureActiveUniform_pointLight, gAlphaUniform_pointLight;
 GLuint gViewPosUniform_pointLight, gNumPointLightsUniform_pointLight;
+GLuint applyBloomUniform_pointLight, u_bloom_is_activeUniform_pointLight;
+GLuint bloom_thresh_minUniform_pointLight, bloom_thresh_maxUniform_pointLight;
 
 #define gNumPointLights_pointLight  18
 struct PointLightUniform
@@ -161,7 +163,8 @@ void initPointLightShader()
 		"in vec3 fragment_position;" \
 		"in vec2 out_texcord;" \
 
-		"out vec4 FragColor;" \
+		"layout (location = 0) out vec4 FragColor;" \
+		"layout (location = 1) out vec4 BloomColor;" \
 
 		"uniform vec3 u_La;" \
 		"uniform vec3 u_Ld;" \
@@ -174,6 +177,11 @@ void initPointLightShader()
 		"uniform sampler2D u_texture0_sampler;"\
 		"uniform int u_is_texture;" \
 		"uniform float u_alpha;" \
+
+		"uniform int applyBloom;" \
+		"uniform float bloom_thresh_min = 0.8f;" \
+		"uniform float bloom_thresh_max = 1.2f;" \
+		"uniform int u_bloom_is_active;" \
 
 		"vec3 calculatePointLight(int index)" \
 		"{" \
@@ -250,6 +258,25 @@ void initPointLightShader()
 			"else" \
 			"{" \
 				"FragColor = vec4(phong_ads_color, u_alpha);" \
+			"}" \
+
+			"if(applyBloom == 1)" \
+			"{" \
+			"vec4 c = vec4(phong_ads_color, 1.0);" \
+			"if (u_bloom_is_active == 1)" \
+			"{" \
+			"float Y = dot(vec4(phong_ads_color, 1.0), vec4(0.299, 0.587, 0.144, 1.0));\n" \
+			"c = vec4(phong_ads_color, 1.0) * 4.0 * smoothstep(bloom_thresh_min, bloom_thresh_max, Y);\n" \
+			"BloomColor = vec4(c);\n" \
+			"}" \
+			"else" \
+			"{" \
+			"BloomColor = vec4(phong_ads_color, 1.0);\n" \
+			"}" \
+			"}" \
+			"else" \
+			"{" \
+			"BloomColor = vec4(0.0);" \
 			"}" \
 		"}";
 
@@ -334,7 +361,11 @@ void initPointLightShader()
 		m_pointLightsLocation[i].DiffuseIntensity = glGetUniformLocation(gShaderProgramObject_pointLight, Name);
 	}
 	
-	
+	applyBloomUniform_pointLight = glGetUniformLocation(gShaderProgramObject_pointLight, "applyBloom");
+	u_bloom_is_activeUniform_pointLight = glGetUniformLocation(gShaderProgramObject_pointLight, "u_bloom_is_active");
+	bloom_thresh_minUniform_pointLight = glGetUniformLocation(gShaderProgramObject_pointLight, "bloom_thresh_min");
+	bloom_thresh_maxUniform_pointLight = glGetUniformLocation(gShaderProgramObject_pointLight, "bloom_thresh_max");
+
 }
 
 
@@ -387,6 +418,11 @@ void display_pointLight()
 	
 	glUseProgram(gShaderProgramObject_pointLight);
 
+
+	glUniform1i(u_bloom_is_activeUniform_pointLight, 1);
+	glUniform1f(bloom_thresh_minUniform_pointLight, bloom_thresh_min);
+	glUniform1f(bloom_thresh_maxUniform_pointLight, bloom_thresh_max);
+	glUniform1i(applyBloomUniform_pointLight, 0);
 	if (gbLight == true)
 	{
 		glUniform1i(gLKeyPressedUniform_pointLight, 1);
@@ -602,7 +638,7 @@ void display_pointLight()
 		glBindVertexArray(0);
 	}
 	//*/
-
+	glUniform1i(applyBloomUniform_pointLight, 1);
 	for (int i = 0; i < gNumPointLights_pointLight; i++)
 	{
 		modelMatrix = mat4::identity();

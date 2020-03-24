@@ -9,6 +9,8 @@ GLuint gShaderProgramObject_fire;
 
 
 GLuint gModelMatrixUniform_fire, gViewMatrixUniform_fire, gProjectionMatrixUniform_fire;
+GLuint applyBloomUniform_fire, u_bloom_is_activeUniform_fire;
+GLuint bloom_thresh_minUniform_fire, bloom_thresh_maxUniform_fire;
 
 mat4 gPerspectiveProjectionMatrix_fire;
 
@@ -110,7 +112,13 @@ void initfire(void)
 		"in float vLifetime;" \
 		"in vec2 color;" \
 
-		"out vec4 FragColor;" \
+		"layout (location = 0) out vec4 FragColor;" \
+		"layout (location = 1) out vec4 BloomColor;" \
+
+		"uniform int applyBloom;" \
+		"uniform float bloom_thresh_min = 0.8f;" \
+		"uniform float bloom_thresh_max = 1.2f;" \
+		"uniform int u_bloom_is_active;" \
 
 		"void main(void)" \
 		"{" \
@@ -122,6 +130,26 @@ void initfire(void)
 		"if(ColorTemp.r < 0.1 && ColorTemp.g < 0.1 && ColorTemp.b < 0.1)" \
 			"discard;" \
 		"FragColor		= ColorTemp;" \
+
+
+		"if(applyBloom == 1)" \
+		"{" \
+		"vec4 c = ColorTemp;" \
+		"if (u_bloom_is_active == 1)" \
+		"{" \
+		"float Y = dot(ColorTemp, vec4(0.299, 0.587, 0.144, 1.0));\n" \
+		"c = ColorTemp * 4.0 * smoothstep(bloom_thresh_min, bloom_thresh_max, Y);\n" \
+		"BloomColor = vec4(c);\n" \
+		"}" \
+		"else" \
+		"{" \
+		"BloomColor = ColorTemp;\n" \
+		"}" \
+		"}" \
+		"else" \
+		"{" \
+		"BloomColor = vec4(0.0);" \
+		"}" \
 		"}";
 
 	glShaderSource(gFragmentShaderObject_fire, 1, (const GLchar**)&fragmentShaderSourceCode_fire, NULL);
@@ -153,6 +181,12 @@ void initfire(void)
 	gModelMatrixUniform_fire = glGetUniformLocation(gShaderProgramObject_fire, "u_model_matrix");
 	gViewMatrixUniform_fire = glGetUniformLocation(gShaderProgramObject_fire, "u_view_matrix");
 	gProjectionMatrixUniform_fire = glGetUniformLocation(gShaderProgramObject_fire, "u_projection_matrix");
+
+	applyBloomUniform_fire = glGetUniformLocation(gShaderProgramObject_fire, "applyBloom");
+	u_bloom_is_activeUniform_fire = glGetUniformLocation(gShaderProgramObject_fire, "u_bloom_is_active");
+	bloom_thresh_minUniform_fire = glGetUniformLocation(gShaderProgramObject_fire, "bloom_thresh_min");
+	bloom_thresh_maxUniform_fire = glGetUniformLocation(gShaderProgramObject_fire, "bloom_thresh_max");
+
 }
 
 void initialize_fire(void)
@@ -242,6 +276,11 @@ void display_fire(void)
 		t_fire = 0.0f;
 		
 	glUseProgram(gShaderProgramObject_fire);
+
+	glUniform1i(u_bloom_is_activeUniform_fire, 1);
+	glUniform1f(bloom_thresh_minUniform_fire, bloom_thresh_min);
+	glUniform1f(bloom_thresh_maxUniform_fire, bloom_thresh_max);
+	glUniform1i(applyBloomUniform_fire, 1);
 
 	mat4 modelMatrix_fire	= mat4::identity();
 	mat4 scaleMatrix_fire	= mat4::identity();
