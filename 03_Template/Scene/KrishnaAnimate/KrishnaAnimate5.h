@@ -385,11 +385,11 @@ void initialize_krishnaAnimate()
 {
 	initKrishnaAnimate();
 
-	for (GLfloat i = -2.0f; i <= 2.0f; i = i + 0.15f)
+	for (GLfloat i = -2.0f; i <= 2.0f; i = i + 0.25f)
 	{
-		for (GLfloat j = -2.0f; j <= 2.0f; j = j + 0.15f)
+		for (GLfloat j = -2.0f; j <= 2.0f; j = j + 0.25f)
 		{
-			for (GLfloat k = -2.0f; k <= 2.0f; k = k + 0.05f)
+			for (GLfloat k = -2.0f; k <= 2.0f; k = k + 0.10f)
 			{
 				vertices_attractor.push_back(i);
 				vertices_attractor.push_back(j);
@@ -588,8 +588,10 @@ void update_krishnaAnimate()
 		if (ftime_krishnaAnimate > 1100.0f && Y_Pos_attractor > 150.0f)
 		{
 			Y_Pos_attractor = Y_Pos_attractor - 2.5f;
-			t_for_attractor = 0.05f;
-			b_for_attractor = 0.03f;
+			//t_for_attractor = 0.05f;
+			t_for_attractor = 0.1f;
+			//b_for_attractor = 0.03f;
+			b_for_attractor = 0.045f;
 		}
 		else if (Y_Pos_attractor < 1350.0f)
 		{

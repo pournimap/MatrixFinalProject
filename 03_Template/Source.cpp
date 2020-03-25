@@ -435,16 +435,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		
 		case 'E':
 		case 'e':
-			//Done_krishnaAnimate			= false;
-			//startExplode_krishnaAnimate = true;
-			//startJoin_krishnaAnimate	= false;
+			vmath_camera_eye_coord[0] = -60.0f;
+			vmath_camera_eye_coord[1] = 180.0f;
+			vmath_camera_eye_coord[2] = 330.0f;
+
+			vmath_camera_center_coord[0] = -250.0f;
+			vmath_camera_center_coord[1] = 195.00f;
+			vmath_camera_center_coord[2] = 0.0f;
 			break;
 
 		case 'R':
 		case 'r':
-			
-			//startJoin_krishnaAnimate = true;
-			//DoneFlag_krishnaAnimate  = !DoneFlag_krishnaAnimate;
 			break;
 
 		case 'Y':
