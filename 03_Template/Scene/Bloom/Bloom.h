@@ -1,14 +1,15 @@
 #pragma once
 
-bool bShowBloom_bloom = true;
+bool bShowBloom_bloom = false;
 
 enum {
 	MAX_SCENE_WIDTH = 2048,
-	MAX_SCENE_HEIGHT = 2048
+	MAX_SCENE_HEIGHT = 2048,
+	FBO_SIZE = 2048
 };
 
-GLsizei currentWidth;
-GLsizei currentHeight;
+//GLsizei currentWidth;
+//GLsizei currentHeight;
 
 struct {
 	struct {
@@ -19,8 +20,6 @@ struct {
 } uniforms;
 
 float bloomFactor = 1.5f;
-
-GLuint bloomIsActiveUniform;
 
 GLuint render_fbo_bloom;
 GLuint gaussian_blur_fbo_bloom[2];
@@ -36,6 +35,11 @@ GLuint vao_framebuffer_bloom;
 float exposure_bloom = 1.0f;
 
 GLuint ShaderProgramObject_hdrBloomScene;
+GLuint bloomIsActiveUniform_hdrBloomScene;
+GLuint mvpUniform_hdrBloomScene;
+GLuint bloom_thresh_min_hdrBloomScene;
+GLuint bloom_thresh_max_hdrBloomScene;
+
 GLuint ShaderProgramObject_GaussianBlur_Y_Direction;
 GLuint ShaderProgramObject_GaussianBlur_X_Direction;
 GLuint ShaderProgramObject_Final_Display_Resolution;
@@ -124,8 +128,10 @@ void initializeBloom(void) {
 	checkLinkLog("ShaderProgramObject_hdrBloomScene", ShaderProgramObject_hdrBloomScene);
 
 	// Post-linking
-	bloomIsActiveUniform = glGetUniformLocation(ShaderProgramObject_hdrBloomScene, "u_bloom_is_active");
-
+	bloomIsActiveUniform_hdrBloomScene = glGetUniformLocation(ShaderProgramObject_hdrBloomScene, "u_bloom_is_active");
+	mvpUniform_hdrBloomScene = glGetUniformLocation(ShaderProgramObject_hdrBloomScene, "u_mvp_matrix");
+	bloom_thresh_min_hdrBloomScene = glGetUniformLocation(ShaderProgramObject_hdrBloomScene, "bloom_thresh_min");
+	bloom_thresh_max_hdrBloomScene = glGetUniformLocation(ShaderProgramObject_hdrBloomScene, "bloom_thresh_max");
 	// **** HDRBloom Filter Vertex Shader *****
 	hdrBloomFilterVertexShaderObject = glCreateShader(GL_VERTEX_SHADER);
 
@@ -416,29 +422,7 @@ void initializeBloom(void) {
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	
-	// Quad
-	/*glGenVertexArrays(1, &vao_quad_framebuffer_display);
-	glBindVertexArray(vao_quad_framebuffer_display);
-	
-	// Position Array
-	const GLfloat position_quad_framebuffer_display[] = 
-	{
-		1.0f, 1.0f, 0.0f,
-		-1.0f, 1.0f, 0.0f,
-		-1.0f, -1.0f, 0.0f,
-		1.0f, -1.0f, 0.0
-	};
-	
-	glGenBuffers(1, &vbo_quad_framebuffer_display);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_quad_framebuffer_display);
-	
-	glBufferData(GL_ARRAY_BUFFER, sizeof(position_quad_framebuffer_display), position_quad_framebuffer_display, GL_STATIC_DRAW);
-	
-	glVertexAttribPointer(MATRIX_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_POSITION);
-	
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);*/
+
 }
 
 void applyBloom(void) {
@@ -455,23 +439,27 @@ void applyBloom(void) {
 	glClearBufferfv(GL_COLOR, 1, black);	// GL_COLOR_ATTACHMENT1
 	glClearBufferfv(GL_DEPTH, 0, &one);
 
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
+	/*glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);*/
 
 	glUseProgram(ShaderProgramObject_hdrBloomScene);
-	glUniform1i(bloomIsActiveUniform, (GLint)one);
+
+	glUniform1i(bloomIsActiveUniform_hdrBloomScene, (GLint)one);
+	glUniform1f(bloom_thresh_min_hdrBloomScene, bloom_thresh_min);
+	glUniform1f(bloom_thresh_max_hdrBloomScene, bloom_thresh_max);
 }
 
-void stopApplyingBloom(void) {
+void ApplyingBloom(void) {
 	// variable declarations
 	static const GLfloat black[] = { 0.0f, 0.0f, 0.0, 1.0f };
+	static const GLfloat one = { 1.0f };
 
 	// code
-	glUseProgram(0);
+	//glUseProgram(0);
 	
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	glDisable(GL_DEPTH_TEST);
+	/*glDisable(GL_DEPTH_TEST);*/
 
 	glUseProgram(ShaderProgramObject_GaussianBlur_Y_Direction);
 
@@ -490,6 +478,7 @@ void stopApplyingBloom(void) {
 	glBindFramebuffer(GL_FRAMEBUFFER, gaussian_blur_fbo_bloom[1]);
 	glClearBufferfv(GL_COLOR, 0, black);
 
+
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texGaussianBlur_bloom[0]);
 
@@ -497,28 +486,24 @@ void stopApplyingBloom(void) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glUseProgram(0);
 
+
+	glClearBufferfv(GL_COLOR, 0, black);
+	glClearBufferfv(GL_DEPTH, 0, &one);
+
 	glUseProgram(ShaderProgramObject_Final_Display_Resolution);
 
 	glUniform1f(uniforms.resolve.exposure_bloom, exposure_bloom);
 	glUniform1f(uniforms.resolve.scene_factor, 1.0f);
 	glUniform1f(uniforms.resolve.bloom_factor, bShowBloom_bloom ? bloomFactor : 0.0f);
 	
-	//mat4 modelMatrix = mat4::identity();
-	
-	//modelMatrix = translate(0.0f, 0.0f, -1.0f);
-	
-	//glUniformMatrix4fv(mvpMatrixFramebufferQuadDisplay, 1, GL_FALSE, gPerspectiveProjectionMatrix * gViewMatrix * modelMatrix);
 
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glActiveTexture(GL_TEXTURE1);
 	//glBindTexture(GL_TEXTURE_2D, texScene_bloom);
 	glBindTexture(GL_TEXTURE_2D, texGaussianBlur_bloom[1]);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texScene_bloom);
-	//glBindTexture(GL_TEXTURE_2D, texGaussianBlur_bloom[1]);
 
-	//glBindVertexArray(vao_quad_framebuffer_display);
 	glBindVertexArray(vao_framebuffer_bloom);
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -527,14 +512,17 @@ void stopApplyingBloom(void) {
 
 	glUseProgram(0);
 
-	glClearDepth(1.0f);
+	//glClearDepth(1.0f);
 	glDepthFunc(GL_LEQUAL);
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
 }
+
+
 
 void uninitializeBloom(void) {
 	// code
 	// Safe Release
+
 	if (render_fbo_bloom) {
 		glDeleteFramebuffers(1, &render_fbo_bloom);
 		render_fbo_bloom = 0;

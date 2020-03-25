@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Include/BasicShapeLoader/Model/Matrix_Obj_Loader.h"
+#include "../../Include/BasicShapeLoader/Model/BasicOBJLoader/Matrix_Obj_Loader.h"
 
 GLuint gVertexShaderObject_pointLight;
 GLuint gFragmentShaderObject_pointLight;
@@ -17,8 +17,10 @@ GLuint gMaterialShininessUniform_pointLight;
 GLuint gLKeyPressedUniform_pointLight;
 GLuint gTextureSamplerUniform_pointLight, gTextureActiveUniform_pointLight, gAlphaUniform_pointLight;
 GLuint gViewPosUniform_pointLight, gNumPointLightsUniform_pointLight;
+GLuint applyBloomUniform_pointLight, u_bloom_is_activeUniform_pointLight;
+GLuint bloom_thresh_minUniform_pointLight, bloom_thresh_maxUniform_pointLight;
 
-#define gNumPointLights_pointLight  16
+#define gNumPointLights_pointLight  18
 struct PointLightUniform
 {
 	GLuint u_La;
@@ -152,7 +154,7 @@ void initPointLightShader()
 		"};" \
 		
 		"uniform int gNumPointLights;" \
-		"uniform PointLight pointLight[16];" \
+		"uniform PointLight pointLight[18];" \
 		"uniform vec3 viewPos;" \
 	
 		"in vec3 transformed_normals;" \
@@ -161,7 +163,8 @@ void initPointLightShader()
 		"in vec3 fragment_position;" \
 		"in vec2 out_texcord;" \
 
-		"out vec4 FragColor;" \
+		"layout (location = 0) out vec4 FragColor;" \
+		"layout (location = 1) out vec4 BloomColor;" \
 
 		"uniform vec3 u_La;" \
 		"uniform vec3 u_Ld;" \
@@ -175,6 +178,11 @@ void initPointLightShader()
 		"uniform int u_is_texture;" \
 		"uniform float u_alpha;" \
 
+		"uniform int applyBloom;" \
+		"uniform float bloom_thresh_min = 0.8f;" \
+		"uniform float bloom_thresh_max = 1.2f;" \
+		"uniform int u_bloom_is_active;" \
+
 		"vec3 calculatePointLight(int index)" \
 		"{" \
 		"vec3 pointLightColor;" \
@@ -184,12 +192,12 @@ void initPointLightShader()
 		"vec3 normalized_light_direction;" \
 		"vec3 normalized_viewer_vector;" \
 		
-		"if(index > 7)" \
+		"if(index > 8)" \
 		"{" \
 		"normalized_light_direction = normalize(pointLight[index].position - fragment_position); " \
 		"normalized_viewer_vector=normalize(viewPos - fragment_position);" \
 		"}" \
-		"else if(index <= 7)" \
+		"else if(index <= 8)" \
 		"{" \
 		"normalized_light_direction = normalize(pointLight[index].position + fragment_position); " \
 		"normalized_viewer_vector=normalize(viewPos + fragment_position);" \
@@ -250,6 +258,25 @@ void initPointLightShader()
 			"else" \
 			"{" \
 				"FragColor = vec4(phong_ads_color, u_alpha);" \
+			"}" \
+
+			"if(applyBloom == 1)" \
+			"{" \
+			"vec4 c = vec4(phong_ads_color, 1.0);" \
+			"if (u_bloom_is_active == 1)" \
+			"{" \
+			"float Y = dot(vec4(phong_ads_color, 1.0), vec4(0.299, 0.587, 0.144, 1.0));\n" \
+			"c = vec4(phong_ads_color, 1.0) * 4.0 * smoothstep(bloom_thresh_min, bloom_thresh_max, Y);\n" \
+			"BloomColor = vec4(c);\n" \
+			"}" \
+			"else" \
+			"{" \
+			"BloomColor = c;\n" \
+			"}" \
+			"}" \
+			"else" \
+			"{" \
+			"BloomColor = vec4(0.0);" \
 			"}" \
 		"}";
 
@@ -334,7 +361,11 @@ void initPointLightShader()
 		m_pointLightsLocation[i].DiffuseIntensity = glGetUniformLocation(gShaderProgramObject_pointLight, Name);
 	}
 	
-	
+	applyBloomUniform_pointLight = glGetUniformLocation(gShaderProgramObject_pointLight, "applyBloom");
+	u_bloom_is_activeUniform_pointLight = glGetUniformLocation(gShaderProgramObject_pointLight, "u_bloom_is_active");
+	bloom_thresh_minUniform_pointLight = glGetUniformLocation(gShaderProgramObject_pointLight, "bloom_thresh_min");
+	bloom_thresh_maxUniform_pointLight = glGetUniformLocation(gShaderProgramObject_pointLight, "bloom_thresh_max");
+
 }
 
 
@@ -342,30 +373,11 @@ void initialize_pointLight()
 {
 	initPointLightShader();
 
-	initCubeShape();
-
-	//initSphereShape();
-
-	//LoadAllModels();
-
-	glShadeModel(GL_SMOOTH);
-
-	glClearDepth(1.0f);
-	// enable depth testing
-	glEnable(GL_DEPTH_TEST);
-	// depth test to do
-	glDepthFunc(GL_LEQUAL);
-
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	glEnable(GL_CULL_FACE);
-
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // blue
-
 }
 
-vec3 positionLamp[] = { vec3(-250.0f, 400.0f, 750.0f), vec3(320.0f, 400.0f, 750.0f), vec3(850.0f, 400.0f, 750.0f),vec3(1420.0f, 400.0f, 750.0f) , vec3(1950.0f, 400.0f, 750.0f) , vec3(2520.0f, 400.0f, 750.0f) ,
+vec3 positionLamp[] = { vec3(-720.0f, 600.0f, 750.0f), vec3(-250.0f, 400.0f, 750.0f), vec3(320.0f, 400.0f, 750.0f), vec3(850.0f, 400.0f, 750.0f),vec3(1420.0f, 400.0f, 750.0f) , vec3(1950.0f, 400.0f, 750.0f) , vec3(2520.0f, 400.0f, 750.0f) ,
 						vec3(3105.0f, 400.0f, 750.0f) , vec3(3650.0f,400.0f, 750.0f) ,  
-						vec3(-250.0f, 400.0f, -810.0f), vec3(320.0f, 400.0f, -810.0f), vec3(850.0f, 400.0f, -810.0f),vec3(1420.0f, 400.0f, -810.0f) , vec3(2000.0f, 400.0f, -810.0f) , vec3(2570.0f, 400.0f, -810.0f) ,
+						vec3(-750.0f, 600.0f, -810.0f), vec3(-250.0f, 400.0f, -810.0f), vec3(320.0f, 400.0f, -810.0f), vec3(850.0f, 400.0f, -810.0f),vec3(1420.0f, 400.0f, -810.0f) , vec3(2000.0f, 400.0f, -810.0f) , vec3(2570.0f, 400.0f, -810.0f) ,
 						vec3(3100.0f, 400.0f, -810.0f) , vec3(3700.0f, 400.0f, -810.0f) , };
 void display_pointLight()
 {
@@ -406,6 +418,11 @@ void display_pointLight()
 	
 	glUseProgram(gShaderProgramObject_pointLight);
 
+
+	glUniform1i(u_bloom_is_activeUniform_pointLight, 1);
+	glUniform1f(bloom_thresh_minUniform_pointLight, bloom_thresh_min);
+	glUniform1f(bloom_thresh_maxUniform_pointLight, bloom_thresh_max);
+	glUniform1i(applyBloomUniform_pointLight, 0);
 	if (gbLight == true)
 	{
 		glUniform1i(gLKeyPressedUniform_pointLight, 1);
@@ -621,7 +638,7 @@ void display_pointLight()
 		glBindVertexArray(0);
 	}
 	//*/
-
+	glUniform1i(applyBloomUniform_pointLight, 1);
 	for (int i = 0; i < gNumPointLights_pointLight; i++)
 	{
 		modelMatrix = mat4::identity();

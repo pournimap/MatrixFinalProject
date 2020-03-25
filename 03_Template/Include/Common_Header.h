@@ -14,6 +14,7 @@
 
 #include "math_lib_headers/vmath.h"
 #include "Camera/Camera_2.h"
+#include "Include/my_helper_timer.h"
 
 // vmath namespace inclusion
 using namespace vmath;
@@ -22,6 +23,7 @@ using namespace vmath;
 //#pragma comment(lib,"GDI32.lib")
 #pragma comment (lib, "opengl32.lib")
 #pragma comment (lib, "C:\\glew\\lib\\Release\\x64\\glew32.lib")
+#pragma comment(lib,"assimp-vc140-mt.lib")
 
 
 #define WIN_WIDTH 800
@@ -33,6 +35,10 @@ enum
 	MATRIX_ATTRIBUTE_COLOR,
 	MATRIX_ATTRIBUTE_NORMAL,
 	MATRIX_ATTRIBUTE_TEXTURE0,
+	MATRIX_ATTRIBUTE_TANGENT,
+	MATRIX_ATTRIBUTE_BITANGENT,
+	MATRIX_ATTRIBUTE_ID,
+	MATRIX_ATTRIBUTE_WEIGHTS
 };
 
 // Global Variable Declarations
@@ -68,6 +74,13 @@ glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 float _yaw = -90.0f;
 float _pitch = 0.0f;
+
+StopWatchWin timer;
+
+float gWidth, gHeight;
+
+float bloom_thresh_min = 0.8f;
+float bloom_thresh_max = 1.2f;
 
 void programObjectSafeRelease(GLuint shaderProgramObject) {
 	// code

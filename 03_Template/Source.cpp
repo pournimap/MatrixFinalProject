@@ -1,22 +1,29 @@
 #include "Include/Common_Header.h"
+
+
 #include "Include/BasicShapeLoader/Shapes/Matrix_BasicShapes.h"
+
 
 //Add your header files here
 #include "Scene/PerFragment.h"
 #include "Scene/Light/PointLight.h"
+#include "Scene/Bloom/Bloom.h"
 #include"Scene/Fire/Fire.h"
 #include"Scene/KrishnaAnimate/KrishnaAnimate5.h"
-#include "Scene/Bloom/Bloom.h"
+#include"Scene/KrishnaAnimate/KrishnaAnimationUsingAssimp.h"
+#include "Scene/DepthOfField/DepthOfField.h"
 
 
 // Callback
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-uint64_t initTime, initFrequency, changingTime;
 
 extern int Clothintialize();
 extern void Clothdisplay();
 extern void Clothunintialize(void);
+
+
+bool isAssimpAnimatedModelShow = false;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
 {
@@ -169,6 +176,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_SIZE:
+		currentWidth = LOWORD(lParam);
+		currentHeight = HIWORD(lParam);
+	
 		resize(LOWORD(lParam), HIWORD(lParam));
 		break;
 
@@ -245,6 +255,39 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	case WM_CHAR:
 		switch (LOWORD(wParam))
 		{
+		case '2':
+		//case 'q':
+			focal_distance *= 1.1f;
+			break;
+
+		case '1':
+		//case 'a':
+			focal_distance /= 1.1f;
+			break;
+
+		case '0':
+		//case 'w':
+			focal_depth *= 1.1f;
+			break; 
+		
+		case '9':
+		//	case 's':
+			focal_depth /= 1.1f;
+			break;
+		
+		case '4':
+			bloom_thresh_min -= 0.1f;
+			break;
+		case '5':
+			bloom_thresh_min += 0.1f;
+			break;
+		case '6':
+			bloom_thresh_max -= 0.1f;
+			break;
+		case '7':
+			bloom_thresh_max += 0.1f;
+			break;
+
 		case 'B':
 		case 'b':
 			bShowBloom_bloom = !bShowBloom_bloom;
@@ -324,6 +367,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			fprintf(gpFile, "___________________________________________________ \n");
 			fprintf(gpFile, "ftime_krishnaAnimate : %f \n", ftime_krishnaAnimate);
 			fprintf(gpFile, "___________________________________________________ \n");
+			
+			fprintf(gpFile, "Depth Of Field Variables: \n");
+			fprintf(gpFile, "____________________________________________________\n");
+			fprintf(gpFile, "focal_distance: %f\n", focal_distance);
+			fprintf(gpFile, "focal_depth: %f\n", focal_depth);
+			fprintf(gpFile, "____________________________________________________\n");
+			
 			fflush(gpFile);
 			break;
 
@@ -397,7 +447,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			//DoneFlag_krishnaAnimate  = !DoneFlag_krishnaAnimate;
 			break;
 
-
+		case 'Y':
+		case 'y':
+			isAssimpAnimatedModelShow = !isAssimpAnimatedModelShow;
+			break;
+		case 'z':
+		case 'Z':
+			isModelAnimationStart = !isModelAnimationStart;
+			break;
 		default:
 			break;
 		}
@@ -494,16 +551,27 @@ int initialize(void)
 	//
 	// ................................................................................................
 
+	//Load All Shapes and Model
+	initCubeShape();
+	initSphereShape();
+	initQuadShape();
+	LoadAllModels();
+
+	//Load All Scenes
+
 	initialize_perFragmentLight();
 	initialize_pointLight();
 	
 	initialize_krishnaAnimate();
-
+	initialize_AssimpModelLoader();
+	
 	Clothintialize();
 
 	initialize_fire();
 
 	initializeBloom();
+	
+	initializeDepthOfField();
 
 	// ................................................................................................
 	//
@@ -511,42 +579,65 @@ int initialize(void)
 	//
 	// ................................................................................................
 
-	QueryPerformanceFrequency((LARGE_INTEGER*)&initFrequency);
-
-	QueryPerformanceCounter((LARGE_INTEGER*)&initTime);
-
 	gPerspectiveProjectionMatrix = mat4::identity();
 
+	timer.start();
 	resize(WIN_WIDTH, WIN_HEIGHT);
+
+	gWidth = WIN_WIDTH;
+	gHeight = WIN_HEIGHT;
+
+	glShadeModel(GL_SMOOTH);
+
+	glClearDepth(1.0f);
+	// enable depth testing
+	glEnable(GL_DEPTH_TEST);
+	// depth test to do
+	glDepthFunc(GL_LEQUAL);
+
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	glEnable(GL_CULL_FACE);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // blue
 
 	return(0);	// for successfull return
 }
 
 void display(void)
 {
-	/*
-	float getTime(void);
-
-	currentFrame = getTime();
-	deltaTime = currentFrame - lastFrame;
-	lastFrame = currentFrame;
-	*/
+	static const GLfloat one = { 1.0f };
+	static const GLfloat black[] = { 0.0f, 0.0f, 0.0, 1.0f };
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	glViewport(0, 0, gWidth, gHeight);
 	//call your scene Display here
 
+	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo_bloom);
+	glClearBufferfv(GL_COLOR, 0, black);	// GL_COLOR_ATTACHMENT0
+	glClearBufferfv(GL_COLOR, 1, black);	// GL_COLOR_ATTACHMENT1
+	glClearBufferfv(GL_DEPTH, 0, &one);
+
+	//applyDOF();
+	
 	display_perFragmentLight();
 	
 	display_pointLight();
-	
-
+		
 	Clothdisplay();
-	
-	display_krishnaAnimate();
+
+	if(isAssimpAnimatedModelShow == true)
+		display_AssimpModelLoader();
+	else
+		display_krishnaAnimate();
 	
 	display_fire();
 	
+	//stopApplyingDOF();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	ApplyingBloom();
+
 	SwapBuffers(ghdc);
 }
 
@@ -556,12 +647,6 @@ void update(void)
 	update_perFragmentLight();
 	//update_pointLight();
 	update_krishnaAnimate();
-}
-
-float getTime(void)
-{
-	float time = (float)(QueryPerformanceCounter((LARGE_INTEGER*)&changingTime) - initTime) / initFrequency;
-	return(time);
 }
 
 void resize(int width, int height)
@@ -575,6 +660,10 @@ void resize(int width, int height)
 	glViewport(0, 0, (GLsizei)width, (GLsizei)height);
 
 	gPerspectiveProjectionMatrix = perspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 10000.0f);
+
+	gWidth = width;
+	gHeight = height;
+
 }
 
 void ToggleFullScreen(void)
@@ -626,11 +715,13 @@ void uninitialize(int i_Exit_Flag)
 	uninitialize_pointLight();
 	uninitialize_krishnaAnimate();
 
-	//Clothunintialize();
+	Clothunintialize();
 
 	uninitialize_fire();
 	
 	uninitializeBloom();
+	
+	uninitializeDOF();
 	
 	// ....................................................................................
 	//

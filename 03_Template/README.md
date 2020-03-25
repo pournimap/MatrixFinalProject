@@ -4,31 +4,6 @@ might update further
 
 ## PENDING TASK :
 
-We might need to have seperate direcotories like below,
-
-```
-MAIN
- |- source.cpp
- |- Headers
- |    |- common_headers.h (all common headers)
- |    |- vmath.h
- |    |- etc ....
- |- Users
- |    |- Ajay
- |    |   |- ajay_effect_header.h (effect specific headers only, if any)
- |    |   |- ajay_effect.cpp
- |    |   |- ajay_effect2_header.h (effect specific headers only, if any)
- |    |   |- ajay_effect2.cpp
- |    |- Bhushan
- |    |   |- ...
- |    |- ...
- |
- |- Resources (all resources)
- |    |- OBJ
- |    |- MP3
- |    |- TEXTURES
-```
-
 # Bloom Applying Step:
 ## PRESS 'B' or 'b' TO START THE BLOOM EFFECT. Its toggling is there in the WndProc function.
 i) Call applyBloom() function.
@@ -41,4 +16,13 @@ iii) Call stopApplyingBloom() at the end of it.
 	stopApplyingBloom();
 Should be the sequence of function calls.	
 	
+	
+# IMP :: 
+1.ExternalLibraries.zip
+
+Please Extract this ExternalLibraries.zip folder present in Include folder as it is.
+
+it contains folder "ExternalLibraries",
+put this folder into Include folder.
+
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Include/BasicShapeLoader/Model/Matrix_Obj_Loader.h"
+#include "../Include/BasicShapeLoader/Model/BasicOBJLoader/Matrix_Obj_Loader.h"
 
 GLuint gVertexShaderObject_perFragmentLight;
 GLuint gFragmentShaderObject_perFragmentLight;
@@ -16,7 +16,8 @@ GLuint gKdUniform_perFragmentLight, gKaUniform_perFragmentLight, gKsUniform_perF
 GLuint gMaterialShininessUniform_perFragmentLight;
 GLuint gLKeyPressedUniform_perFragmentLight;
 GLuint gTextureSamplerUniform_perFragmentLight, gTextureActiveUniform_perFragmentLight, gAlphaUniform_perFragmentLight;
-
+GLuint applyBloomUniform_perFragmentLight, u_bloom_is_activeUniform_perFragmentLight;
+GLuint bloom_thresh_minUniform_perFragmentLight, bloom_thresh_maxUniform_perFragmentLight;
 
 GLfloat lightAmbient[] = { 0.0f,0.0f,0.0f,1.0f };
 GLfloat lightDiffuse[] = { 1.0f,1.0f,1.0f,1.0f };
@@ -103,7 +104,8 @@ void initPerFragmentShader()
 		"in vec3 viewer_vector;" \
 		"in vec2 out_texcord;" \
 
-		"out vec4 FragColor;" \
+		"layout (location = 0) out vec4 FragColor;" \
+		"layout (location = 1) out vec4 BloomColor;" \
 
 		"uniform vec3 u_La;" \
 		"uniform vec3 u_Ld;" \
@@ -116,7 +118,12 @@ void initPerFragmentShader()
 		"uniform sampler2D u_texture0_sampler;"\
 		"uniform int u_is_texture;" \
 		"uniform float u_alpha;" \
+		"uniform int applyBloom;" \
+		"uniform float bloom_thresh_min = 0.8f;" \
+		"uniform float bloom_thresh_max = 1.2f;" \
+		"uniform int u_bloom_is_active;" \
 
+		
 		"void main(void)" \
 		"{" \
 			"vec3 phong_ads_color;" \
@@ -146,6 +153,27 @@ void initPerFragmentShader()
 			"{" \
 				"FragColor = vec4(phong_ads_color, u_alpha);" \
 			"}" \
+
+		"if(applyBloom == 1)" \
+		"{" \
+			"vec4 c = vec4(phong_ads_color, 1.0);" \
+			"if (u_bloom_is_active == 1)" \
+			"{" \
+			"float Y = dot(vec4(phong_ads_color, 1.0), vec4(0.299, 0.587, 0.144, 1.0));\n" \
+			"c = vec4(phong_ads_color, 1.0) * 4.0 * smoothstep(bloom_thresh_min, bloom_thresh_max, Y);\n" \
+			"BloomColor = vec4(c);\n" \
+			
+			"}" \
+			"else" \
+			"{" \
+			"BloomColor = vec4(phong_ads_color, 1.0);\n" \
+			"}" \
+		"}" \
+		"else" \
+		"{" \
+			"BloomColor = vec4(0.0);" \
+		"}" \
+
 		"}";
 
 	glShaderSource(gFragmentShaderObject_perFragmentLight, 1, (const GLchar**)&fragmentShaderSourceCode, NULL);
@@ -195,6 +223,11 @@ void initPerFragmentShader()
 
 	gTextureActiveUniform_perFragmentLight	= glGetUniformLocation(gShaderProgramObject_perFragmentLight, "u_is_texture");
 	gAlphaUniform_perFragmentLight			= glGetUniformLocation(gShaderProgramObject_perFragmentLight, "u_alpha");
+	applyBloomUniform_perFragmentLight = glGetUniformLocation(gShaderProgramObject_perFragmentLight, "applyBloom");
+	u_bloom_is_activeUniform_perFragmentLight = glGetUniformLocation(gShaderProgramObject_perFragmentLight, "u_bloom_is_active");
+	bloom_thresh_minUniform_perFragmentLight = glGetUniformLocation(gShaderProgramObject_perFragmentLight, "bloom_thresh_min");
+	bloom_thresh_maxUniform_perFragmentLight = glGetUniformLocation(gShaderProgramObject_perFragmentLight, "bloom_thresh_max");
+
 }
 
 
@@ -202,29 +235,20 @@ void initialize_perFragmentLight()
 {
 	initPerFragmentShader();
 
-	initSphereShape();
-
-	LoadAllModels();
-
-	glShadeModel(GL_SMOOTH);
-
-	glClearDepth(1.0f);
-	// enable depth testing
-	glEnable(GL_DEPTH_TEST);
-	// depth test to do
-	glDepthFunc(GL_LEQUAL);
-
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	glEnable(GL_CULL_FACE);
-
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // blue
-
 }
 
 float TranslateMeasure[] = {200.0f, 700.0f, 1200.0f, 1800.0f, 2300.0f, 2900.0f, 3500.0f};
 void display_perFragmentLight()
 {
+	static const GLfloat one = { 1.0f };
+
 	glUseProgram(gShaderProgramObject_perFragmentLight);
+
+	
+
+	glUniform1i(u_bloom_is_activeUniform_perFragmentLight, (GLint)one);
+	glUniform1f(bloom_thresh_minUniform_perFragmentLight, bloom_thresh_min);
+	glUniform1f(bloom_thresh_maxUniform_perFragmentLight, bloom_thresh_max);
 
 	if (gbLight == true)
 	{
@@ -339,6 +363,7 @@ void display_perFragmentLight()
 
 	*/
 	
+	glUniform1i(applyBloomUniform_perFragmentLight, 0);
 	//other raje
 	for(int i = 0; i < 14; i++)
 	{
@@ -518,7 +543,7 @@ void display_perFragmentLight()
 
 
 	// shishupal model
-
+	
 	modelMatrix = mat4::identity();
 	scaleMatrix = mat4::identity();
 	
