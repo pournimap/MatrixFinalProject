@@ -18,9 +18,10 @@ GLuint gViewPosUniform_krishnaAnimateAssimp, gNumPointLightsUniform_krishnaAnima
 GLuint applyBloomUniform_krishnaAnimateAssimp, u_bloom_is_activeUniform_krishnaAnimateAssimp;
 GLuint bloom_thresh_minUniform_krishnaAnimateAssimp, bloom_thresh_maxUniform_krishnaAnimateAssimp;
 
-Model krishna_Animated;
+Model krishna_Animated_SeatToStand;
 
 bool isModelAnimationStart = false;
+
 void initAssimpModelLoaderShader()
 {
 	void uninitialize(int);
@@ -219,9 +220,9 @@ void initialize_AssimpModelLoader()
 {
 	initAssimpModelLoaderShader();
 
-	krishna_Animated.initShaders(gShaderProgramObject_krishnaAnimateAssimp);
 	
-	krishna_Animated.loadModel("Resources/11MarchKrishnaModel/standingExported20March02.fbx");
+	
+	krishna_Animated_SeatToStand.loadModel("Resources/11MarchKrishnaModel/standingExported20March02.fbx");
 	//initCubeShape();
 
 	//initSphereShape();
@@ -248,6 +249,8 @@ void display_AssimpModelLoader()
 	
 	glUseProgram(gShaderProgramObject_krishnaAnimateAssimp);
 	
+	krishna_Animated_SeatToStand.initShaders(gShaderProgramObject_krishnaAnimateAssimp);
+
 	if (gbLight == true)
 	{
 		glUniform1i(gLKeyPressedUniform_krishnaAnimateAssimp, 1);
@@ -295,9 +298,9 @@ void display_AssimpModelLoader()
 	
 	glUniform1i(gIs_animatedUniform_krishnaAnimateAssimp, isModelAnimationStart);
 	glUniform1i(gTextureActiveUniform_krishnaAnimateAssimp, 1);
-	glUniform1i(gAlphaUniform_krishnaAnimate, 1.0);
+	glUniform1i(gAlphaUniform_krishnaAnimateAssimp, 1.0);
 	
-	krishna_Animated.draw(gShaderProgramObject_krishnaAnimateAssimp, isModelAnimationStart);
+	krishna_Animated_SeatToStand.draw(gShaderProgramObject_krishnaAnimateAssimp, isModelAnimationStart);
 
 	glUseProgram(0);
 }
