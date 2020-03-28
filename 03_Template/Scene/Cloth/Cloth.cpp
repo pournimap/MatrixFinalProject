@@ -74,6 +74,7 @@ GLuint ClothmodelMatrix_Uniform, ClothviewMatrix_Uniform, Clothprojection_Unifor
 GLuint Clothld_Uniform, Clothla_Uniform, Clothls_Uniform, ClothlightPosition_Uniform;
 GLuint Clothka_Uniform, Clothkd_Uniform, Clothks_Uniform;
 GLuint ClothLKeyPress_Uniform, ClothmaterialShinyness_Uniform;
+GLuint ClothApplyBloomUniform, ClothBloomIsActiveUniform;
 
 float ClothlightAmbient[4] = { 0.0f,0.0f,0.0f,0.0f };
 float ClothlightDiffuse[4] = { 0.5f,0.0f,0.0f,1.0f };
@@ -393,7 +394,9 @@ int Clothintialize(void)
 	const GLchar *FragmentShaderSourseCode =
 		"#version 450 core" \
 		"\n"
-		"out vec4 fragColor;" \
+		/*"out vec4 fragColor;" \*/
+		"layout (location = 0) out vec4 fragColor;" \
+		"layout (location = 1) out vec4 BloomColor;" \
 		"uniform int u_Lkeypress;" \
 		"uniform vec3 u_la;" \
 		"uniform vec3 u_ld;" \
@@ -402,6 +405,12 @@ int Clothintialize(void)
 		"uniform vec3 u_kd;" \
 		"uniform vec3 u_ks;" \
 		"uniform float u_materialShinyness;" \
+
+		"uniform int applyBloom;" \
+		"uniform float bloom_thresh_min = 0.8f;" \
+		"uniform float bloom_thresh_max = 1.2f;" \
+		"uniform int u_bloom_is_active;" \
+
 		"vec3 phong_ads_light;" \
 		"in vec3 Transformednormal;" \
 		"in vec3 lightDirection;" \
@@ -425,6 +434,25 @@ int Clothintialize(void)
 		"phong_ads_light = vec3(1.0f,1.0f,1.0f);" \
 		"}" \
 		"fragColor = vec4(phong_ads_light,1.0);" \
+
+		"if(applyBloom == 1)" \
+		"{" \
+		"vec4 c = fragColor;" \
+		"if (u_bloom_is_active == 1)" \
+		"{" \
+		"float Y = dot(c, vec4(0.299, 0.587, 0.144, 1.0));\n" \
+		"c = c * 4.0 * smoothstep(bloom_thresh_min, bloom_thresh_max, Y);\n" \
+		"BloomColor = c;\n" \
+		"}" \
+		"else" \
+		"{" \
+		"BloomColor = c;\n" \
+		"}" \
+		"}" \
+		"else" \
+		"{" \
+		"BloomColor = vec4(0.0);" \
+		"}" \
 		"}";
 	//Specify above code to Fragment Shader object
 	glShaderSource(ClothgFragmentShaderObject, 1, (GLchar const**)&FragmentShaderSourseCode, NULL);
@@ -520,9 +548,11 @@ int Clothintialize(void)
 	ClothmaterialShinyness_Uniform = glGetUniformLocation(ClothglShaderProgramObject, "u_materialShinyness");
 	ClothLKeyPress_Uniform = glGetUniformLocation(ClothglShaderProgramObject, "u_Lkeypress");
 
+	ClothApplyBloomUniform = glGetUniformLocation(ClothglShaderProgramObject, "applyBloom");
+	ClothBloomIsActiveUniform = glGetUniformLocation(ClothglShaderProgramObject, "u_bloom_is_active");
 	//Ortho fixfunction program
 	
-
+	
 	//Create voa/,
 	glGenVertexArrays(1, &Clothvao);
 	glBindVertexArray(Clothvao);
@@ -808,6 +838,9 @@ void Clothdisplay()
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(ClothglShaderProgramObject);
+
+	glUniform1i(ClothBloomIsActiveUniform, 1);
+	glUniform1i(ClothApplyBloomUniform, 1);
 
 	//Declaration of Matrix
 	mat4 modelMatrix;

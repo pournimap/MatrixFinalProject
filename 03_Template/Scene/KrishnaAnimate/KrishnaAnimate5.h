@@ -217,12 +217,12 @@ void initKrishnaAnimate()
 
 		"if(applyBloom == 1)" \
 		"{" \
-		"vec4 c = vec4(phong_ads_color, 1.0);" \
+		"vec4 c = FragColor;" \
 		"if (u_bloom_is_active == 1)" \
 		"{" \
-		"float Y = dot(vec4(phong_ads_color, 1.0), vec4(0.299, 0.587, 0.144, 1.0));\n" \
-		"c = vec4(phong_ads_color, 1.0) * 4.0 * smoothstep(bloom_thresh_min, bloom_thresh_max, Y);\n" \
-		"BloomColor = vec4(c);\n" \
+		"float Y = dot(c, vec4(0.299, 0.587, 0.144, 1.0));\n" \
+		"c = c * 4.0 * smoothstep(bloom_thresh_min, bloom_thresh_max, Y);\n" \
+		"BloomColor = c;\n" \
 		"}" \
 		"else" \
 		"{" \
@@ -242,7 +242,6 @@ void initKrishnaAnimate()
 		"discard;" \
 		"}" \
 
-		/*"BloomColor = vec4(0.0);" \*/
 
 		"}";
 
@@ -360,9 +359,9 @@ void initKrishnaAnimate()
 			"vec4 c = FragColor;" \
 			"if (u_bloom_is_active == 1)" \
 			"{" \
-			"float Y = dot(FragColor, vec4(0.299, 0.587, 0.144, 1.0));\n" \
-			"c = FragColor * 4.0 * smoothstep(bloom_thresh_min, bloom_thresh_max, Y);\n" \
-			"BloomColor = vec4(c);\n" \
+			"float Y = dot(c, vec4(0.299, 0.587, 0.144, 1.0));\n" \
+			"c = c * 4.0 * smoothstep(bloom_thresh_min, bloom_thresh_max, Y);\n" \
+			"BloomColor = c;\n" \
 			"}" \
 			"else" \
 			"{" \

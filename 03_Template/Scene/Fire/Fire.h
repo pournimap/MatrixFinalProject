@@ -134,21 +134,21 @@ void initfire(void)
 
 		"if(applyBloom == 1)" \
 		"{" \
-		"vec4 c = ColorTemp;" \
-		"if (u_bloom_is_active == 1)" \
-		"{" \
-		"float Y = dot(ColorTemp, vec4(0.299, 0.587, 0.144, 1.0));\n" \
-		"c = ColorTemp * 4.0 * smoothstep(bloom_thresh_min, bloom_thresh_max, Y);\n" \
-		"BloomColor = vec4(c);\n" \
+			"vec4 c = FragColor;" \
+			"if (u_bloom_is_active == 1)" \
+			"{" \
+			"float Y = dot(c, vec4(0.299, 0.587, 0.144, 1.0));\n" \
+			"c = c * 4.0 * smoothstep(bloom_thresh_min, bloom_thresh_max, Y);\n" \
+			"BloomColor = c;\n" \
+			"}" \
+			"else" \
+			"{" \
+			"BloomColor = c;\n" \
+			"}" \
 		"}" \
 		"else" \
 		"{" \
-		"BloomColor = ColorTemp;\n" \
-		"}" \
-		"}" \
-		"else" \
-		"{" \
-		"BloomColor = vec4(0.0);" \
+			"BloomColor = vec4(0.0);" \
 		"}" \
 		"}";
 
