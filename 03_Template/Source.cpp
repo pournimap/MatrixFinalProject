@@ -15,6 +15,8 @@
 
 #include "Scene/DepthOfField/DepthOfField.h"
 
+#include"Scene/EndNames/FluidTextRendering.h"
+
 
 // Callback
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -26,7 +28,7 @@ extern void Clothunintialize(void);
 
 
 bool isAssimpAnimatedModelShow = false;
-
+bool iShowEndScene = false;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
 {
@@ -459,6 +461,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case 'Z':
 			isModelAnimationStart = !isModelAnimationStart;
 			break;
+
+		// for end scene names
+		case 'h':
+		case 'H':
+			iShowEndScene = !iShowEndScene;
+			break;
+
 		default:
 			break;
 		}
@@ -577,6 +586,8 @@ int initialize(void)
 	
 	initializeDepthOfField();
 
+	initialize_FluidText();
+
 	// ................................................................................................
 	//
 	// Initialize your specific scene here above
@@ -609,38 +620,45 @@ int initialize(void)
 
 void display(void)
 {
-	static const GLfloat one = { 1.0f };
-	static const GLfloat black[] = { 0.0f, 0.0f, 0.0, 1.0f };
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glViewport(0, 0, gWidth, gHeight);
-	//call your scene Display here
-
-	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo_bloom);
-	glClearBufferfv(GL_COLOR, 0, black);	// GL_COLOR_ATTACHMENT0
-	glClearBufferfv(GL_COLOR, 1, black);	// GL_COLOR_ATTACHMENT1
-	glClearBufferfv(GL_DEPTH, 0, &one);
-
-	//applyDOF();
-	
-	display_perFragmentLight();
-	
-	display_pointLight();
-		
-	Clothdisplay();
-
-	if(isAssimpAnimatedModelShow == true)
-		display_AssimpModelLoader();
+	if (iShowEndScene)
+	{
+		display_FluidText();
+	}
 	else
-		display_krishnaAnimate();
-	
-	display_fire();
-	
-	//stopApplyingDOF();
+	{
+		static const GLfloat one = { 1.0f };
+		static const GLfloat black[] = { 0.0f, 0.0f, 0.0, 1.0f };
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, gWidth, gHeight);
+		//call your scene Display here
 
-	ApplyingBloom();
+		glBindFramebuffer(GL_FRAMEBUFFER, render_fbo_bloom);
+		glClearBufferfv(GL_COLOR, 0, black);	// GL_COLOR_ATTACHMENT0
+		glClearBufferfv(GL_COLOR, 1, black);	// GL_COLOR_ATTACHMENT1
+		glClearBufferfv(GL_DEPTH, 0, &one);
+
+		//applyDOF();
+
+		display_perFragmentLight();
+
+		display_pointLight();
+
+		Clothdisplay();
+
+		if (isAssimpAnimatedModelShow == true)
+			display_AssimpModelLoader();
+		else
+			display_krishnaAnimate();
+
+		display_fire();
+
+		//stopApplyingDOF();
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		ApplyingBloom();
+	}
 
 	SwapBuffers(ghdc);
 }
