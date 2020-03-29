@@ -296,11 +296,11 @@ void display_AssimpModelLoader()
 
 	glUniformMatrix4fv(gModelMatrixUniform_krishnaAnimateAssimp, 1, GL_FALSE, modelMatrix);
 	
-	glUniform1i(gIs_animatedUniform_krishnaAnimateAssimp, isModelAnimationStart);
+	glUniform1i(gIs_animatedUniform_krishnaAnimateAssimp, 1);
 	glUniform1i(gTextureActiveUniform_krishnaAnimateAssimp, 1);
 	glUniform1i(gAlphaUniform_krishnaAnimateAssimp, 1.0);
 	
-	krishna_Animated_SeatToStand.draw(gShaderProgramObject_krishnaAnimateAssimp, isModelAnimationStart);
+	krishna_Animated_SeatToStand.draw(gShaderProgramObject_krishnaAnimateAssimp, isModelAnimationStart, 1);
 
 	glUseProgram(0);
 }

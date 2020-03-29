@@ -25,7 +25,7 @@ public:
 	void initShaders(GLuint shader_program);
 	void loadModel(const std::string& path);
 	//void update();
-	void draw(GLuint shaders_program, bool isAnimated);
+	void draw(GLuint shaders_program, bool isAnimated, int sequence);
 	void showNodeName(aiNode* node);
 
 	glm::mat4 aiToGlm(aiMatrix4x4 ai_matr);
@@ -90,15 +90,25 @@ void Model::initShaders(GLuint shader_program)
 
 
 static float count1 = 0.1f;
-void Model::draw(GLuint shaders_program, bool isAnimated)
+void Model::draw(GLuint shaders_program, bool isAnimated, int sequence)
 {
 	std::vector<aiMatrix4x4> transforms;
 
-	if(count1 < 900.0f)
-	boneTransform((double)timer.getTime() / 10000.0f, transforms);
+	/*if(count1 < 900.0f)
+	boneTransform((double)timer.getTime() / 10000.0f, transforms);*/
 
+	if (sequence == 1)
+	{
+		if (count1 < 1.6f)
+			boneTransform(count1, transforms);
+	}
+	else
+	{
+		if (count1 < 1.2f)
+			boneTransform(count1, transforms);
+	}
 	if (isAnimated)
-		count1 = count1 + 1.0f;
+		count1 = count1 + 0.01f;
 	else
 		count1 = 0.0f;
 

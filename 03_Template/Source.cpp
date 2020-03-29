@@ -260,26 +260,26 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	case WM_CHAR:
 		switch (LOWORD(wParam))
 		{
-		case '2':
-		//case 'q':
-			focal_distance *= 1.1f;
-			break;
+		//case '2':
+		////case 'q':
+		//	focal_distance *= 1.1f;
+		//	break;
 
-		case '1':
-		//case 'a':
-			focal_distance /= 1.1f;
-			break;
+		//case '1':
+		////case 'a':
+		//	focal_distance /= 1.1f;
+		//	break;
 
-		case '0':
-		//case 'w':
-			focal_depth *= 1.1f;
-			break; 
-		
-		case '9':
-		//	case 's':
-			focal_depth /= 1.1f;
-			break;
-		
+		//case '0':
+		////case 'w':
+		//	focal_depth *= 1.1f;
+		//	break; 
+		//
+		//case '9':
+		////	case 's':
+		//	focal_depth /= 1.1f;
+		//	break;
+		//
 		case '4':
 			bloom_thresh_min -= 0.1f;
 			break;
@@ -293,6 +293,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			bloom_thresh_max += 0.1f;
 			break;
 
+		case '1':
+			isFirstScene = true;
+			break;
+		case '2':
+			isFirstScene = false;
+			isAssimpAnimatedModelShow = true;
+			break;
 		case 'B':
 		case 'b':
 			bShowBloom_bloom = !bShowBloom_bloom;
@@ -385,6 +392,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 		case 'c':		// start camera animation
 		case 'C':
+			isModelAnimationStart = false;
+			isAssimpAnimatedModelShow = false;
 			/*
 			vmath_camera_eye_coord[0] = -40.0f;
 			vmath_camera_eye_coord[1] = 180.0f;
@@ -424,6 +433,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			
 			gbStartCamera	= !gbStartCamera;
 			startJoin_krishnaAnimate = true;
+			
 			//ftime_krishnaAnimate = 1250.0f;
 			break;
 
@@ -452,14 +462,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case 'R':
 		case 'r':
 			break;
-
-		case 'Y':
 		case 'y':
-			isAssimpAnimatedModelShow = !isAssimpAnimatedModelShow;
+		case 'Y':
+			isKrishnaRenderInPoints = false;
 			break;
 		case 'z':
 		case 'Z':
-			isModelAnimationStart = !isModelAnimationStart;
+			isModelAnimationStart = true;
 			break;
 
 		// for end scene names
@@ -646,10 +655,13 @@ void display(void)
 
 		Clothdisplay();
 
-		if (isAssimpAnimatedModelShow == true)
-			display_AssimpModelLoader();
-		else
-			display_krishnaAnimate();
+		if (isFirstScene == false)
+		{
+			if (isAssimpAnimatedModelShow == true)
+				display_AssimpModelLoader();
+			else
+				display_krishnaAnimate();
+		}
 
 		display_fire();
 

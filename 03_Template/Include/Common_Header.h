@@ -82,6 +82,7 @@ float gWidth, gHeight;
 float bloom_thresh_min = 0.8f;
 float bloom_thresh_max = 1.2f;
 
+bool isFirstScene = true;
 void programObjectSafeRelease(GLuint shaderProgramObject) {
 	// code
 	if (shaderProgramObject) {

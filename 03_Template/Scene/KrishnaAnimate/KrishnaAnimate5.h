@@ -72,6 +72,7 @@ GLuint bloom_thresh_minUniform_krishnaAttractor, bloom_thresh_maxUniform_krishna
 
 Model krishna_Animated_StandUpHand;
 
+bool isKrishnaRenderInPoints = true;
 void initKrishnaAnimate()
 {
 	void uninitialize(int);
@@ -194,11 +195,19 @@ void initKrishnaAnimate()
 		"vec3 normalized_transformed_normals	= normalize(transformed_normals);" \
 		"vec3 normalized_light_direction		= normalize(light_direction);" \
 		"vec3 normalized_viewer_vector			= normalize(viewer_vector);" \
-		"vec3 ambient							= u_La * u_Ka * material_ambient;" \
+		
+		
 		"float tn_dot_ld						= max(dot(normalized_transformed_normals, normalized_light_direction),0.0);" \
-		"vec3 diffuse							= u_Ld * u_Kd * tn_dot_ld * material_diffuse;" \
+		
 		"vec3 reflection_vector					= reflect(-normalized_light_direction, normalized_transformed_normals);" \
-		"vec3 specular							= u_Ls * u_Ks * pow(max(dot(reflection_vector, normalized_viewer_vector), 0.0), u_material_shininess) * material_specular;" \
+		"vec3 ambient;" \
+		"vec3 diffuse;" \
+		"vec3 specular;" \
+
+		"ambient							= u_La * u_Ka * material_ambient;" \
+		"diffuse							= u_Ld * u_Kd * tn_dot_ld * material_diffuse;" \
+		"specular							= u_Ls * u_Ks * pow(max(dot(reflection_vector, normalized_viewer_vector), 0.0), u_material_shininess) * material_specular;" \
+		
 		"phong_ads_color						= ambient + diffuse + specular;" \
 		"}" \
 		"else" \
@@ -452,8 +461,8 @@ void display_krishnaAnimate()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
 	glEnable(GL_POINT_SMOOTH);
-	glPointSize(1.5);*/
-
+	glPointSize(1.5);
+	*/
 
 	if (startJoin_krishnaAnimate)
 	{
@@ -463,6 +472,7 @@ void display_krishnaAnimate()
 	{
 		gfKrishnaModelScale = 4.0f;
 	}
+	
 	glUseProgram(0);
 	glUseProgram(gShaderProgramObject_krishnaAnimate);
 	
@@ -515,39 +525,10 @@ void display_krishnaAnimate()
 	glUniform1i(gIs_animatedUniform_krishnaAnimate, isModelAnimationStart);
 	glUniform1i(gTextureActiveUniform_krishnaAnimate, 1);
 	glUniform1i(gAlphaUniform_krishnaAnimate, 1.0);
-	krishna_Animated_StandUpHand.draw(gShaderProgramObject_krishnaAnimate, isModelAnimationStart);
-	/*glBindVertexArray(gModel_Krishna.Vao);
-	for (int i = 0; i < gModel_Krishna.model_mesh_data.size(); i++)
-	{
-		if (gbLight == true)
-		{
-			glUniform3fv(gKaUniform_krishnaAnimate, 1, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].Ka);
-			glUniform3fv(gKdUniform_krishnaAnimate, 1, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].Kd);
-			glUniform3fv(gKsUniform_krishnaAnimate, 1, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].Ks);
-			glUniform1f(gMaterialShininessUniform_krishnaAnimate, material_shininess);
-			glUniform1f(gAlphaUniform_krishnaAnimate, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].d);
-			if (gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].ismap_Kd == true)
-			{
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].gTexture);
-				glUniform1i(gTextureSamplerUniform_krishnaAnimate, 0);
-				glUniform1i(gTextureActiveUniform_krishnaAnimate, 1);
-			}
-			else
-				glUniform1i(gTextureActiveUniform_krishnaAnimate, 0);
-		}
-		if (startJoin_krishnaAnimate)
-		{
-			glDrawArrays(GL_POINTS, gModel_Krishna.model_mesh_data[i].vertex_Index, gModel_Krishna.model_mesh_data[i].vertex_Count);
-			//glDrawArrays(GL_TRIANGLES, gModel_Krishna.model_mesh_data[i].vertex_Index, gModel_Krishna.model_mesh_data[i].vertex_Count);
-		}
-		else
-		{
-			glDrawArrays(GL_TRIANGLES, gModel_Krishna.model_mesh_data[i].vertex_Index, gModel_Krishna.model_mesh_data[i].vertex_Count);
-		}
-	}
-	glBindVertexArray(0);*/
-
+	
+	
+	krishna_Animated_StandUpHand.draw(gShaderProgramObject_krishnaAnimate, isModelAnimationStart, 2);
+	
 	glUseProgram(0);
 
 	if (startJoin_krishnaAnimate)
@@ -592,9 +573,12 @@ void display_krishnaAnimate()
 
 	}
 
-	/*glDisable(GL_ALPHA_TEST);
-	glDisable(GL_BLEND);
-	glDisable(GL_POINT_SMOOTH);*/
+	/*if (isKrishnaRenderInPoints == true)
+	{
+		glDisable(GL_ALPHA_TEST);
+		glDisable(GL_BLEND);
+		glDisable(GL_POINT_SMOOTH);
+	}*/
 
 }
 
