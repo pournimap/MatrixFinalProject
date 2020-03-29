@@ -108,7 +108,16 @@ void Model::draw(GLuint shaders_program, bool isAnimated, int sequence)
 			boneTransform(count1, transforms);
 	}
 	if (isAnimated)
-		count1 = count1 + 0.01f;
+	{
+		if (sequence == 1)
+		{
+			count1 = count1 + 0.01f;
+		}
+		else
+		{
+			count1 = count1 + 0.005f;
+		}
+	}
 	else
 		count1 = 0.0f;
 
