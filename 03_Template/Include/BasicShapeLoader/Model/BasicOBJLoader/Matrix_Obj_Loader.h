@@ -28,6 +28,7 @@ Model_Obj gModel_KrishnaChair;
 Model_Obj gModel_OtherChair;
 
 Model_Obj gModel_Mashal;
+Model_Obj gModel_SudarshanChakra;
 
 
 void LoadAllModels()
@@ -277,6 +278,47 @@ void LoadAllModels()
 	glGenBuffers(1, &gVbo_Model_Texture);
 	glBindBuffer(GL_ARRAY_BUFFER, gVbo_Model_Texture);
 	glBufferData(GL_ARRAY_BUFFER, gModel_Mashal.model_textures.size() * sizeof(float), &gModel_Mashal.model_textures[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(MATRIX_ATTRIBUTE_TEXTURE0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_TEXTURE0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindVertexArray(0);
+
+
+	/*****************Sudarshan Chakra Model*****************/
+	std::string SudarshanChakraModelFilePath = "Resources/SudarshanChakra/SudharshanChakra.obj";
+
+	LoadMeshData(SudarshanChakraModelFilePath.c_str(), gModel_SudarshanChakra.model_vertices, gModel_SudarshanChakra.model_textures, gModel_SudarshanChakra.model_normals, gModel_SudarshanChakra.model_mesh_data, gModel_SudarshanChakra.model_materialFileName);
+
+	LoadMaterialData(gModel_SudarshanChakra.model_materialFileName, gModel_SudarshanChakra.model_material);
+
+	Rearrange_Material_Data(gModel_SudarshanChakra.model_mesh_data, gModel_SudarshanChakra.model_material);
+
+
+	/*****************VAO For Model*****************/
+	glGenVertexArrays(1, &gModel_SudarshanChakra.Vao);
+	glBindVertexArray(gModel_SudarshanChakra.Vao);
+
+	/*****************Model Position****************/
+	glGenBuffers(1, &gVbo_Model_Position);
+	glBindBuffer(GL_ARRAY_BUFFER, gVbo_Model_Position);
+	glBufferData(GL_ARRAY_BUFFER, gModel_SudarshanChakra.model_vertices.size() * sizeof(float), &gModel_SudarshanChakra.model_vertices[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(MATRIX_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_POSITION);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	/*****************Model Color****************/
+	glGenBuffers(1, &gVbo_Model_Normal);
+	glBindBuffer(GL_ARRAY_BUFFER, gVbo_Model_Normal);
+	glBufferData(GL_ARRAY_BUFFER, gModel_SudarshanChakra.model_normals.size() * sizeof(float), &gModel_SudarshanChakra.model_normals[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(MATRIX_ATTRIBUTE_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_NORMAL);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	/*******************Texture******************/
+	glGenBuffers(1, &gVbo_Model_Texture);
+	glBindBuffer(GL_ARRAY_BUFFER, gVbo_Model_Texture);
+	glBufferData(GL_ARRAY_BUFFER, gModel_SudarshanChakra.model_textures.size() * sizeof(float), &gModel_SudarshanChakra.model_textures[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(MATRIX_ATTRIBUTE_TEXTURE0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_TEXTURE0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);

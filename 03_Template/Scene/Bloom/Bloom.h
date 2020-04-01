@@ -2,11 +2,6 @@
 
 bool bShowBloom_bloom = false;
 
-enum {
-	MAX_SCENE_WIDTH = 2048,
-	MAX_SCENE_HEIGHT = 2048,
-	FBO_SIZE = 2048
-};
 
 //GLsizei currentWidth;
 //GLsizei currentHeight;
@@ -16,6 +11,8 @@ struct {
 		GLuint exposure_bloom;
 		GLuint bloom_factor;
 		GLuint scene_factor;
+		GLuint godRays_factor;
+		GLuint godRays_image;
 	} resolve;
 } uniforms;
 
@@ -28,6 +25,7 @@ GLuint texLUT_bloom;
 GLuint texScene_bloom;
 GLuint texBrightPass_bloom;
 GLuint texDepth_bloom;
+GLuint texGodRaysPass;
 GLuint texGaussianBlur_bloom[2];
 
 GLuint vao_framebuffer_bloom;
@@ -319,14 +317,17 @@ void initializeBloom(void) {
 		"#version 450 core																				\n" \
 		"layout (binding = 0) uniform sampler2D hdr_image;												\n" \
 		"layout (binding = 1) uniform sampler2D bloom_image;											\n" \
+		"layout (binding = 2) uniform sampler2D godRays_image;											\n" \
 		"uniform float exposure = 0.9;																	\n" \
 		"uniform float bloom_factor = 1.0;																\n" \
 		"uniform float scene_factor = 1.0;																\n" \
+		"uniform float godRays_factor = 1.0;																\n" \
 		"out vec4 color;																				\n" \
 		"void main(void) {																				\n" \
 		"	vec4 c = vec4(0.0);																			\n" \
 		"	c += texelFetch(hdr_image, ivec2(gl_FragCoord.xy), 0) * scene_factor;						\n" \
 		"	c += texelFetch(bloom_image, ivec2(gl_FragCoord.xy), 0) * bloom_factor;						\n" \
+		/*"	c += texelFetch(godRays_image, ivec2(gl_FragCoord.xy), 0) * godRays_factor;						\n" \*/
 		"	c.rgb = vec3(1.0) - exp(-c.rgb * exposure);													\n" \
 		"	color = c;																					\n" \
 		"}																								\n"
@@ -359,9 +360,11 @@ void initializeBloom(void) {
 	//mvpMatrixFramebufferQuadDisplay = glGetUniformLocation(ShaderProgramObject_Final_Display_Resolution, "u_mvp_matrix");
 	uniforms.resolve.bloom_factor = glGetUniformLocation(ShaderProgramObject_Final_Display_Resolution, "bloom_factor");
 	uniforms.resolve.scene_factor = glGetUniformLocation(ShaderProgramObject_Final_Display_Resolution, "scene_factor");
+	uniforms.resolve.godRays_factor = glGetUniformLocation(ShaderProgramObject_Final_Display_Resolution, "godRays_factor");
+	uniforms.resolve.godRays_image = glGetUniformLocation(ShaderProgramObject_Final_Display_Resolution, "godRays_image");
 
 	// **** Framebuffer With Two Color Attachment ****
-	static const GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+	static const GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1,  GL_COLOR_ATTACHMENT2};
 
 	glGenVertexArrays(1, &vao_framebuffer_bloom);
 	glBindVertexArray(vao_framebuffer_bloom);
@@ -381,11 +384,17 @@ void initializeBloom(void) {
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, texBrightPass_bloom, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+	glGenTextures(1, &texGodRaysPass);
+	glBindTexture(GL_TEXTURE_2D, texGodRaysPass);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA16F, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, texGodRaysPass, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	glGenTextures(1, &texDepth_bloom);
 	glBindTexture(GL_TEXTURE_2D, texDepth_bloom);
 	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texDepth_bloom, 0);
-	glDrawBuffers(2, buffers);
+	glDrawBuffers(3, buffers);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -495,6 +504,7 @@ void ApplyingBloom(void) {
 	glUniform1f(uniforms.resolve.exposure_bloom, exposure_bloom);
 	glUniform1f(uniforms.resolve.scene_factor, 1.0f);
 	glUniform1f(uniforms.resolve.bloom_factor, bShowBloom_bloom ? bloomFactor : 0.0f);
+	glUniform1f(uniforms.resolve.godRays_factor, 1.0f);
 	
 
 	glActiveTexture(GL_TEXTURE1);
@@ -504,6 +514,9 @@ void ApplyingBloom(void) {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texScene_bloom);
 
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, godRays_texture_attachment);
+	
 	glBindVertexArray(vao_framebuffer_bloom);
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

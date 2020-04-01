@@ -41,6 +41,13 @@ enum
 	MATRIX_ATTRIBUTE_WEIGHTS
 };
 
+enum {
+	MAX_SCENE_WIDTH = 2048,
+	MAX_SCENE_HEIGHT = 2048,
+	FBO_SIZE = 2048
+};
+
+
 // Global Variable Declarations
 FILE* gpFile = NULL;
 bool gbLight = false;

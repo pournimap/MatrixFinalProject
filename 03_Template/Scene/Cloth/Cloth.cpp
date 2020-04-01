@@ -397,6 +397,7 @@ int Clothintialize(void)
 		/*"out vec4 fragColor;" \*/
 		"layout (location = 0) out vec4 fragColor;" \
 		"layout (location = 1) out vec4 BloomColor;" \
+		"layout (location = 2) out vec4 GodRaysColor;" \
 		"uniform int u_Lkeypress;" \
 		"uniform vec3 u_la;" \
 		"uniform vec3 u_ld;" \
@@ -453,6 +454,7 @@ int Clothintialize(void)
 		"{" \
 		"BloomColor = vec4(0.0);" \
 		"}" \
+		"GodRaysColor = vec4(0.0);" \
 		"}";
 	//Specify above code to Fragment Shader object
 	glShaderSource(ClothgFragmentShaderObject, 1, (GLchar const**)&FragmentShaderSourseCode, NULL);

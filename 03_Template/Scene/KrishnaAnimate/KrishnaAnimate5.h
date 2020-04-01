@@ -162,6 +162,7 @@ void initKrishnaAnimate()
 
 		"layout (location = 0) out vec4 FragColor;" \
 		"layout (location = 1) out vec4 BloomColor;" \
+		"layout (location = 2) out vec4 GodRaysColor;" \
 
 		"uniform vec3 u_La;" \
 		"uniform vec3 u_Ld;" \
@@ -243,6 +244,7 @@ void initKrishnaAnimate()
 		"BloomColor = vec4(0.0);" \
 		"}" \
 
+		"GodRaysColor = vec4(0.0, 0.0, 0.0, 0.0);" \
 		//"if(virat_roop_start == 1)" \
 				"FragColor		= vec4(0.2,0.1,1.0,1.0f);" 
 
@@ -353,6 +355,7 @@ void initKrishnaAnimate()
 		"\n" \
 		"layout (location = 0) out vec4 FragColor;" \
 		"layout (location = 1) out vec4 BloomColor;" \
+		"layout (location = 2) out vec4 GodRaysColor;" \
 
 		"uniform int applyBloom;" \
 		"uniform float bloom_thresh_min = 0.8f;" \
@@ -381,6 +384,7 @@ void initKrishnaAnimate()
 		"{" \
 			"BloomColor = vec4(0.0);" \
 		"}" \
+		"GodRaysColor = vec4(0.0, 0.0, 0.0, 0.0);" \
 		//"FragColor = vec4(0.2,0.1,1.0,0.5);" 
 		"}";
 
@@ -499,7 +503,7 @@ void display_krishnaAnimate()
 	mat4 rotateMatrix = mat4::identity();
 
 	// KRISHNA MODEL
-	modelMatrix = vmath::translate(-300.0f, 55.0f, 1.0f);
+	modelMatrix = vmath::translate(-250.0f, 55.0f, 1.0f);
 	//modelMatrix		= vmath::translate(-300.0f, 120.0f, 1.0f);
 	scaleMatrix = scale(gfKrishnaModelScale, gfKrishnaModelScale, gfKrishnaModelScale);
 	rotateMatrix = rotate(90.0f, 0.0f, 1.0f, 0.0f);

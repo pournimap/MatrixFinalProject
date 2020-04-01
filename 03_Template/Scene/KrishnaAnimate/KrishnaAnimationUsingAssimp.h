@@ -108,6 +108,7 @@ void initAssimpModelLoaderShader()
 
 		"layout (location = 0) out vec4 FragColor;" \
 		"layout (location = 1) out vec4 BloomColor;" \
+		"layout (location = 2) out vec4 GodRaysColor;" \
 
 		"uniform vec3 u_La;" \
 		"uniform vec3 u_Ld;" \
@@ -155,6 +156,7 @@ void initAssimpModelLoaderShader()
 			"}" \
 
 		"BloomColor = vec4(0.0);" \
+		"GodRaysColor = vec4(0.0);" \
 		"}";
 		
 	glShaderSource(gFragmentShaderObject_krishnaAnimateAssimp, 1, (const GLchar**)&fragmentShaderSourceCode, NULL);

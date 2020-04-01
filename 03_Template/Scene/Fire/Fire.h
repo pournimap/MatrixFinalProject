@@ -114,6 +114,7 @@ void initfire(void)
 
 		"layout (location = 0) out vec4 FragColor;" \
 		"layout (location = 1) out vec4 BloomColor;" \
+		"layout (location = 2) out vec4 GodRaysColor;" \
 
 		"uniform int applyBloom;" \
 		"uniform float bloom_thresh_min = 0.8f;" \
@@ -150,6 +151,7 @@ void initfire(void)
 		"{" \
 			"BloomColor = vec4(0.0);" \
 		"}" \
+		"GodRaysColor = vec4(0.0);" \
 		"}";
 
 	glShaderSource(gFragmentShaderObject_fire, 1, (const GLchar**)&fragmentShaderSourceCode_fire, NULL);

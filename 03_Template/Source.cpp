@@ -3,7 +3,7 @@
 
 #include "Include/BasicShapeLoader/Shapes/Matrix_BasicShapes.h"
 
-
+#include "Scene/Framebuffer/Framebuffer.h"
 
 //Add your header files here
 #include "Scene/PerFragment.h"
@@ -12,6 +12,7 @@
 #include"Scene/Fire/Fire.h"
 #include"Scene/KrishnaAnimate/KrishnaAnimationUsingAssimp.h"
 #include"Scene/KrishnaAnimate/KrishnaAnimate5.h"
+#include "Scene/GodRays/GodRays.h"
 
 #include "Scene/DepthOfField/DepthOfField.h"
 
@@ -579,6 +580,9 @@ int initialize(void)
 	initQuadShape();
 	LoadAllModels();
 
+	//Load FrameBuffer
+	initAllFrameBuffer();
+
 	//Load All Scenes
 
 	initialize_perFragmentLight();
@@ -597,6 +601,8 @@ int initialize(void)
 
 	initialize_FluidText();
 
+	InitColorProgramShaders();
+	initGodRaysPostProcessing();
 	// ................................................................................................
 	//
 	// Initialize your specific scene here above
@@ -645,9 +651,11 @@ void display(void)
 		glBindFramebuffer(GL_FRAMEBUFFER, render_fbo_bloom);
 		glClearBufferfv(GL_COLOR, 0, black);	// GL_COLOR_ATTACHMENT0
 		glClearBufferfv(GL_COLOR, 1, black);	// GL_COLOR_ATTACHMENT1
+		glClearBufferfv(GL_COLOR, 2, black);	// GL_COLOR_ATTACHMENT2
 		glClearBufferfv(GL_DEPTH, 0, &one);
 
 		//applyDOF();
+		renderBrightSource();
 
 		display_perFragmentLight();
 
@@ -669,6 +677,9 @@ void display(void)
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+		display_GodRaysPostProcessing();
+
+		glViewport(0, 0, gWidth, gHeight);
 		ApplyingBloom();
 	}
 
