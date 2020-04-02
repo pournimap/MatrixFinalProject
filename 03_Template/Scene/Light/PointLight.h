@@ -594,6 +594,7 @@ void display_pointLight()
 	glBindVertexArray(0);*/
 
 	//mashal
+	glUniform1i(applyBloomUniform_pointLight, 0);
 	for (int i = 0; i < gNumPointLights_pointLight; i++)
 	{
 		modelMatrix = mat4::identity();

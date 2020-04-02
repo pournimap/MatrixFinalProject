@@ -327,7 +327,7 @@ void initializeBloom(void) {
 		"	vec4 c = vec4(0.0);																			\n" \
 		"	c += texelFetch(hdr_image, ivec2(gl_FragCoord.xy), 0) * scene_factor;						\n" \
 		"	c += texelFetch(bloom_image, ivec2(gl_FragCoord.xy), 0) * bloom_factor;						\n" \
-		/*"	c += texelFetch(godRays_image, ivec2(gl_FragCoord.xy), 0) * godRays_factor;						\n" \*/
+		"	c += texelFetch(godRays_image, ivec2(gl_FragCoord.xy), 0) * godRays_factor;						\n" \
 		"	c.rgb = vec3(1.0) - exp(-c.rgb * exposure);													\n" \
 		"	color = c;																					\n" \
 		"}																								\n"
@@ -357,7 +357,6 @@ void initializeBloom(void) {
 
 	// Post-linking
 	uniforms.resolve.exposure_bloom = glGetUniformLocation(ShaderProgramObject_Final_Display_Resolution, "exposure");
-	//mvpMatrixFramebufferQuadDisplay = glGetUniformLocation(ShaderProgramObject_Final_Display_Resolution, "u_mvp_matrix");
 	uniforms.resolve.bloom_factor = glGetUniformLocation(ShaderProgramObject_Final_Display_Resolution, "bloom_factor");
 	uniforms.resolve.scene_factor = glGetUniformLocation(ShaderProgramObject_Final_Display_Resolution, "scene_factor");
 	uniforms.resolve.godRays_factor = glGetUniformLocation(ShaderProgramObject_Final_Display_Resolution, "godRays_factor");

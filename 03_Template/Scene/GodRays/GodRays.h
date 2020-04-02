@@ -45,7 +45,7 @@ void InitColorProgramShaders()
 		"void main(void)" \
 		"{" \
 		"FragColor = vec4(uColor, 1.0);" \
-		"BloomColor = vec4(0.0);" \
+		"BloomColor = FragColor;" \
 		"GodRaysColor = FragColor;" \
 		"}";
 
@@ -91,7 +91,7 @@ void renderBrightSource()
 	}
 	else
 	{
-		gfKrishnaModelScale = 100.0f;
+		gfKrishnaModelScale = 50.0f;
 		SourceDir = vec3(-400.0f, 255.0f, 1.0f);
 	}
 
@@ -110,6 +110,117 @@ void renderBrightSource()
 
 	glUseProgram(0);
 }
+
+GLuint vaoChakraSource, vbo_Position_ChakraSource, vbo_Color_ChakraSource;
+
+void initBrightChakraSource()
+{
+	float R = 1.5;
+	float r = 1.2;
+	float angle;
+	float angle2;
+	#define PI 3.1415926535898
+
+	GLfloat diskCircleVertices[18855] = {};
+	GLfloat diskCircleColor[18855] = {};
+	int iterationVerticesX = 0;
+	int iterationVerticesY = 1;
+	int iterationVerticesZ = 2;
+
+	for (angle = 0.0f, angle2 = 0.0f; angle <= 4 * PI * (R), angle2 <= 2 * PI * r; angle = angle + 5.0f, angle2 = angle2 + 0.005f)
+	{
+
+		diskCircleVertices[iterationVerticesX] = (R + r * cos(angle)) * cos(angle2);
+		diskCircleVertices[iterationVerticesZ] = (R + r * cos(angle)) * sin(angle2);
+
+		diskCircleVertices[iterationVerticesY] = r * sin(angle);
+
+		diskCircleColor[iterationVerticesX] = 0.98f;
+		diskCircleColor[iterationVerticesY] = 0.83f;
+		diskCircleColor[iterationVerticesZ] = 0.25f;
+
+		iterationVerticesX += 3;
+		iterationVerticesY += 3;
+		iterationVerticesZ += 3;
+
+	};
+
+
+	glGenVertexArrays(1, &vaoChakraSource);
+	glBindVertexArray(vaoChakraSource);
+	
+	glGenBuffers(1, &vbo_Position_ChakraSource);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_Position_ChakraSource);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(diskCircleVertices), diskCircleVertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(MATRIX_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_POSITION);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glGenBuffers(1, &vbo_Color_ChakraSource);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_Color_ChakraSource);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(diskCircleColor), diskCircleColor, GL_STATIC_DRAW);
+	glVertexAttribPointer(MATRIX_ATTRIBUTE_COLOR, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_COLOR);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindVertexArray(0);
+
+
+}
+void renderBrightChakraSource()
+{
+
+	// Initialize above matrices to Identity - For Circle
+	mat4 modelMatrix = mat4::identity();
+	mat4 scaleMatrix = mat4::identity();
+	mat4 rotationMatrix = mat4::identity();
+
+	// Do necessary Transformation --
+	if (startJoin_krishnaAnimate)
+	{
+		gfKrishnaModelScale = 60.0f;
+		SourceDir = vec3(-450.0f, 1050.0f, 1.0f);
+	}
+	else
+	{
+		gfKrishnaModelScale = 50.0f;
+		SourceDir = vec3(-400.0f, 255.0f, 1.0f);
+	}
+
+	glUseProgram(gShaderProgramObject_color);
+
+	modelMatrix = translate(SourceDir);
+	scaleMatrix = vmath::scale(gfKrishnaModelScale, gfKrishnaModelScale, gfKrishnaModelScale);
+	modelMatrix = modelMatrix * scaleMatrix;
+
+	rotationMatrix = rotate(90.0f, 0.0f, 0.0f, 1.0f);
+	
+	modelMatrix = modelMatrix * rotationMatrix;
+
+	static float RotateAngle = 0.0f;
+	rotationMatrix = rotate(RotateAngle, 0.0f, 1.0f, 0.0f);
+	if (RotateAngle >= 360.0f)
+		RotateAngle = 0.0f;
+	RotateAngle += 0.1f;
+
+	modelMatrix = modelMatrix * rotationMatrix;
+
+	glUniformMatrix4fv(gModelMatrixUniform_Color, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(gViewMatrixUniform_Color, 1, GL_FALSE, gViewMatrix);
+	glUniformMatrix4fv(gProjMatrixUniform_Color, 1, GL_FALSE, gPerspectiveProjectionMatrix);
+	glUniform3fv(gColorUniform_Color, 1, vec3(0.98, 0.83, 0.25));
+
+
+	// Bind with "vao" (To avoid many repetitive use of "vbo")
+	glBindVertexArray(vaoChakraSource);
+
+	//glDrawArrays(GL_TRIANGLE_FAN, 0, 6284);
+	glDrawArrays(GL_QUAD_STRIP, 0, 18855);
+
+	//Unbind "vao"
+	glBindVertexArray(0);
+}
+
 
 vec4 vec4Transform(vec4& vSrcVector, mat4& matSrcMatrix)
 {
@@ -144,7 +255,7 @@ vec2 getScreenSpaceSunPos()
 	}
 	else
 	{
-		gfKrishnaModelScale = 100.0f;
+		gfKrishnaModelScale = 50.0f;
 		SourceDir = vec3(-400.0f, 255.0f, 1.0f);
 	}
 

@@ -602,6 +602,7 @@ int initialize(void)
 	initialize_FluidText();
 
 	InitColorProgramShaders();
+	initBrightChakraSource();
 	initGodRaysPostProcessing();
 	// ................................................................................................
 	//
@@ -655,7 +656,11 @@ void display(void)
 		glClearBufferfv(GL_DEPTH, 0, &one);
 
 		//applyDOF();
-		renderBrightSource();
+		if (startJoin_krishnaAnimate)
+		{
+			//renderBrightSource();
+			renderBrightChakraSource();
+		}
 
 		display_perFragmentLight();
 

@@ -477,6 +477,7 @@ void display_perFragmentLight()
 		glUniform1i(applyBloomUniform_perFragmentLight, 0);
 		modelMatrix = mat4::identity();
 		scaleMatrix = mat4::identity();
+		rotateMatrix = mat4::identity();
 
 		modelMatrix = vmath::translate(2500.0f, 0.0f, 600.0f);
 		scaleMatrix = scale(50.0f, 50.0f, 50.0f);
@@ -519,9 +520,9 @@ void display_perFragmentLight()
 		scaleMatrix = mat4::identity();
 		rotateMatrix = mat4::identity();
 
-		modelMatrix = vmath::translate(-170.0f, 770.0f, 480.0f);
+		modelMatrix = vmath::translate(-210.0f, 790.0f, 480.0f);
 		scaleMatrix = scale(50.0f, 50.0f, 50.0f);
-		//rotateMatrix = rotate(230.0f, 0.0f, 1.0f, 0.0f);
+		rotateMatrix = rotate(-25.0f, 0.0f, 0.0f, 1.0f);
 
 		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
 
