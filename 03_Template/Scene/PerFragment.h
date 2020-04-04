@@ -437,8 +437,8 @@ void display_perFragmentLight()
 	modelMatrix = mat4::identity();
 	scaleMatrix = mat4::identity();
 	rotateMatrix = mat4::identity();
-	modelMatrix = vmath::translate(-405.0f, 150.0f, 1.0f);
-	scaleMatrix = scale(50.0f, 50.0f, 50.0f);
+	modelMatrix = vmath::translate(-380.0f, 135.0f, 1.0f);
+	scaleMatrix = scale(45.0f, 45.0f, 45.0f);
 	rotateMatrix = rotate(90.0f, 0.0f, 1.0f, 0.0f);
 
 	modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;

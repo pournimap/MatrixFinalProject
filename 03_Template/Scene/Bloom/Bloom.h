@@ -16,7 +16,7 @@ struct {
 	} resolve;
 } uniforms;
 
-float bloomFactor = 1.5f;
+float bloomFactor = 1.0f;
 
 GLuint render_fbo_bloom;
 GLuint gaussian_blur_fbo_bloom[2];
@@ -324,12 +324,16 @@ void initializeBloom(void) {
 		"uniform float godRays_factor = 1.0;																\n" \
 		"out vec4 color;																				\n" \
 		"void main(void) {																				\n" \
+		"const float gamma = 1.2;" \
 		"	vec4 c = vec4(0.0);																			\n" \
 		"	c += texelFetch(hdr_image, ivec2(gl_FragCoord.xy), 0) * scene_factor;						\n" \
 		"	c += texelFetch(bloom_image, ivec2(gl_FragCoord.xy), 0) * bloom_factor;						\n" \
 		"	c += texelFetch(godRays_image, ivec2(gl_FragCoord.xy), 0) * godRays_factor;						\n" \
 		"	c.rgb = vec3(1.0) - exp(-c.rgb * exposure);													\n" \
-		"	color = c;																					\n" \
+		
+		//gamma correction
+		"c.rgb = pow(c.rgb, vec3(1 / gamma));" \
+		"color = vec4(c.rgb, 1.0);																					\n" \
 		"}																								\n"
 	};
 

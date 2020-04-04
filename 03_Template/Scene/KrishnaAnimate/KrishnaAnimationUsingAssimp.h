@@ -125,6 +125,11 @@ void initAssimpModelLoaderShader()
 		"uniform vec3 material_ambient;" \
 		"uniform vec3 material_specular;" \
 
+		"uniform int applyBloom;" \
+		"uniform float bloom_thresh_min = 0.8f;" \
+		"uniform float bloom_thresh_max = 1.2f;" \
+		"uniform int u_bloom_is_active;" \
+
 		"void main(void)" \
 		"{" \
 			"vec3 phong_ads_color;" \
@@ -155,7 +160,27 @@ void initAssimpModelLoaderShader()
 				"FragColor		= vec4(phong_ads_color,1.0f);"\
 			"}" \
 
+		/*"BloomColor = vec4(0.0);" \*/
+
+		"if(applyBloom == 1)" \
+		"{" \
+		"vec4 c = FragColor;" \
+		"if (u_bloom_is_active == 1)" \
+		"{" \
+		"float Y = dot(c, vec4(0.299, 0.587, 0.144, 1.0));\n" \
+		"c = c * 4.0 * smoothstep(bloom_thresh_min, bloom_thresh_max, Y);\n" \
+		"BloomColor = c;\n" \
+		"}" \
+		"else" \
+		"{" \
+		"BloomColor = c;\n" \
+		"}" \
+		"}" \
+		"else" \
+		"{" \
 		"BloomColor = vec4(0.0);" \
+		"}" \
+
 		"GodRaysColor = vec4(0.0);" \
 		"}";
 		
@@ -211,10 +236,12 @@ void initAssimpModelLoaderShader()
 	gTextureActiveUniform_krishnaAnimateAssimp	= glGetUniformLocation(gShaderProgramObject_krishnaAnimateAssimp, "u_is_texture");
 	gAlphaUniform_krishnaAnimateAssimp			= glGetUniformLocation(gShaderProgramObject_krishnaAnimateAssimp, "u_alpha");
 	
-	
-	
 	gIs_animatedUniform_krishnaAnimateAssimp = glGetUniformLocation(gShaderProgramObject_krishnaAnimateAssimp, "is_animated");
 	
+	applyBloomUniform_krishnaAnimateAssimp = glGetUniformLocation(gShaderProgramObject_krishnaAnimateAssimp, "applyBloom");
+	u_bloom_is_activeUniform_krishnaAnimateAssimp = glGetUniformLocation(gShaderProgramObject_krishnaAnimateAssimp, "u_bloom_is_active");
+	bloom_thresh_minUniform_krishnaAnimateAssimp = glGetUniformLocation(gShaderProgramObject_krishnaAnimateAssimp, "bloom_thresh_min");
+	bloom_thresh_maxUniform_krishnaAnimateAssimp = glGetUniformLocation(gShaderProgramObject_krishnaAnimateAssimp, "bloom_thresh_max");
 }
 
 
@@ -302,6 +329,11 @@ void display_AssimpModelLoader()
 	glUniform1i(gTextureActiveUniform_krishnaAnimateAssimp, 1);
 	glUniform1i(gAlphaUniform_krishnaAnimateAssimp, 1.0);
 	
+	glUniform1i(u_bloom_is_activeUniform_krishnaAnimateAssimp, 1);
+	glUniform1f(bloom_thresh_minUniform_krishnaAnimateAssimp, 0.72f);
+	glUniform1f(bloom_thresh_maxUniform_krishnaAnimateAssimp, 2.68f);
+	glUniform1i(applyBloomUniform_krishnaAnimateAssimp, 1);
+
 	krishna_Animated_SeatToStand.draw(gShaderProgramObject_krishnaAnimateAssimp, isModelAnimationStart, 1);
 
 	glUseProgram(0);

@@ -20,7 +20,7 @@ GLuint gViewPosUniform_pointLight, gNumPointLightsUniform_pointLight;
 GLuint applyBloomUniform_pointLight, u_bloom_is_activeUniform_pointLight;
 GLuint bloom_thresh_minUniform_pointLight, bloom_thresh_maxUniform_pointLight;
 
-#define gNumPointLights_pointLight  18
+#define gNumPointLights_pointLight  20
 struct PointLightUniform
 {
 	GLuint u_La;
@@ -154,7 +154,7 @@ void initPointLightShader()
 		"};" \
 		
 		"uniform int gNumPointLights;" \
-		"uniform PointLight pointLight[18];" \
+		"uniform PointLight pointLight[20];" \
 		"uniform vec3 viewPos;" \
 	
 		"in vec3 transformed_normals;" \
@@ -377,9 +377,9 @@ void initialize_pointLight()
 
 }
 
-vec3 positionLamp[] = { vec3(-720.0f, 600.0f, 750.0f), vec3(-250.0f, 400.0f, 750.0f), vec3(320.0f, 400.0f, 750.0f), vec3(850.0f, 400.0f, 750.0f),vec3(1420.0f, 400.0f, 750.0f) , vec3(1950.0f, 400.0f, 750.0f) , vec3(2520.0f, 400.0f, 750.0f) ,
+vec3 positionLamp[] = { vec3(-720.0f, 600.0f, 440.0f), vec3(-720.0f, 600.0f, 750.0f), vec3(-250.0f, 400.0f, 750.0f), vec3(320.0f, 400.0f, 750.0f), vec3(850.0f, 400.0f, 750.0f),vec3(1420.0f, 400.0f, 750.0f) , vec3(1950.0f, 400.0f, 750.0f) , vec3(2520.0f, 400.0f, 750.0f) ,
 						vec3(3105.0f, 400.0f, 750.0f) , vec3(3650.0f,400.0f, 750.0f) ,  
-						vec3(-750.0f, 600.0f, -810.0f), vec3(-250.0f, 400.0f, -810.0f), vec3(320.0f, 400.0f, -810.0f), vec3(850.0f, 400.0f, -810.0f),vec3(1420.0f, 400.0f, -810.0f) , vec3(2000.0f, 400.0f, -810.0f) , vec3(2570.0f, 400.0f, -810.0f) ,
+						vec3(-750.0f, 600.0f, -510.0f), vec3(-750.0f, 600.0f, -810.0f), vec3(-250.0f, 400.0f, -810.0f), vec3(320.0f, 400.0f, -810.0f), vec3(850.0f, 400.0f, -810.0f),vec3(1420.0f, 400.0f, -810.0f) , vec3(2000.0f, 400.0f, -810.0f) , vec3(2570.0f, 400.0f, -810.0f) ,
 						vec3(3100.0f, 400.0f, -810.0f) , vec3(3700.0f, 400.0f, -810.0f) , };
 void display_pointLight()
 {
@@ -602,7 +602,7 @@ void display_pointLight()
 		rotateMatrix = mat4::identity();
 		
 		scaleMatrix = scale(2.0f, 2.0f, 2.0f);
-		if (i < 8)
+		if (i < 10)
 		{
 			modelMatrix = vmath::translate(positionLamp[i][0], positionLamp[i][1] - 65.0f, positionLamp[i][2] + 20.0f);
 			rotateMatrix = rotate(-20.0f, 1.0f, 0.0f, 0.0f);

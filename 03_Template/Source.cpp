@@ -18,6 +18,7 @@
 
 #include"Scene/EndNames/FluidTextRendering.h"
 
+#include "Scene/XAudio/Audio.h"
 
 // Callback
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -242,11 +243,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			*/
 
 		case VK_UP:
-			vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] + 1.0f;
+			vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] + 5.0f;
 			break;
 
 		case VK_DOWN:
-			vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] - 1.0f;
+			vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] - 5.0f;
 			break;
 
 		default:
@@ -282,16 +283,24 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		//	break;
 		//
 		case '4':
-			bloom_thresh_min -= 0.1f;
+			bloom_thresh_min -= 0.01f;
+			fprintf(gpFile, "bloom_thresh_min  : %f\n", bloom_thresh_min);
+			fflush(gpFile);
 			break;
 		case '5':
-			bloom_thresh_min += 0.1f;
+			bloom_thresh_min += 0.01f;
+			fprintf(gpFile, "bloom_thresh_min  : %f\n", bloom_thresh_min);
+			fflush(gpFile);
 			break;
 		case '6':
-			bloom_thresh_max -= 0.1f;
+			bloom_thresh_max -= 0.01f;
+			fprintf(gpFile, "bloom_thresh_max  : %f\n", bloom_thresh_max);
+			fflush(gpFile);
 			break;
 		case '7':
-			bloom_thresh_max += 0.1f;
+			bloom_thresh_max += 0.01f;
+			fprintf(gpFile, "bloom_thresh_max  : %f\n", bloom_thresh_max);
+			fflush(gpFile);
 			break;
 
 		case '1':
@@ -393,8 +402,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 		case 'c':		// start camera animation
 		case 'C':
+			
 			isModelAnimationStart = false;
 			isAssimpAnimatedModelShow = false;
+			gpIXAudio2_SceneFirstSourceVoice->Start(0);
 			/*
 			vmath_camera_eye_coord[0] = -40.0f;
 			vmath_camera_eye_coord[1] = 180.0f;
@@ -478,6 +489,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			iShowEndScene = !iShowEndScene;
 			break;
 
+		case 'g':
+		case 'G':
+			gpIXAudio2_SceneFirstSourceVoice->Start(0);
+			break;
+		case 'm':
+		case 'M':
+			gpIXAudio2_SceneFirstSourceVoice->Stop(0);
+			break;
 		default:
 			break;
 		}
@@ -574,6 +593,8 @@ int initialize(void)
 	//
 	// ................................................................................................
 
+	initAudio();
+
 	//Load All Shapes and Model
 	initCubeShape();
 	initSphereShape();
@@ -665,9 +686,11 @@ void display(void)
 		display_perFragmentLight();
 
 		display_pointLight();
-
+		
 		Clothdisplay();
 
+		display_fire();
+		
 		if (isFirstScene == false)
 		{
 			if (isAssimpAnimatedModelShow == true)
@@ -675,8 +698,6 @@ void display(void)
 			else
 				display_krishnaAnimate();
 		}
-
-		display_fire();
 
 		//stopApplyingDOF();
 
@@ -760,6 +781,7 @@ void uninitialize(int i_Exit_Flag)
 	// call your scene uninitialize here below
 	//
 	// ....................................................................................
+	Uninitialize_Audio();
 
 	uninitialize_perFragmentLight();
 	uninitialize_pointLight();

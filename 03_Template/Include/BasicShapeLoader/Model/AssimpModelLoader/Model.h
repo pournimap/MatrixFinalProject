@@ -90,6 +90,8 @@ void Model::initShaders(GLuint shader_program)
 
 
 static float count1 = 0.1f;
+
+
 void Model::draw(GLuint shaders_program, bool isAnimated, int sequence)
 {
 	std::vector<aiMatrix4x4> transforms;

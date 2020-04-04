@@ -75,6 +75,7 @@ GLuint Clothld_Uniform, Clothla_Uniform, Clothls_Uniform, ClothlightPosition_Uni
 GLuint Clothka_Uniform, Clothkd_Uniform, Clothks_Uniform;
 GLuint ClothLKeyPress_Uniform, ClothmaterialShinyness_Uniform;
 GLuint ClothApplyBloomUniform, ClothBloomIsActiveUniform;
+GLuint ClothBloom_thresh_minUniform, ClothBloom_thresh_maxUniform;
 
 float ClothlightAmbient[4] = { 0.0f,0.0f,0.0f,0.0f };
 float ClothlightDiffuse[4] = { 0.5f,0.0f,0.0f,1.0f };
@@ -552,6 +553,8 @@ int Clothintialize(void)
 
 	ClothApplyBloomUniform = glGetUniformLocation(ClothglShaderProgramObject, "applyBloom");
 	ClothBloomIsActiveUniform = glGetUniformLocation(ClothglShaderProgramObject, "u_bloom_is_active");
+	ClothBloom_thresh_minUniform = glGetUniformLocation(ClothglShaderProgramObject, "bloom_thresh_min");
+	ClothBloom_thresh_maxUniform = glGetUniformLocation(ClothglShaderProgramObject, "bloom_thresh_max");
 	//Ortho fixfunction program
 	
 	
@@ -831,8 +834,12 @@ void ClothapplyWindForce()
 	applyWindForceCudaKernel(ClothGPUParticles_pos_array,ClothGPUParticles_Accelaration, Clothparticle_width, Clothparticle_height, ClothwindForce);
 		
 }
+
 extern mat4 gPerspectiveProjectionMatrix;
 extern mat4 gViewMatrix;
+extern float bloom_thresh_min;
+extern float bloom_thresh_max;
+extern bool startJoin_krishnaAnimate;
 void Clothdisplay()
 {
 	//code
@@ -843,7 +850,9 @@ void Clothdisplay()
 
 	glUniform1i(ClothBloomIsActiveUniform, 1);
 	glUniform1i(ClothApplyBloomUniform, 1);
-
+	
+	glUniform1f(ClothBloom_thresh_minUniform, bloom_thresh_min);
+	glUniform1f(ClothBloom_thresh_maxUniform, bloom_thresh_max);
 	//Declaration of Matrix
 	mat4 modelMatrix;
 	mat4 viewMatrix;
@@ -1510,90 +1519,92 @@ void Clothdisplay()
 		//////////////////////////////////////////////////////
 	//Front cloth , Stage cloth , Center cloth	
 		
-	modelMatrix = mat4::identity();	
-		
-	translateMatrix = mat4::identity();	
-	rotationMatrixX = mat4::identity();	
-	rotationMatrixY = mat4::identity();	
-	rotationMatrixZ = mat4::identity();	
-	scalematrix = mat4::identity();	
-	modelViewProjectionMatrix = mat4::identity();	
-	//Do necessary transformation	
-	//Do necessary Matrix multiplication	
-	//translateMatrix = translate(-85.0f, 70.0f, 15.0f);	
-	translateMatrix = translate(-820.0f, 70.0f, 17.0f);	
-	//translateMatrix = translate(0.0f, 0.0f, -6.0f);	
-	//rotationMatrixX = rotate(ClothangleX, 1.0f, 0.0f, 0.0f);	
-	rotationMatrixY = rotate(90.0f, 0.0f, 1.0f, 0.0f);	
-	//rotationMatrixZ = rotate(ClothangleZ, 0.0f, 0.0f, 1.0f);	
-	scalematrix = scale(1.0f, 15.0f, 15.0f);	
-	translateMatrix = scalematrix  * translateMatrix  ;	
-	modelMatrix = modelMatrix * translateMatrix *rotationMatrixY;	
-	ClothlightPosition[0] = -815.0f;	
-	ClothlightPosition[1] = 75.0f;	
-	ClothlightPosition[2] = 17.0f;	
-	ClothlightPosition[3] = 1.0f;	
-	glUniform4fv(ClothlightPosition_Uniform, 1, ClothlightPosition);	
-	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);	
-	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);	
-	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);	
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);			
-	glBindBuffer(GL_ARRAY_BUFFER, 0);	
-		
-				
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);			
-	glBindBuffer(GL_ARRAY_BUFFER, 0);	
-		
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));	
-		
-		
-		
-		
-	modelMatrix = mat4::identity();	
-		
-	translateMatrix = mat4::identity();	
-	rotationMatrixX = mat4::identity();	
-	rotationMatrixY = mat4::identity();	
-	rotationMatrixZ = mat4::identity();	
-	scalematrix = mat4::identity();	
-	modelViewProjectionMatrix = mat4::identity();	
-	//Do necessary transformation	
-	//Do necessary Matrix multiplication	
-	//translateMatrix = translate(-85.0f, 70.0f, 15.0f);	
-	translateMatrix = translate(-900.0f, 70.0f, 17.0f);	
-	//translateMatrix = translate(0.0f, 0.0f, -6.0f);	
-	//rotationMatrixX = rotate(ClothangleX, 1.0f, 0.0f, 0.0f);	
-	rotationMatrixY = rotate(90.0f, 0.0f, 1.0f, 0.0f);	
-	//rotationMatrixZ = rotate(ClothangleZ, 0.0f, 0.0f, 1.0f);	
-	scalematrix = scale(1.0f, 15.0f, 30.0f);	
-	translateMatrix = scalematrix  * translateMatrix  ;	
-	modelMatrix = modelMatrix * translateMatrix *rotationMatrixY;	
-	ClothlightPosition[0] = -815.0f;	
-	ClothlightPosition[1] = 75.0f;	
-	ClothlightPosition[2] = 17.0f;	
-	ClothlightPosition[3] = 1.0f;	
-	glUniform4fv(ClothlightPosition_Uniform, 1, ClothlightPosition);	
-	glUniform3fv(Clothld_Uniform, 1, ClothlightDiffuse2);	
-	glUniform3fv(Clothls_Uniform, 1, ClothlightSpecular2);
+	if (startJoin_krishnaAnimate == false)
+	{
+		modelMatrix = mat4::identity();
 
-	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);
-	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);
-	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);
+		translateMatrix = mat4::identity();
+		rotationMatrixX = mat4::identity();
+		rotationMatrixY = mat4::identity();
+		rotationMatrixZ = mat4::identity();
+		scalematrix = mat4::identity();
+		modelViewProjectionMatrix = mat4::identity();
+		//Do necessary transformation	
+		//Do necessary Matrix multiplication	
+		//translateMatrix = translate(-85.0f, 70.0f, 15.0f);	
+		translateMatrix = translate(-820.0f, 70.0f, 17.0f);
+		//translateMatrix = translate(0.0f, 0.0f, -6.0f);	
+		//rotationMatrixX = rotate(ClothangleX, 1.0f, 0.0f, 0.0f);	
+		rotationMatrixY = rotate(90.0f, 0.0f, 1.0f, 0.0f);
+		//rotationMatrixZ = rotate(ClothangleZ, 0.0f, 0.0f, 1.0f);	
+		scalematrix = scale(1.0f, 15.0f, 15.0f);
+		translateMatrix = scalematrix * translateMatrix;
+		modelMatrix = modelMatrix * translateMatrix * rotationMatrixY;
+		ClothlightPosition[0] = -815.0f;
+		ClothlightPosition[1] = 75.0f;
+		ClothlightPosition[2] = 17.0f;
+		ClothlightPosition[3] = 1.0f;
+		glUniform4fv(ClothlightPosition_Uniform, 1, ClothlightPosition);
+		glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);
+		//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);	
+		//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);	
+		glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);		
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-			
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);		
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
-	
-	
-	//unbind Clothvao
-	glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+		glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
+
+
+
+
+		modelMatrix = mat4::identity();
+
+		translateMatrix = mat4::identity();
+		rotationMatrixX = mat4::identity();
+		rotationMatrixY = mat4::identity();
+		rotationMatrixZ = mat4::identity();
+		scalematrix = mat4::identity();
+		modelViewProjectionMatrix = mat4::identity();
+		//Do necessary transformation	
+		//Do necessary Matrix multiplication	
+		//translateMatrix = translate(-85.0f, 70.0f, 15.0f);	
+		translateMatrix = translate(-900.0f, 70.0f, 17.0f);
+		//translateMatrix = translate(0.0f, 0.0f, -6.0f);	
+		//rotationMatrixX = rotate(ClothangleX, 1.0f, 0.0f, 0.0f);	
+		rotationMatrixY = rotate(90.0f, 0.0f, 1.0f, 0.0f);
+		//rotationMatrixZ = rotate(ClothangleZ, 0.0f, 0.0f, 1.0f);	
+		scalematrix = scale(1.0f, 15.0f, 30.0f);
+		translateMatrix = scalematrix * translateMatrix;
+		modelMatrix = modelMatrix * translateMatrix * rotationMatrixY;
+		ClothlightPosition[0] = -815.0f;
+		ClothlightPosition[1] = 75.0f;
+		ClothlightPosition[2] = 17.0f;
+		ClothlightPosition[3] = 1.0f;
+		glUniform4fv(ClothlightPosition_Uniform, 1, ClothlightPosition);
+		glUniform3fv(Clothld_Uniform, 1, ClothlightDiffuse2);
+		glUniform3fv(Clothls_Uniform, 1, ClothlightSpecular2);
+
+		glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);
+		//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);
+		//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);
+
+
+		glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+		glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
+
+
+		//unbind Clothvao
+		glBindVertexArray(0);
+	}
 	//unusal program
 
 	glUseProgram(0);
