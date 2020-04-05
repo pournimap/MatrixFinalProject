@@ -692,7 +692,7 @@ void display(void)
 		glClearBufferfv(GL_DEPTH, 0, &one);
 
 		//applyDOF();
-		if (startJoin_krishnaAnimate)
+		if (gbGoToFullViewKrishna)
 		{
 			//renderBrightSource();
 			renderBrightChakraSource();

@@ -428,7 +428,7 @@ void initialize_krishnaAnimate()
 {
 	initKrishnaAnimate();
 
-	krishna_Animated_StandUpHand.loadModel("Resources/11MarchKrishnaModel/pointingExported20March.fbx");
+	krishna_Animated_StandUpHand.loadModel("Resources/11MarchKrishnaModel/pointFinger.fbx");
 
 	for (GLfloat i = -2.0f; i <= 2.0f; i = i + 0.15f)
 	{
