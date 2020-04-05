@@ -1,7 +1,313 @@
 Log File Successfully Created.
-4.6.0 NVIDIA 441.66
+4.6.0 NVIDIA 436.48
 Shading Lang Version : 4.60 NVIDIA 
 fbo_godRays frameBuffer  successful
+Success::ASSIMP::MODEL::ReadFile success
+ASSIMP::MODEL:: Directory-> Resources/11MarchKrishnaModel
+scene->HasAnimations() 1: 1
+scene->mNumMeshes 1: 15
+scene->mAnimations[0]->mNumChannels 1: 53
+scene->mAnimations[0]->mDuration 1: 29.000000
+scene->mAnimations[0]->mTicksPerSecond 1:  24.000000
+		name nodes : 
+Data : RootNode
+Data : Light
+Data : Camera
+Data : Armature
+Data : Main
+Data : Abdo
+Data : Stomach
+Data : Stomach_up
+Data : Chest
+Data : Neck
+Data : Head
+Data : joint8
+Data : joint8_end
+Data : L_sho
+Data : L_elbow
+Data : L_Wri
+Data : joint26
+Data : joint21
+Data : joint22
+Data : joint22_end
+Data : joint20
+Data : joint21.001
+Data : joint22.001
+Data : joint22.001_end
+Data : joint23
+Data : joint21.002
+Data : joint22.002
+Data : joint22.002_end
+Data : joint24
+Data : joint21.003
+Data : joint22.003
+Data : joint22.003_end
+Data : joint25
+Data : joint21.004
+Data : joint22.004
+Data : joint22.004_end
+Data : R_sho
+Data : R_elbow
+Data : R_Wri
+Data : joint27
+Data : joint21.005
+Data : joint22.005
+Data : joint22.005_end
+Data : joint28
+Data : joint21.006
+Data : joint22.006
+Data : joint22.006_end
+Data : joint29
+Data : joint21.007
+Data : joint22.007
+Data : joint22.007_end
+Data : joint30
+Data : joint21.008
+Data : joint22.008
+Data : joint22.008_end
+Data : joint31
+Data : joint21.009
+Data : joint22.009
+Data : joint22.009_end
+Data : L_leg
+Data : L_knee
+Data : L_foot
+Data : R_toe
+Data : R_toe_end
+Data : R_leg
+Data : R_knee
+Data : R_foot
+Data : R_toe.001
+Data : R_toe.001_end
+Data : God
+bones: 11 , vertices: 2756
+Texture load at path : Jewelry_Misc.png 
+MODEL::Stomach 
+MODEL::Stomach_up 
+MODEL::Chest 
+MODEL::Neck 
+MODEL::Head 
+MODEL::joint8 
+MODEL::L_sho 
+MODEL::L_elbow 
+MODEL::R_sho 
+MODEL::R_elbow 
+MODEL::R_Wri 
+bones: 5 , vertices: 1760
+MODEL::Stomach_up 
+MODEL::Chest 
+MODEL::Neck 
+MODEL::Head 
+MODEL::joint8 
+bones: 5 , vertices: 640
+MODEL::Stomach_up 
+MODEL::Chest 
+MODEL::Neck 
+MODEL::Head 
+MODEL::joint8 
+bones: 5 , vertices: 120
+MODEL::Stomach_up 
+MODEL::Chest 
+MODEL::Neck 
+MODEL::Head 
+MODEL::joint8 
+bones: 7 , vertices: 17664
+Texture load at path : Hair2.jpg 
+MODEL::Stomach 
+MODEL::Stomach_up 
+MODEL::Chest 
+MODEL::Neck 
+MODEL::Head 
+MODEL::joint8 
+MODEL::L_sho 
+bones: 10 , vertices: 6540
+MODEL::Main 
+MODEL::Abdo 
+MODEL::Stomach 
+MODEL::Stomach_up 
+MODEL::L_leg 
+MODEL::L_knee 
+MODEL::L_foot 
+MODEL::R_leg 
+MODEL::R_knee 
+MODEL::R_foot 
+bones: 7 , vertices: 132
+MODEL::Stomach 
+MODEL::Stomach_up 
+MODEL::Chest 
+MODEL::L_sho 
+MODEL::L_elbow 
+MODEL::R_sho 
+MODEL::R_elbow 
+bones: 5 , vertices: 80
+Texture load at path : Feather.jpg 
+MODEL::Stomach_up 
+MODEL::Chest 
+MODEL::Neck 
+MODEL::Head 
+MODEL::joint8 
+bones: 5 , vertices: 248
+Texture load at path : KrishnaCrown2.png 
+MODEL::Stomach_up 
+MODEL::Chest 
+MODEL::Neck 
+MODEL::Head 
+MODEL::joint8 
+bones: 5 , vertices: 3600
+Texture load at path : KrishnaCrown_Back2.png 
+MODEL::Stomach_up 
+MODEL::Chest 
+MODEL::Neck 
+MODEL::Head 
+MODEL::joint8 
+bones: 12 , vertices: 34356
+MODEL::Main 
+MODEL::Abdo 
+MODEL::Stomach 
+MODEL::Stomach_up 
+MODEL::Chest 
+MODEL::Neck 
+MODEL::Head 
+MODEL::joint8 
+MODEL::L_sho 
+MODEL::R_sho 
+MODEL::L_leg 
+MODEL::R_leg 
+bones: 12 , vertices: 3344
+MODEL::Main 
+MODEL::Abdo 
+MODEL::Stomach 
+MODEL::L_elbow 
+MODEL::L_leg 
+MODEL::L_knee 
+MODEL::L_foot 
+MODEL::R_toe 
+MODEL::R_leg 
+MODEL::R_knee 
+MODEL::R_foot 
+MODEL::R_toe.001 
+bones: 52 , vertices: 305440
+Texture load at path : KrishnaFace_2.jpg 
+MODEL::Main 
+MODEL::Abdo 
+MODEL::Stomach 
+MODEL::Stomach_up 
+MODEL::Chest 
+MODEL::Neck 
+MODEL::Head 
+MODEL::joint8 
+MODEL::L_sho 
+MODEL::L_elbow 
+MODEL::L_Wri 
+MODEL::joint26 
+MODEL::joint21 
+MODEL::joint22 
+MODEL::joint20 
+MODEL::joint21.001 
+MODEL::joint22.001 
+MODEL::joint23 
+MODEL::joint21.002 
+MODEL::joint22.002 
+MODEL::joint24 
+MODEL::joint21.003 
+MODEL::joint22.003 
+MODEL::joint25 
+MODEL::joint21.004 
+MODEL::joint22.004 
+MODEL::R_sho 
+MODEL::R_elbow 
+MODEL::R_Wri 
+MODEL::joint27 
+MODEL::joint21.005 
+MODEL::joint22.005 
+MODEL::joint28 
+MODEL::joint21.006 
+MODEL::joint22.006 
+MODEL::joint29 
+MODEL::joint21.007 
+MODEL::joint22.007 
+MODEL::joint30 
+MODEL::joint21.008 
+MODEL::joint22.008 
+MODEL::joint31 
+MODEL::joint21.009 
+MODEL::joint22.009 
+MODEL::L_leg 
+MODEL::L_knee 
+MODEL::L_foot 
+MODEL::R_toe 
+MODEL::R_leg 
+MODEL::R_knee 
+MODEL::R_foot 
+MODEL::R_toe.001 
+bones: 5 , vertices: 164
+Texture load at path : KrishnaCrown2.png 
+MODEL::Main 
+MODEL::Abdo 
+MODEL::Stomach 
+MODEL::Stomach_up 
+MODEL::Chest 
+bones: 6 , vertices: 302
+Texture load at path : KrishnaCrown_Back2.png 
+MODEL::Abdo 
+MODEL::Stomach 
+MODEL::Stomach_up 
+MODEL::Chest 
+MODEL::Neck 
+MODEL::Head 
+nodes animation name : Abdo 
+nodes animation name : Armature 
+nodes animation name : Chest 
+nodes animation name : Head 
+nodes animation name : L_Wri 
+nodes animation name : L_elbow 
+nodes animation name : L_foot 
+nodes animation name : L_knee 
+nodes animation name : L_leg 
+nodes animation name : L_sho 
+nodes animation name : Main 
+nodes animation name : Neck 
+nodes animation name : R_Wri 
+nodes animation name : R_elbow 
+nodes animation name : R_foot 
+nodes animation name : R_knee 
+nodes animation name : R_leg 
+nodes animation name : R_sho 
+nodes animation name : R_toe 
+nodes animation name : R_toe.001 
+nodes animation name : Stomach 
+nodes animation name : Stomach_up 
+nodes animation name : joint20 
+nodes animation name : joint21 
+nodes animation name : joint21.001 
+nodes animation name : joint21.002 
+nodes animation name : joint21.003 
+nodes animation name : joint21.004 
+nodes animation name : joint21.005 
+nodes animation name : joint21.006 
+nodes animation name : joint21.007 
+nodes animation name : joint21.008 
+nodes animation name : joint21.009 
+nodes animation name : joint22 
+nodes animation name : joint22.001 
+nodes animation name : joint22.002 
+nodes animation name : joint22.003 
+nodes animation name : joint22.004 
+nodes animation name : joint22.005 
+nodes animation name : joint22.006 
+nodes animation name : joint22.007 
+nodes animation name : joint22.008 
+nodes animation name : joint22.009 
+nodes animation name : joint23 
+nodes animation name : joint24 
+nodes animation name : joint25 
+nodes animation name : joint26 
+nodes animation name : joint27 
+nodes animation name : joint28 
+nodes animation name : joint29 
+nodes animation name : joint30 
+nodes animation name : joint31 
+nodes animation name : joint8 
 Success::ASSIMP::MODEL::ReadFile success
 ASSIMP::MODEL:: Directory-> Resources/11MarchKrishnaModel
 scene->HasAnimations() 1: 1
