@@ -282,6 +282,27 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		//	focal_depth /= 1.1f;
 		//	break;
 		//
+		case '0':
+			gbGoToFullViewKrishna = !gbGoToFullViewKrishna;
+			/*
+			vmath_camera_eye_coord[0] = 1055.0f;
+			vmath_camera_eye_coord[1] = 890.0f;
+			vmath_camera_eye_coord[2] = -20.0f;
+
+			vmath_camera_center_coord[0] = -270.0f;
+			vmath_camera_center_coord[1] = 630.0f;
+			vmath_camera_center_coord[2] = 0.0f;
+			*/
+			break;
+
+		case '1':
+			isFirstScene = true;
+			break;
+		case '2':
+			isFirstScene = false;
+			isAssimpAnimatedModelShow = true;
+			break;
+
 		case '4':
 			bloom_thresh_min -= 0.01f;
 			fprintf(gpFile, "bloom_thresh_min  : %f\n", bloom_thresh_min);
@@ -303,13 +324,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			fflush(gpFile);
 			break;
 
-		case '1':
-			isFirstScene = true;
-			break;
-		case '2':
-			isFirstScene = false;
-			isAssimpAnimatedModelShow = true;
-			break;
+		
 		case 'B':
 		case 'b':
 			bShowBloom_bloom = !bShowBloom_bloom;

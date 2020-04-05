@@ -60,7 +60,7 @@ GLfloat t_for_attractor = 0.03f;
 //GLfloat Rotate = 0.0f;
 GLfloat b_for_attractor = 0.037f;
 
-GLfloat X_Pos_attractor = -400.0f;
+GLfloat X_Pos_attractor = -250.0f;
 GLfloat Y_Pos_attractor = 150.0f;
 GLfloat Z_Pos_attractor = -10.0f;
 
@@ -364,7 +364,8 @@ void initKrishnaAnimate()
 
 		"void main(void)" \
 		"{" \
-		"FragColor = vec4(255.0/255.0,215.0/255.0,0.0,0.5);"
+		"FragColor = vec4(255.0/255.0,115.0/255.0,0.0,0.5);" \
+		//"FragColor = vec4(255.0/255.0,215.0/255.0,0.0,0.5);" 
 		
 		"if(applyBloom == 1)" \
 		"{" \
@@ -429,9 +430,9 @@ void initialize_krishnaAnimate()
 
 	krishna_Animated_StandUpHand.loadModel("Resources/11MarchKrishnaModel/pointingExported20March.fbx");
 
-	for (GLfloat i = -2.0f; i <= 2.0f; i = i + 0.25f)
+	for (GLfloat i = -2.0f; i <= 2.0f; i = i + 0.15f)
 	{
-		for (GLfloat j = -2.0f; j <= 2.0f; j = j + 0.25f)
+		for (GLfloat j = -2.0f; j <= 2.0f; j = j + 0.15f)
 		{
 			for (GLfloat k = -2.0f; k <= 2.0f; k = k + 0.10f)
 			{
@@ -543,7 +544,8 @@ void display_krishnaAnimate()
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
 		glEnable(GL_POINT_SMOOTH);
-		glPointSize(1.5);
+		//glPointSize(1.5);
+		glPointSize(3.0);
 		glUseProgram(gShaderProgramObject_attractor_krishna);
 
 		glUniform1i(u_bloom_is_activeUniform_krishnaAttractor, 1);
@@ -573,7 +575,7 @@ void display_krishnaAnimate()
 
 		glDisable(GL_ALPHA_TEST);
 		glDisable(GL_BLEND);
-		glDisable(GL_POINT_SMOOTH);
+		//glDisable(GL_POINT_SMOOTH);
 
 	}
 
@@ -592,7 +594,7 @@ void update_krishnaAnimate()
 	{
 		if (ftime_krishnaAnimate < 3000.0f)
 		{
-			ftime_krishnaAnimate = ftime_krishnaAnimate + 0.3f;
+			ftime_krishnaAnimate = ftime_krishnaAnimate + 0.4f;
 		}
 
 		// attractor
@@ -614,7 +616,7 @@ void update_krishnaAnimate()
 		//	X_Pos_attractor = X_Pos_attractor + 0.1f;
 		//}
 		
-		if (ftime_krishnaAnimate > 1100.0f && Y_Pos_attractor > 150.0f)
+		if (ftime_krishnaAnimate > 1200.0f && Y_Pos_attractor > 170.0f)
 		{
 			Y_Pos_attractor = Y_Pos_attractor - 2.5f;
 			//t_for_attractor = 0.05f;
