@@ -35,7 +35,7 @@ void LoadAllModels()
 {
 
 	/*****************Load Mahal Model*****************/
-	std::string mahalModelFilePath = "Resources/MahalOBJVersion1WithTextures/Mahal_Version_5.2_MahalWithoutChair.obj";
+	std::string mahalModelFilePath = "Resources/MahalOBJVersion1WithTextures/Mahal_Version_5.3.obj";
 
 	LoadMeshData(mahalModelFilePath.c_str(), gModel_Mahal.model_vertices, gModel_Mahal.model_textures, gModel_Mahal.model_normals, gModel_Mahal.model_mesh_data, gModel_Mahal.model_materialFileName);
 
