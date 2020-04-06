@@ -304,25 +304,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			isAssimpAnimatedModelShow = true;
 			break;
 
-		case '4':
-			bloom_thresh_min -= 0.01f;
-			fprintf(gpFile, "bloom_thresh_min  : %f\n", bloom_thresh_min);
-			fflush(gpFile);
-			break;
-		case '5':
-			bloom_thresh_min += 0.01f;
-			fprintf(gpFile, "bloom_thresh_min  : %f\n", bloom_thresh_min);
-			fflush(gpFile);
-			break;
-		case '6':
-			bloom_thresh_max -= 0.01f;
-			fprintf(gpFile, "bloom_thresh_max  : %f\n", bloom_thresh_max);
-			fflush(gpFile);
-			break;
-		case '7':
-			bloom_thresh_max += 0.01f;
-			fprintf(gpFile, "bloom_thresh_max  : %f\n", bloom_thresh_max);
-			fflush(gpFile);
+		
+
+		case'9':
+			gbStartAnimationOfSudarshan = !gbStartAnimationOfSudarshan;
 			break;
 
 		
@@ -413,6 +398,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			fprintf(gpFile, "focal_depth: %f\n", focal_depth);
 			fprintf(gpFile, "____________________________________________________\n");
 			
+
+			fprintf(gpFile, "Sudarshan Variables: \n");
+			fprintf(gpFile, "____________________________________________________\n");
+			fprintf(gpFile, "XForSudarshan : %f ,YForSudarshan  : %f ,ZForSudarshan  : %f \n ",XForSudarshan,YForSudarshan,ZForSudarshan);
+			fprintf(gpFile, "____________________________________________________\n");
+
+
 			fflush(gpFile);
 			break;
 
@@ -468,12 +460,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 		case 'q':
 		case 'Q':
-			vmath_camera_eye_coord[0] = 3190.0f;	
-			vmath_camera_eye_coord[1] = 80.0f;	
-			vmath_camera_eye_coord[2] = 610.0f;
+			vmath_camera_eye_coord[0] = 2910.0f;
+			vmath_camera_eye_coord[1] = 75.0f;
+			vmath_camera_eye_coord[2] = 560.0f;
 			
 			vmath_camera_center_coord[0] = 0.0f;	
-			vmath_camera_center_coord[1] = -235.00f;
+			vmath_camera_center_coord[1] = -255.00f;
 			vmath_camera_center_coord[2] = 0.0f;
 			break;
 		
@@ -488,13 +480,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			vmath_camera_center_coord[2] = 0.0f;
 			break;
 
-		case 'R':
-		case 'r':
-			break;
-		case 'y':
-		case 'Y':
-			isKrishnaRenderInPoints = false;
-			break;
+
 		case 'z':
 		case 'Z':
 			isModelAnimationStart = true;
@@ -510,10 +496,41 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case 'G':
 			gpIXAudio2_SceneFirstSourceVoice->Start(0);
 			break;
+
 		case 'm':
 		case 'M':
 			gpIXAudio2_SceneFirstSourceVoice->Stop(0);
 			break;
+
+		// sudarshan move
+		case 'R':
+		case 'r':
+			XForSudarshan = XForSudarshan + 10.0f;
+			break;
+
+		case 'T':
+		case 't':
+			XForSudarshan = XForSudarshan - 10.0f;
+			break;
+
+		case 'Y':
+		case 'y':
+			YForSudarshan = YForSudarshan + 10.0f;
+			break;
+
+		case 'U':
+		case 'u':
+			YForSudarshan = YForSudarshan - 10.0f;
+			break;
+
+		case '4':
+			ZForSudarshan = ZForSudarshan + 10.0f;
+			break;
+
+		case '5':
+			ZForSudarshan = ZForSudarshan - 10.0f;
+			break;
+
 		default:
 			break;
 		}

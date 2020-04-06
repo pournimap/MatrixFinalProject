@@ -781,7 +781,7 @@ void display_krishnaAnimate()
 	rotateMatrix = mat4::identity();
 
 	modelMatrix = translate(X_Pos_mor_pis, 1080.0f, -40.0f);
-	scaleMatrix = scale(100.0f, 100.0f, 100.0f);
+	scaleMatrix = scale(75.0f, 75.0f, 75.0f);
 	rotateMatrix = rotate(90.0f, 0.0f, 1.0f, 0.0f);
 	modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
 

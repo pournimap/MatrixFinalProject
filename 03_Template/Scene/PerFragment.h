@@ -36,13 +36,24 @@ vec3 vmath_camera_center_coord	= { -1000.0f,200.00f,0.0f };
 vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
 */
 
-vec3 vmath_camera_eye_coord		= { 3190.0f, 80.0f, 610.0f };
-vec3 vmath_camera_center_coord	= { 0.0f,-235.0f,0.0f };
+//vec3 vmath_camera_eye_coord		= { 3190.0f, 80.0f, 610.0f };
+vec3 vmath_camera_eye_coord		= { 2910.0f, 75.0f, 560.0f };
+//vec3 vmath_camera_center_coord	= { 0.0f,-235.0f,0.0f };
+vec3 vmath_camera_center_coord	= { 0.0f,-255.0f,0.0f };
+//vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
 vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
 
 bool gbStartCamera			= false;
 bool gbZoomOutForFullView	= false;
 bool gbGoToFullViewKrishna	= false;
+
+// -250.0f, 790.0f, 480.0f
+GLfloat XForSudarshan = -250.0f;
+GLfloat YForSudarshan = 790.0f;
+GLfloat ZForSudarshan = 480.0f;
+
+bool gbStartAnimationOfSudarshan = false;
+
 
 void initPerFragmentShader()
 {
@@ -563,7 +574,7 @@ void display_perFragmentLight()
 			scaleMatrix = mat4::identity();
 			rotateMatrix = mat4::identity();
 
-			modelMatrix = vmath::translate(-210.0f, 790.0f, 480.0f);
+			modelMatrix = vmath::translate(XForSudarshan, YForSudarshan, ZForSudarshan);
 			scaleMatrix = scale(50.0f, 50.0f, 50.0f);
 			rotateMatrix = rotate(-25.0f, 0.0f, 0.0f, 1.0f);
 
@@ -738,6 +749,17 @@ void update_perFragmentLight()
 			vmath_camera_center_coord[1] = vmath_camera_center_coord[1] + ((630.0f - 490.0f) / 500.0f);
 		}
 
+	}
+
+	// -250.0f, 790.0f, 480.0f
+	if (gbStartAnimationOfSudarshan)
+	{
+		if (XForSudarshan < 885.0f && YForSudarshan > 650.0f && ZForSudarshan > 260.0f)
+		{
+			XForSudarshan = XForSudarshan + ((250.0f + 885.0f) / 500.0f);
+			YForSudarshan = YForSudarshan - ((790.0f - 650.0f) / 500.0f);
+			ZForSudarshan = ZForSudarshan - ((480.0f - 260.0f) / 500.0f);
+		}
 	}
 }
 
