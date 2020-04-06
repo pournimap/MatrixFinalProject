@@ -251,7 +251,7 @@ void initialize_AssimpModelLoader()
 
 	
 	
-	krishna_Animated_SeatToStand.loadModel("Resources/11MarchKrishnaModel/standingExported20March02.fbx");
+	krishna_Animated_SeatToStand.loadModel("Resources/11MarchKrishnaModel/seatToStand.fbx");
 	//initCubeShape();
 
 	//initSphereShape();

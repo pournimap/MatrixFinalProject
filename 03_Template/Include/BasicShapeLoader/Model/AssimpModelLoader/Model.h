@@ -15,6 +15,7 @@
 
 unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma);
 
+
 class Model
 {
 public:
@@ -107,7 +108,13 @@ void Model::draw(GLuint shaders_program, bool isAnimated, int sequence)
 	else
 	{
 		if (count1 < 1.2f)
+		{
 			boneTransform(count1, transforms);
+
+			if (count1 >= 1.1f)
+				isHandsUpDone = true;
+		}
+			
 	}
 	if (isAnimated)
 	{

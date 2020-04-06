@@ -555,44 +555,45 @@ void display_perFragmentLight()
 		glBindVertexArray(0);
 
 
-
-		//sudarshan chakra
-		glUniform1i(applyBloomUniform_perFragmentLight, 1);
-		modelMatrix = mat4::identity();
-		scaleMatrix = mat4::identity();
-		rotateMatrix = mat4::identity();
-
-		modelMatrix = vmath::translate(-210.0f, 790.0f, 480.0f);
-		scaleMatrix = scale(50.0f, 50.0f, 50.0f);
-		rotateMatrix = rotate(-25.0f, 0.0f, 0.0f, 1.0f);
-
-		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
-
-		glUniformMatrix4fv(gModelMatrixUniform_perFragmentLight, 1, GL_FALSE, modelMatrix);
-		glBindVertexArray(gModel_SudarshanChakra.Vao);
-		for (int i = 0; i < gModel_SudarshanChakra.model_mesh_data.size(); i++)
+		if (isHandsUpDone == true)
 		{
-			if (gbLight == true)
-			{
-				glUniform3fv(gKaUniform_perFragmentLight, 1, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].Ka);
-				glUniform3fv(gKdUniform_perFragmentLight, 1, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].Kd);
-				glUniform3fv(gKsUniform_perFragmentLight, 1, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].Ks);
-				glUniform1f(gMaterialShininessUniform_perFragmentLight, material_shininess);
-				glUniform1f(gAlphaUniform_perFragmentLight, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].d);
-				if (gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].ismap_Kd == true)
-				{
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].gTexture);
-					glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
-					glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
-				}
-				else
-					glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
-			}
-			glDrawArrays(GL_TRIANGLES, gModel_SudarshanChakra.model_mesh_data[i].vertex_Index, gModel_SudarshanChakra.model_mesh_data[i].vertex_Count);
-		}
-		glBindVertexArray(0);
+			//sudarshan chakra
+			glUniform1i(applyBloomUniform_perFragmentLight, 1);
+			modelMatrix = mat4::identity();
+			scaleMatrix = mat4::identity();
+			rotateMatrix = mat4::identity();
 
+			modelMatrix = vmath::translate(-210.0f, 790.0f, 480.0f);
+			scaleMatrix = scale(50.0f, 50.0f, 50.0f);
+			rotateMatrix = rotate(-25.0f, 0.0f, 0.0f, 1.0f);
+
+			modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
+
+			glUniformMatrix4fv(gModelMatrixUniform_perFragmentLight, 1, GL_FALSE, modelMatrix);
+			glBindVertexArray(gModel_SudarshanChakra.Vao);
+			for (int i = 0; i < gModel_SudarshanChakra.model_mesh_data.size(); i++)
+			{
+				if (gbLight == true)
+				{
+					glUniform3fv(gKaUniform_perFragmentLight, 1, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].Ka);
+					glUniform3fv(gKdUniform_perFragmentLight, 1, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].Kd);
+					glUniform3fv(gKsUniform_perFragmentLight, 1, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].Ks);
+					glUniform1f(gMaterialShininessUniform_perFragmentLight, material_shininess);
+					glUniform1f(gAlphaUniform_perFragmentLight, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].d);
+					if (gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].ismap_Kd == true)
+					{
+						glActiveTexture(GL_TEXTURE0);
+						glBindTexture(GL_TEXTURE_2D, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].gTexture);
+						glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
+						glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
+					}
+					else
+						glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
+				}
+				glDrawArrays(GL_TRIANGLES, gModel_SudarshanChakra.model_mesh_data[i].vertex_Index, gModel_SudarshanChakra.model_mesh_data[i].vertex_Count);
+			}
+			glBindVertexArray(0);
+		}
 	}
 
 	glUseProgram(0);
