@@ -284,6 +284,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		//
 		case '0':
 			gbGoToFullViewKrishna = !gbGoToFullViewKrishna;
+			X_Pos_mor_pis = -260.0f;
 			/*
 			vmath_camera_eye_coord[0] = 1055.0f;
 			vmath_camera_eye_coord[1] = 890.0f;
@@ -360,6 +361,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case 'o':
 		case 'O':
 			vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] + 10.0f;
+			
 			break;
 
 		case 'j':
