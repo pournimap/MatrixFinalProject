@@ -1,0 +1,154 @@
+# Blender MTL File: 'None'
+# Material Count: 15
+
+newmtl dhotar
+Ns 56.806129
+Ka 0.100000 0.100000 0.100000
+Kd 1.000000 0.000000 0.000000
+Ks 2.000000 2.000000 2.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 3
+
+newmtl dhotar1
+Ns 56.806129
+Ka 0.100000 0.100000 0.100000
+Kd 1.000000 0.500000 0.000000
+Ks 2.000000 2.000000 2.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 3
+
+newmtl eye_black
+Ns 56.806129
+Ka 0.500000 0.500000 0.500000
+Kd 0.000000 0.000000 0.000000
+Ks 2.000000 2.000000 2.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 3
+
+newmtl eye_brown
+Ns 56.806129
+Ka 0.500000 0.500000 0.500000
+Kd 0.140000 0.064966 0.009940
+Ks 2.000000 2.000000 2.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 3
+
+newmtl eye_white
+Ns 56.806129
+Ka 0.100000 0.100000 0.100000
+Kd 1.000000 1.000000 1.000000
+Ks 2.000000 2.000000 2.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 3
+
+newmtl haar
+Ns 56.806129
+Ka 0.500000 0.500000 0.500000
+Kd 1.000000 0.500000 0.000000
+Ks 2.000000 2.000000 2.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 3
+
+newmtl haar1
+Ns 56.806129
+Ka 0.500000 0.500000 0.500000
+Kd 1.000000 1.000000 1.000000
+Ks 2.000000 2.000000 2.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd Resources/SeatPositionOtherKing/KrishnaCrown_Back2.png
+map_d Resources/SeatPositionOtherKing/KrishnaCrown_Back2.png
+
+newmtl haar3
+Ns 56.806129
+Ka 0.500000 0.500000 0.500000
+Kd 1.000000 1.000000 1.000000
+Ks 2.000000 2.000000 2.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd Resources/SeatPositionOtherKing/KrishnaCrown2.png
+map_d Resources/SeatPositionOtherKing/KrishnaCrown2.png
+
+newmtl hairs
+Ns 179.999996
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 2.000000 2.000000 2.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd Resources/SeatPositionOtherKing/Hair2.jpg
+
+newmtl hand_bracelet
+Ns 56.806129
+Ka 0.100000 0.100000 0.100000
+Kd 0.500000 0.500000 0.500000
+Ks 2.000000 2.000000 2.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 3
+
+newmtl hand_orna
+Ns 56.806129
+Ka 0.100000 0.100000 0.100000
+Kd 1.000000 1.000000 1.000000
+Ks 2.000000 2.000000 2.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd Resources/SeatPositionOtherKing/Jewelry_Misc.png
+map_d Resources/SeatPositionOtherKing/Jewelry_Misc.png
+
+newmtl mugut
+Ns 56.806129
+Ka 0.100000 0.100000 0.100000
+Kd 1.000000 1.000000 1.000000
+Ks 2.000000 2.000000 2.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd Resources/SeatPositionOtherKing/KrishnaCrown_Back2.png
+map_d Resources/SeatPositionOtherKing/KrishnaCrown_Back2.png
+
+newmtl mugut2
+Ns 56.806129
+Ka 0.100000 0.100000 0.100000
+Kd 1.000000 1.000000 1.000000
+Ks 2.000000 2.000000 2.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd Resources/SeatPositionOtherKing/KrishnaCrown2.png
+map_d Resources/SeatPositionOtherKing/KrishnaCrown2.png
+
+newmtl skin
+Ns 179.999996
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 2.000000 2.000000 2.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd Resources/SeatPositionOtherKing/face.jpg

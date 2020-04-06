@@ -291,6 +291,8 @@ void display_perFragmentLight()
 	
 	glUniform1i(applyBloomUniform_perFragmentLight, 0);
 
+	Model_Obj gModel_Krishna_SeatedTemp;
+
 	if (isFirstScene == false)
 	{
 		//other raje
@@ -302,6 +304,8 @@ void display_perFragmentLight()
 				if (i < 7)
 				{
 					modelMatrix = vmath::translate(TranslateMeasure[i], -10.0f, 650.0f);
+					if (i == 4)
+						goto NEXT;
 				}
 				else {
 					modelMatrix = vmath::translate(TranslateMeasure[i - 7], -10.0f, -650.0f);
@@ -313,22 +317,30 @@ void display_perFragmentLight()
 			}
 
 			modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
+			if (i % 2 == 0)
+			{
+				gModel_Krishna_SeatedTemp = gModel_Krishna_Seated2;
+			}
+			else
+			{
+				gModel_Krishna_SeatedTemp = gModel_Krishna_Seated;
+			}
 
 			glUniformMatrix4fv(gModelMatrixUniform_perFragmentLight, 1, GL_FALSE, modelMatrix);
-			glBindVertexArray(gModel_Krishna_Seated.Vao);
-			for (int i = 0; i < gModel_Krishna_Seated.model_mesh_data.size(); i++)
+			glBindVertexArray(gModel_Krishna_SeatedTemp.Vao);
+			for (int i = 0; i < gModel_Krishna_SeatedTemp.model_mesh_data.size(); i++)
 			{
 				if (gbLight == true)
 				{
-					glUniform3fv(gKaUniform_perFragmentLight, 1, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].Ka);
-					glUniform3fv(gKdUniform_perFragmentLight, 1, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].Kd);
-					glUniform3fv(gKsUniform_perFragmentLight, 1, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].Ks);
+					glUniform3fv(gKaUniform_perFragmentLight, 1, gModel_Krishna_SeatedTemp.model_material[gModel_Krishna_SeatedTemp.model_mesh_data[i].material_index].Ka);
+					glUniform3fv(gKdUniform_perFragmentLight, 1, gModel_Krishna_SeatedTemp.model_material[gModel_Krishna_SeatedTemp.model_mesh_data[i].material_index].Kd);
+					glUniform3fv(gKsUniform_perFragmentLight, 1, gModel_Krishna_SeatedTemp.model_material[gModel_Krishna_SeatedTemp.model_mesh_data[i].material_index].Ks);
 					glUniform1f(gMaterialShininessUniform_perFragmentLight, material_shininess);
-					glUniform1f(gAlphaUniform_perFragmentLight, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].d);
-					if (gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].ismap_Kd == true)
+					glUniform1f(gAlphaUniform_perFragmentLight, gModel_Krishna_SeatedTemp.model_material[gModel_Krishna_SeatedTemp.model_mesh_data[i].material_index].d);
+					if (gModel_Krishna_SeatedTemp.model_material[gModel_Krishna_SeatedTemp.model_mesh_data[i].material_index].ismap_Kd == true)
 					{
 						glActiveTexture(GL_TEXTURE0);
-						glBindTexture(GL_TEXTURE_2D, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].gTexture);
+						glBindTexture(GL_TEXTURE_2D, gModel_Krishna_SeatedTemp.model_material[gModel_Krishna_SeatedTemp.model_mesh_data[i].material_index].gTexture);
 						glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
 						glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
 						/*fprintf(gpFile, "perFragmentLight Krishna ismapKd true \n");
@@ -337,8 +349,9 @@ void display_perFragmentLight()
 					else
 						glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
 				}
-				glDrawArrays(GL_TRIANGLES, gModel_Krishna_Seated.model_mesh_data[i].vertex_Index, gModel_Krishna_Seated.model_mesh_data[i].vertex_Count);
+				glDrawArrays(GL_TRIANGLES, gModel_Krishna_SeatedTemp.model_mesh_data[i].vertex_Index, gModel_Krishna_SeatedTemp.model_mesh_data[i].vertex_Count);
 			}
+			NEXT:
 			glBindVertexArray(0);
 		}
 
@@ -386,6 +399,7 @@ void display_perFragmentLight()
 	glUniform1i(applyBloomUniform_perFragmentLight, 0);
 	for(int i = 0; i < 14; i++)
 	{
+
 		modelMatrix = mat4::identity();
 		scaleMatrix = mat4::identity();
 		rotateMatrix = mat4::identity();
@@ -429,7 +443,10 @@ void display_perFragmentLight()
 		}
 		glDrawArrays(GL_TRIANGLES, gModel_OtherChair.model_mesh_data[i].vertex_Index, gModel_OtherChair.model_mesh_data[i].vertex_Count);
 		}
+
 		glBindVertexArray(0);
+
+		
 	}
 	
 		
@@ -479,8 +496,8 @@ void display_perFragmentLight()
 		scaleMatrix = mat4::identity();
 		rotateMatrix = mat4::identity();
 
-		modelMatrix = vmath::translate(2500.0f, 0.0f, 600.0f);
-		scaleMatrix = scale(50.0f, 50.0f, 50.0f);
+		modelMatrix = vmath::translate(2300.0f, -15.0f, 600.0f);
+		scaleMatrix = scale(200.0f, 200.0f, 200.0f);
 		rotateMatrix = rotate(230.0f, 0.0f, 1.0f, 0.0f);
 
 		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;

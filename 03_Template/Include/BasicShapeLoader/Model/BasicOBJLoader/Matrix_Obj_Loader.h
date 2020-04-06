@@ -23,6 +23,7 @@ Model_Obj gModel_Mahal;
 
 Model_Obj gModel_Krishna;
 Model_Obj gModel_Krishna_Seated;
+Model_Obj gModel_Krishna_Seated2;
 
 Model_Obj gModel_KrishnaChair;
 Model_Obj gModel_OtherChair;
@@ -78,7 +79,7 @@ void LoadAllModels()
 
 
 	/*****************Load Krishna Model*****************/
-	std::string krishnaModelFilePath = "Resources/krishna/krishna.obj";
+	std::string krishnaModelFilePath = "Resources/SeatPositionOtherKing/Shishupal.obj";
 	//std::string krishnaModelFilePath = "11MarchKrishnaModel/krishna.obj";
 
 	LoadMeshData(krishnaModelFilePath.c_str(), gModel_Krishna.model_vertices, gModel_Krishna.model_textures, gModel_Krishna.model_normals, gModel_Krishna.model_mesh_data, gModel_Krishna.model_materialFileName);
@@ -119,7 +120,7 @@ void LoadAllModels()
 	
 	
 	/*****************Load Krishna Seated Model*****************/
-	std::string krishnaSeatedModelFilePath = "Resources/SeatPositionOtherKing/seatPos.obj";
+	std::string krishnaSeatedModelFilePath = "Resources/SeatPositionOtherKing/SeatPosWithOrna.obj";
 	//std::string krishnaModelFilePath = "11MarchKrishnaModel/krishna.obj";
 
 	LoadMeshData(krishnaSeatedModelFilePath.c_str(), gModel_Krishna_Seated.model_vertices, gModel_Krishna_Seated.model_textures, gModel_Krishna_Seated.model_normals, gModel_Krishna_Seated.model_mesh_data, gModel_Krishna_Seated.model_materialFileName);
@@ -159,6 +160,34 @@ void LoadAllModels()
 	glBindVertexArray(0);
 	
 	
+	gModel_Krishna_Seated2 = gModel_Krishna_Seated;
+	LoadMaterialData("Resources/SeatPositionOtherKing/SeatPosWithOrna2.mtl", gModel_Krishna_Seated2.model_material);
+	Rearrange_Material_Data(gModel_Krishna_Seated2.model_mesh_data, gModel_Krishna_Seated2.model_material);
+	/*****************VAO For Model*****************/
+	glGenVertexArrays(1, &gModel_Krishna_Seated2.Vao);
+	glBindVertexArray(gModel_Krishna_Seated2.Vao);
+	/*****************Model Position****************/
+	glGenBuffers(1, &gVbo_Model_Position);
+	glBindBuffer(GL_ARRAY_BUFFER, gVbo_Model_Position);
+	glBufferData(GL_ARRAY_BUFFER, gModel_Krishna_Seated2.model_vertices.size() * sizeof(float), &gModel_Krishna_Seated2.model_vertices[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(MATRIX_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_POSITION);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	/*****************Model Color****************/
+	glGenBuffers(1, &gVbo_Model_Normal);
+	glBindBuffer(GL_ARRAY_BUFFER, gVbo_Model_Normal);
+	glBufferData(GL_ARRAY_BUFFER, gModel_Krishna_Seated2.model_normals.size() * sizeof(float), &gModel_Krishna_Seated2.model_normals[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(MATRIX_ATTRIBUTE_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_NORMAL);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	/*******************Texture******************/
+	glGenBuffers(1, &gVbo_Model_Texture);
+	glBindBuffer(GL_ARRAY_BUFFER, gVbo_Model_Texture);
+	glBufferData(GL_ARRAY_BUFFER, gModel_Krishna_Seated2.model_textures.size() * sizeof(float), &gModel_Krishna_Seated2.model_textures[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(MATRIX_ATTRIBUTE_TEXTURE0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_TEXTURE0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 	
 	/*****************Load Krishna chair Model*****************/
 	std::string krishnaChairModelFilePath = "Resources/MahalOBJVersion1WithTextures/KrishnaThroneModelWithTexture_V3.obj";
