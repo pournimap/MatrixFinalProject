@@ -19,6 +19,7 @@
 #include"Scene/EndNames/FluidTextRendering.h"
 
 #include "Scene/XAudio/Audio.h"
+#include "Scene/FirstScene/FirstScene.h"
 
 // Callback
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -31,7 +32,7 @@ extern void Clothunintialize(void);
 
 bool isAssimpAnimatedModelShow = false;
 bool iShowEndScene = false;
-
+bool isShowStartingScene = true;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
 {
 	// Function Declaration
@@ -303,8 +304,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			isFirstScene = false;
 			isAssimpAnimatedModelShow = true;
 			break;
-
-		
+		case '3':
+			isShowStartingScene = !isShowStartingScene;
+			break;
 
 		case'9':
 			gbStartAnimationOfSudarshan = !gbStartAnimationOfSudarshan;
@@ -659,6 +661,8 @@ int initialize(void)
 	InitColorProgramShaders();
 	initBrightChakraSource();
 	initGodRaysPostProcessing();
+	
+	initFirstScene();
 	// ................................................................................................
 	//
 	// Initialize your specific scene here above
@@ -710,31 +714,37 @@ void display(void)
 		glClearBufferfv(GL_COLOR, 2, black);	// GL_COLOR_ATTACHMENT2
 		glClearBufferfv(GL_DEPTH, 0, &one);
 
-		//applyDOF();
-		if (gbGoToFullViewKrishna)
+		if (isShowStartingScene)
 		{
-			//renderBrightSource();
-			renderBrightChakraSource();
+			renderLampWithPointLight();
 		}
-
-		display_perFragmentLight();
-
-		display_pointLight();
-		
-		Clothdisplay();
-
-		display_fire();
-		
-		if (isFirstScene == false)
+		else
 		{
-			if (isAssimpAnimatedModelShow == true)
-				display_AssimpModelLoader();
-			else
-				display_krishnaAnimate();
+			//applyDOF();
+			if (gbGoToFullViewKrishna)
+			{
+				//renderBrightSource();
+				renderBrightChakraSource();
+			}
+
+			display_perFragmentLight();
+
+			display_pointLight();
+
+			Clothdisplay();
+
+			display_fire();
+
+			if (isFirstScene == false)
+			{
+				if (isAssimpAnimatedModelShow == true)
+					display_AssimpModelLoader();
+				else
+					display_krishnaAnimate();
+			}
+
+			//stopApplyingDOF();
 		}
-
-		//stopApplyingDOF();
-
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		display_GodRaysPostProcessing();
