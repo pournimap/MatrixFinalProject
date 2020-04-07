@@ -1,5 +1,9 @@
 GLuint gWoodTexture_FirstScene;
 
+vec3 first_scene_camera_eye_coord		= { 0.0f,0.0f,5.0f };
+vec3 first_scene_camera_center_coord	= { 0.0f,0.0f,0.0f };
+vec3 first_scene_camera_up_coord		= { 0.0f,1.0f,0.0f }; 
+
 void initFirstScene()
 {
 	glEnable(GL_TEXTURE_2D);
@@ -17,6 +21,12 @@ vec3 positionLamp_FirstScene[] = { vec3(0.0f, 0.0f, -2.0f), vec3(0.5f, -0.5f, -2
 
 void renderLampWithPointLight()
 {
+		mat4 modelMatrix				= mat4::identity();
+		mat4 scaleMatrix				= mat4::identity();
+		mat4 rotateMatrix				= mat4::identity();
+		mat4 viewMatrix_for_firstScene	= mat4::identity();							// we are going to use this, only here. so no neet to declare anywhere else
+
+
 		PointLight pointLight[gNumPointLights_pointLight_FirstScene];
 	
 		for (int i = 0; i < gNumPointLights_pointLight_FirstScene; i++)
@@ -75,20 +85,16 @@ void renderLampWithPointLight()
 			glUniform1i(gLKeyPressedUniform_pointLight, 0);
 		}
 
-		mat4 modelMatrix = mat4::identity();
-	
-		mat4 viewMatrix = mat4::identity();
-		mat4 scaleMatrix = mat4::identity();
-		mat4 rotateMatrix = mat4::identity();
-
-		glUniformMatrix4fv(gViewMatrixUniform_pointLight, 1, GL_FALSE, viewMatrix);
+		
+		
+		viewMatrix_for_firstScene = lookat(first_scene_camera_eye_coord, first_scene_camera_center_coord, first_scene_camera_up_coord);					// updating view matrix
+		glUniformMatrix4fv(gProjectionMatrixUniform_pointLight, 1, GL_FALSE, gPerspectiveProjectionMatrix);
+		
+		glUniformMatrix4fv(gViewMatrixUniform_pointLight, 1, GL_FALSE, viewMatrix_for_firstScene);
 		modelMatrix = vmath::translate(0.0f, 0.0f, -2.0f);
 
-		glUniformMatrix4fv(gProjectionMatrixUniform_pointLight, 1, GL_FALSE, gPerspectiveProjectionMatrix);
 
 		glUniform1i(applyBloomUniform_pointLight, 0);
-
-
 
 		modelMatrix = mat4::identity();
 		scaleMatrix = mat4::identity();
@@ -196,7 +202,7 @@ void renderLampWithPointLight()
 		modelMatrix_fire = modelMatrix_fire * rotateMatrix_fire * scaleMatrix_fire;
 
 		glUniformMatrix4fv(gModelMatrixUniform_fire, 1, GL_FALSE, modelMatrix_fire);
-		glUniformMatrix4fv(gViewMatrixUniform_fire, 1, GL_FALSE, viewMatrix);
+		glUniformMatrix4fv(gViewMatrixUniform_fire, 1, GL_FALSE, viewMatrix_for_firstScene);
 
 		glUniformMatrix4fv(gProjectionMatrixUniform_fire, 1, GL_FALSE, gPerspectiveProjectionMatrix);
 		glUniform1f(timeUniform_fire, t_fire_FirstScene);
@@ -217,6 +223,13 @@ void renderLampWithPointLight()
 
 		glDisable(GL_BLEND);
 		glUseProgram(0);
+
+
+}
+
+void updteForFirstScene()
+{
+	// here we should write 1st scene camera movement
 
 
 }
