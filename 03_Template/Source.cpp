@@ -179,6 +179,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE:
 		gbLight = true;
 		bIsLKeyPressed = true;
+		bShowBloom_bloom = true;
 		break;
 	case WM_SETFOCUS:
 		gbActiveWindow = true;
@@ -230,32 +231,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			DestroyWindow(hwnd);
 			break;
 
-			/*
-			case 0x46: //f or F
-				ToggleFullScreen();
-				break;
-			case 0x4C:
-				if (bIsLKeyPressed == false)
-				{
-					gbLight = true;
-					bIsLKeyPressed = true;
-				}
-				else
-				{
-					gbLight = false;
-					bIsLKeyPressed = false;
-				}
-				break;
-			*/
-
 		case VK_UP:
-			//vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] + 5.0f;
-			first_scene_camera_eye_coord[1] += 1.0f;
+			if (isShowStartingScene)
+				first_scene_camera_eye_coord[1] += 0.1f;
+			else
+				vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] + 5.0f;
 			break;
 
 		case VK_DOWN:
-			//vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] - 5.0f;
-			first_scene_camera_eye_coord[1] -= 1.0f;
+			if (isShowStartingScene)
+				first_scene_camera_eye_coord[1] -= 0.1f;
+			else
+				vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] - 5.0f;
 			break;
 
 		default:
@@ -263,33 +250,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_MOUSEMOVE:
-		//xpos = GET_X_LPARAM(lParam);
-		//ypos = GET_Y_LPARAM(lParam);
-		//MouseMovement((double)xpos, (double)ypos);
 		break;
 	case WM_CHAR:
 		switch (LOWORD(wParam))
 		{
-		//case '2':
-		////case 'q':
-		//	focal_distance *= 1.1f;
-		//	break;
-
-		//case '1':
-		////case 'a':
-		//	focal_distance /= 1.1f;
-		//	break;
-
-		//case '0':
-		////case 'w':
-		//	focal_depth *= 1.1f;
-		//	break; 
-		//
-		//case '9':
-		////	case 's':
-		//	focal_depth /= 1.1f;
-		//	break;
-		//
 		case '0':
 			gbGoToFullViewKrishna = !gbGoToFullViewKrishna;
 			X_Pos_mor_pis = -260.0f;
@@ -319,10 +283,66 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			gbStartAnimationOfSudarshan = !gbStartAnimationOfSudarshan;
 			break;
 
-		
+		//Reset Logic
 		case 'B':
 		case 'b':
-			bShowBloom_bloom = !bShowBloom_bloom;
+			//bShowBloom_bloom = !bShowBloom_bloom;
+
+			first_scene_camera_eye_coord = { 0.0f,0.0f,5.0f };
+			first_scene_camera_center_coord = { 0.0f,0.0f,0.0f };
+			first_scene_camera_up_coord = { 0.0f,1.0f,0.0f };
+
+			vmath_camera_eye_coord = { 2910.0f, 75.0f, 560.0f };
+			vmath_camera_center_coord = { 0.0f,-255.0f,0.0f };
+			vmath_camera_up_coord = { 0.0f,1.0f,0.0f };
+
+			isAssimpAnimatedModelShow = false;
+			iShowEndScene = false;
+			isShowStartingScene = true;
+
+			//CommonHeader
+			isFirstScene = true;
+			isHandsUpDone = false;
+
+			//PerFragment
+			gbStartAnimationOfSudarshan = false;
+			gbStartCamera = false;
+			gbZoomOutForFullView = false;
+			gbGoToFullViewKrishna = false;
+
+			XForSudarshan = -250.0f;
+			YForSudarshan = 790.0f;
+			ZForSudarshan = 480.0f;
+
+			//KrishnaAnimatedUsingAssimp
+			isModelAnimationStart = false;
+
+			//KrishnaAnimate
+			startJoin_krishnaAnimate = false;
+			ftime_krishnaAnimate = 0.0f;
+
+			t_for_attractor = 0.03f;
+			b_for_attractor = 0.037f;
+
+			X_Pos_attractor = -250.0f;
+			Y_Pos_attractor = 150.0f;
+			Z_Pos_attractor = -10.0f;
+
+			X_Pos_mor_pis = -250.0f;
+			resetAttractorVao();
+
+			//fire
+			t_fire = 0.0f;
+
+			//firstScene
+			t_fire_FirstScene = 0.0f;
+
+			//End Credits
+			NameCount_fluidText = 1;
+			ZTransitionForName_fluidText = -35.0f;
+			global_temp_count_fluidText = 2.0;
+			
+
 			break;
 			
 		case 'F':
@@ -348,54 +368,71 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			// zoom in
 		case 'i':
 		case 'I':
-			//vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] - 10.0f;
-			first_scene_camera_eye_coord[2] -= 1.0f;
+			
+			if(isShowStartingScene)
+				first_scene_camera_eye_coord[2] -= 0.1f;
+			else
+				vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] - 10.0f;
 			break;
 
 			// zoom out
 		case 'o':
 		case 'O':
-			//vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] + 10.0f;
-			first_scene_camera_eye_coord[2] += 1.0f;
+			if (isShowStartingScene)
+				first_scene_camera_eye_coord[2] += 0.1f;
+			else
+				vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] + 10.0f;
 			break;
 
 		case 'j':
 		case 'J':
-			//vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] - 10.0f;
-			first_scene_camera_eye_coord[0] -= 1.0f;
+			if (isShowStartingScene)
+				first_scene_camera_eye_coord[0] -= 0.1f;
+			else
+				vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] - 10.0f;
 			break;
 
 		case 'k':
 		case 'K':
-			//vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + 10.0f;
-			first_scene_camera_eye_coord[0] += 1.0f;
+			if (isShowStartingScene)
+				first_scene_camera_eye_coord[0] += 0.1f;
+			else
+				vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + 10.0f;
 			break;
 
 			// camera center
 
 		case 'w':
 		case 'W':
-			//vmath_camera_center_coord[1] = vmath_camera_center_coord[1] + 10.0f;
-			first_scene_camera_center_coord[1] += 1.0f;
+			if (isShowStartingScene)
+				first_scene_camera_center_coord[1] += 0.1f;
+			else
+				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] + 10.0f;
 			break;
 
 		case 's':
 		case 'S':
-			//vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - 10.0f;
-			first_scene_camera_center_coord[1] -= 1.0f;
+			if (isShowStartingScene)
+				first_scene_camera_center_coord[1] -= 0.1f;
+			else
+				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - 10.0f;
 			break;
 
 
 		case 'A':
 		case 'a':
-			//vmath_camera_center_coord[0] = vmath_camera_center_coord[0] - 10.0f;
-			first_scene_camera_center_coord[0] -= 1.0f;
+			if (isShowStartingScene)
+				first_scene_camera_center_coord[0] -= 0.1f;
+			else
+				vmath_camera_center_coord[0] = vmath_camera_center_coord[0] - 10.0f;
 			break;
 
 		case 'D':
 		case 'd':
-			//vmath_camera_center_coord[0] = vmath_camera_center_coord[0] + 10.0f;
-			first_scene_camera_center_coord[0] += 1.0f;
+			if (isShowStartingScene)
+				first_scene_camera_center_coord[0] += 0.1f;
+			else
+				vmath_camera_center_coord[0] = vmath_camera_center_coord[0] + 10.0f;
 			break;
 
 		case 'p':

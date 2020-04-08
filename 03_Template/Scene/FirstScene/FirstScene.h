@@ -16,7 +16,9 @@ void initFirstScene()
 }
 
 float t_fire_FirstScene = 0.0f;
-vec3 positionLamp_FirstScene[] = { vec3(0.0f, 0.0f, -2.0f), vec3(0.5f, -0.5f, -2.0f) };
+//vec3 positionLamp_FirstScene[] = { vec3(0.0f, 0.0f, 0.0f), vec3(0.5f, -0.5f, 0.0f) };
+
+vec3 positionLamp_FirstScene[] = { vec3(-20.0f, -16.0f, -90.0f), vec3(0.5f, -0.5f, 0.0f) };
 #define gNumPointLights_pointLight_FirstScene  2
 
 void renderLampWithPointLight()
@@ -150,15 +152,14 @@ void renderLampWithPointLight()
 		}
 		glBindVertexArray(0);
 
-
-		modelMatrix = mat4::identity();
-		scaleMatrix = mat4::identity();
-		rotateMatrix = mat4::identity();
-
 		for (int i = 0; i < gNumPointLights_pointLight_FirstScene; i++)
 		{
+			modelMatrix = mat4::identity();
+			scaleMatrix = mat4::identity();
+			rotateMatrix = mat4::identity();
+
 			modelMatrix = vmath::translate(positionLamp_FirstScene[i]);
-			scaleMatrix = scale(0.07f, 0.07f, 0.07f);
+			scaleMatrix = scale(0.1f, 0.1f, 0.1f);
 			//rotateMatrix = rotate(-90.0f, 0.0f, 1.0f, 0.0f);
 
 			modelMatrix = modelMatrix * scaleMatrix;

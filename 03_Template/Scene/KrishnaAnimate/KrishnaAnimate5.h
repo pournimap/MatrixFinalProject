@@ -691,7 +691,7 @@ void display_krishnaAnimate()
 	mat4 rotateMatrix = mat4::identity();
 
 	// KRISHNA MODEL
-	modelMatrix = vmath::translate(-250.0f, 55.0f, 1.0f);
+	modelMatrix = vmath::translate(-250.0f, 53.0f, 1.0f);
 	//modelMatrix		= vmath::translate(-300.0f, 120.0f, 1.0f);
 	scaleMatrix = scale(gfKrishnaModelScale, gfKrishnaModelScale, gfKrishnaModelScale);
 	rotateMatrix = rotate(90.0f, 0.0f, 1.0f, 0.0f);
@@ -804,6 +804,24 @@ void display_krishnaAnimate()
 
 	glUseProgram(0);
 	
+}
+
+void resetAttractorVao()
+{
+	vertices_attractor.clear();
+
+	for (GLfloat i = -2.0f; i <= 2.0f; i = i + 0.15f)
+	{
+		for (GLfloat j = -2.0f; j <= 2.0f; j = j + 0.15f)
+		{
+			for (GLfloat k = -2.0f; k <= 2.0f; k = k + 0.10f)
+			{
+				vertices_attractor.push_back(i);
+				vertices_attractor.push_back(j);
+				vertices_attractor.push_back(k);
+			}
+		}
+	}
 }
 
 void update_krishnaAnimate()
