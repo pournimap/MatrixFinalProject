@@ -405,7 +405,7 @@ void display_GodRaysPostProcessing()
 	glUniform1i(gNumSamplesUniform_godRays, 100);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texGodRaysPass);
+	glBindTexture(GL_TEXTURE_2D, intermediate_texGodRaysPass);
 	glUniform1i(gOcclusionTextureUniform_godRays, 0);
 
 	drawQuadShape();

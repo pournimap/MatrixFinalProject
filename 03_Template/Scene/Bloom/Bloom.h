@@ -366,6 +366,9 @@ void initializeBloom(void) {
 	uniforms.resolve.godRays_factor = glGetUniformLocation(ShaderProgramObject_Final_Display_Resolution, "godRays_factor");
 	uniforms.resolve.godRays_image = glGetUniformLocation(ShaderProgramObject_Final_Display_Resolution, "godRays_image");
 
+
+	//glEnable(GL_MULTISAMPLE);
+
 	// **** Framebuffer With Two Color Attachment ****
 	static const GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1,  GL_COLOR_ATTACHMENT2};
 
@@ -376,31 +379,48 @@ void initializeBloom(void) {
 	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo_bloom);
 
 	glGenTextures(1, &texScene_bloom);
-	glBindTexture(GL_TEXTURE_2D, texScene_bloom);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA16F, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, texScene_bloom);
+	//glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA8, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, GL_TRUE);
+	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, texScene_bloom, 0);
+	glTextureStorage2DMultisample(texScene_bloom, 8, GL_RGBA8, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, GL_TRUE);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texScene_bloom, 0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+	
 	glGenTextures(1, &texBrightPass_bloom);
-	glBindTexture(GL_TEXTURE_2D, texBrightPass_bloom);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA16F, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, texBrightPass_bloom);
+	/*glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA16F, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, GL_TRUE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D_MULTISAMPLE, texBrightPass_bloom, 0);*/
+	glTextureStorage2DMultisample(texBrightPass_bloom, 8, GL_RGBA16F, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, GL_TRUE);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, texBrightPass_bloom, 0);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 
 	glGenTextures(1, &texGodRaysPass);
-	glBindTexture(GL_TEXTURE_2D, texGodRaysPass);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA16F, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, texGodRaysPass);
+	/*glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA8, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, GL_TRUE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D_MULTISAMPLE, texGodRaysPass, 0);*/
+	glTextureStorage2DMultisample(texGodRaysPass, 8, GL_RGBA8, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, GL_TRUE);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, texGodRaysPass, 0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	glGenTextures(1, &texDepth_bloom);
-	glBindTexture(GL_TEXTURE_2D, texDepth_bloom);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texDepth_bloom, 0);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+	
+	glGenRenderbuffers(1, &texDepth_bloom);
+	glBindRenderbuffer(GL_RENDERBUFFER, texDepth_bloom);
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER,8,  GL_DEPTH24_STENCIL8, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, texDepth_bloom);
 	glDrawBuffers(3, buffers);
+	
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		fprintf(gpFile, "texScene_bloom frameBuffer not successful\n");
+		fflush(gpFile);
+	}
+	fprintf(gpFile, "texScene_bloom frameBuffer  successful\n");
+	fflush(gpFile);
+
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	
 	// Array of Framebuffer Object
 	glGenFramebuffers(2, &gaussian_blur_fbo_bloom[0]);
 	glGenTextures(2, &texGaussianBlur_bloom[0]);
@@ -481,7 +501,7 @@ void ApplyingBloom(void) {
 	glClearBufferfv(GL_COLOR, 0, black);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texBrightPass_bloom);
+	glBindTexture(GL_TEXTURE_2D, intermediate_texBrightPass_bloom);
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -515,7 +535,7 @@ void ApplyingBloom(void) {
 	glBindTexture(GL_TEXTURE_2D, texGaussianBlur_bloom[1]);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texScene_bloom);
+	glBindTexture(GL_TEXTURE_2D, intermediate_texScene_bloom);
 
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, godRays_texture_attachment);

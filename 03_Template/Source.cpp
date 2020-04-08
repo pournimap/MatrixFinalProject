@@ -798,6 +798,24 @@ void display(void)
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, render_fbo_bloom);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, intermediate_fbo);
+	
+		glReadBuffer(GL_COLOR_ATTACHMENT0);
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		glBlitFramebuffer(0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, 0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+		glReadBuffer(GL_COLOR_ATTACHMENT1);
+		glDrawBuffer(GL_COLOR_ATTACHMENT1);
+		glBlitFramebuffer(0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, 0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+		glReadBuffer(GL_COLOR_ATTACHMENT2);
+		glDrawBuffer(GL_COLOR_ATTACHMENT2);
+		glBlitFramebuffer(0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, 0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+		glBlitFramebuffer(0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, 0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+	
 		display_GodRaysPostProcessing();
 
 		glViewport(0, 0, gWidth, gHeight);
