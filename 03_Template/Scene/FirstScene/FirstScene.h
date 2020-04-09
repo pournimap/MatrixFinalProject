@@ -339,7 +339,7 @@ void renderLampWithPointLight()
 		mat4 rotateMatrix_fire = mat4::identity();
 
 		//modelMatrix_fire = vmath::translate(-20.0f, 1.0f, -90.0f);
-		modelMatrix_fire = vmath::translate(-25.0f, -3.0f, -10.0f);
+		modelMatrix_fire = vmath::translate(-25.5f, -3.0f, -10.0f);
 		scaleMatrix_fire = vmath::scale(0.1f, 2.0f, 0.1f);
 		//scaleMatrix_fire	= vmath::scale(50.0f, 50.0f, 100.0f);
 		//rotateMatrix_fire = rotate(75.0f, 0.0f, 1.0f, 0.0f);

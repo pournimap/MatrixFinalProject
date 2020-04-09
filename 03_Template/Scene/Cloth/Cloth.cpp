@@ -1274,7 +1274,7 @@ void Clothdisplay()
 	//Do necessary transformation
 
 	//Do necessary Matrix multiplication	
-	translateMatrix = translate(-300.0f, 750.0f, 900.0f);	
+	translateMatrix = translate(-320.0f, 750.0f, 900.0f);	
 	scalematrix = scale(12.0f, 11.0f, 1.0f);	
 	rotationMatrixY = rotate(180.0f, 0.0f, 1.0f, 0.0f);	
 	translateMatrix = translateMatrix * scalematrix ;	
@@ -1519,8 +1519,8 @@ void Clothdisplay()
 		//////////////////////////////////////////////////////
 	//Front cloth , Stage cloth , Center cloth	
 		
-	if (startJoin_krishnaAnimate == false)
-	{
+	/*if (startJoin_krishnaAnimate == false)
+	{*/
 		modelMatrix = mat4::identity();
 
 		translateMatrix = mat4::identity();
@@ -1584,8 +1584,8 @@ void Clothdisplay()
 		ClothlightPosition[2] = 17.0f;
 		ClothlightPosition[3] = 1.0f;
 		glUniform4fv(ClothlightPosition_Uniform, 1, ClothlightPosition);
-		glUniform3fv(Clothld_Uniform, 1, ClothlightDiffuse2);
-		glUniform3fv(Clothls_Uniform, 1, ClothlightSpecular2);
+		//glUniform3fv(Clothld_Uniform, 1, ClothlightDiffuse2);
+		//glUniform3fv(Clothls_Uniform, 1, ClothlightSpecular2);
 
 		glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);
 		//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);
@@ -1604,7 +1604,7 @@ void Clothdisplay()
 
 		//unbind Clothvao
 		glBindVertexArray(0);
-	}
+	/*}*/
 	//unusal program
 
 	glUseProgram(0);
