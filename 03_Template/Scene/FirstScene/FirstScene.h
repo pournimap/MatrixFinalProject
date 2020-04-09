@@ -1,4 +1,4 @@
-#define gNumPointLights_pointLight_FirstScene  2
+#define gNumPointLights_pointLight_FirstScene  1
 
 GLuint gWoodTexture_FirstScene;
 
@@ -33,7 +33,9 @@ GLuint texture1_book;
 
 void initFirstScene()
 {
-	//VERTEX SHADER
+	void initPointLightShader_FirstScene();
+
+	/*//VERTEX SHADER
 	gVertexShaderObject_book = glCreateShader(GL_VERTEX_SHADER);
 	const GLchar* vertextShaderSourceCode_book =
 		"#version 450 core" \
@@ -96,46 +98,7 @@ void initFirstScene()
 
 	samplerUniform1_book = glGetUniformLocation(gShaderProgramObject_book, "u_sampler1");
 	
-
-	const GLfloat rectangleVertices_book[] =
-	{
-		1.0f, 1.0f,0.0f,
-		-1.0f, 1.0f,0.0f,
-		-1.0f, -1.0f,0.0f,
-		1.0f, -1.0f,0.0f
-	};
-
-	const GLfloat rectangleTexcoords_book[] =
-	{
-		1.0f, 1.0f,
-		0.0f, 1.0f,
-		0.0f, 0.0f,
-		1.0f, 0.0f
-	};
-
-	// create vao
-	glGenVertexArrays(1, &vao_rectangle_book);
-	glBindVertexArray(vao_rectangle_book);
-
-	// create vbo for position
-	glGenBuffers(1, &vbo_position_rectangle_book);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_position_rectangle_book);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(rectangleVertices_book), rectangleVertices_book, GL_STATIC_DRAW);
-	glVertexAttribPointer(MATRIX_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_POSITION);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	// create vbo for texture
-	glGenBuffers(1, &vbo_texture_rectangle_book);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_texture_rectangle_book);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(rectangleTexcoords_book), rectangleTexcoords_book, GL_STATIC_DRAW);
-	glVertexAttribPointer(MATRIX_ATTRIBUTE_TEXTURE0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_TEXTURE0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-
-	glBindVertexArray(0);
-
+	*/
 
 	glEnable(GL_TEXTURE_2D);
 
@@ -150,13 +113,14 @@ void initFirstScene()
 	{
 		fprintf(gpFile, "LoadGLTextures_fire Failed in FirstScene\n");
 	}
+
 }
 
 float t_fire_FirstScene = 0.0f;
 //vec3 positionLamp_FirstScene[] = { vec3(0.0f, 0.0f, 0.0f), vec3(0.5f, -0.5f, 0.0f) };
 
-//vec3 positionLamp_FirstScene[] = { vec3(-20.0f, -16.0f, -90.0f), vec3(0.5f, -0.5f, 0.0f) };
-vec3 positionLamp_FirstScene[] = { vec3(-25.0f, -3.0f, -10.0f), vec3(0.0f, 10.0f, -10.0f) };
+vec3 positionLamp_FirstScene[] = { vec3(-20.0f, 30.0f, 0.0f), vec3(0.5f, -0.5f, 0.0f) };
+//vec3 positionLamp_FirstScene[] = { vec3(-25.0f, -3.0f, -10.0f), vec3(0.0f, 10.0f, -10.0f) };
 
 
 void renderLampWithPointLight()
@@ -178,7 +142,7 @@ void renderLampWithPointLight()
 				pointLight[i].u_Ld				= vec3(1.0f, 0.749f, 0.0f);
 				pointLight[i].u_Ls				= vec3(1.0f, 0.749f, 0.0f);
 				pointLight[i].u_linear			= 0.01;
-				pointLight[i].u_constant		= 0.01;
+				pointLight[i].u_constant		= 0.0;
 				pointLight[i].u_quadratic		= 0.0;
 				pointLight[i].DiffuseIntensity	= 1.0f;
 
@@ -251,7 +215,36 @@ void renderLampWithPointLight()
 
 		drawCubeShape();
 
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		glUniform1i(applyBloomUniform_pointLight, 0);
+		modelMatrix = mat4::identity();
+		scaleMatrix = mat4::identity();
+		rotateMatrix = mat4::identity();
+
+		modelMatrix = vmath::translate(10.0f, -17.6f, 10.0f);
+		scaleMatrix = vmath::scale(25.0f, 15.0f, 1.0f);
+		rotateMatrix = rotate(90.0f, -1.0f, 0.0f, 0.0f);
+		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
+
+		glUniformMatrix4fv(gModelMatrixUniform_pointLight, 1, GL_FALSE, modelMatrix);
+		glUniformMatrix4fv(gViewMatrixUniform_pointLight, 1, GL_FALSE, viewMatrix_for_firstScene);								    // globally camera set in perFrag file
+		glUniformMatrix4fv(gProjectionMatrixUniform_pointLight, 1, GL_FALSE, gPerspectiveProjectionMatrix);			// globally pojection set
+
+		glUniform1i(gTextureActiveUniform_pointLight, 1);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture1_book);
+		glUniform1i(gTextureSamplerUniform_pointLight, 0);
+
+		drawQuadShape();
+		// bind with vao
+		/*glBindVertexArray(vao_rectangle_book);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+		glBindVertexArray(0);*/
+
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		glUniform1i(applyBloomUniform_pointLight, 0);
 		//candle model
 		modelMatrix		= mat4::identity();
 		scaleMatrix		= mat4::identity();
@@ -313,6 +306,9 @@ void renderLampWithPointLight()
 			drawCubeShape();					// small quad in code
 		}
 
+
+
+		
 		glUseProgram(0);
 
 
@@ -377,7 +373,7 @@ void renderLampWithPointLight()
 
 		// books ....................................................
 
-		glUseProgram(gShaderProgramObject_book);
+		/*glUseProgram(gShaderProgramObject_book);
 
 		modelMatrix = mat4::identity();
 		scaleMatrix = mat4::identity();
@@ -401,7 +397,7 @@ void renderLampWithPointLight()
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 		glBindVertexArray(0);
 
-		glUseProgram(0);
+		glUseProgram(0);*/
 
 		updteForFirstScene();
 }
@@ -427,32 +423,32 @@ void updteForFirstScene()
 	{
 		endOfFirstScene = true;
 	}
-	if (endOfFirstScene == true && firstSceneBottomUpDone == true && 1
-		//first_scene_camera_eye_coord[1]		>  10.0f	&& first_scene_camera_eye_coord[2]		>  9.5f &&
-		//first_scene_camera_center_coord[1]	> -15.0f	&& first_scene_camera_center_coord[2]	<  9.7f &&
-		//first_scene_camera_up_coord[1]		>  0.0f		&& first_scene_camera_up_coord[2]		> -1.0f
-		)
-	{
-		
-		first_scene_camera_eye_coord[0]		=	0.0f;//{ 0.0f,-50.0f,100.0f };
-		first_scene_camera_eye_coord[1]		=	10.0f;//{ 0.0f,-50.0f,100.0f };
-		first_scene_camera_eye_coord[2]		=	9.5f;//{ 0.0f,-50.0f,100.0f };
-		first_scene_camera_center_coord[0]	=	0.0f;//{ 0.0f,-70.0f,0.0f };
-		first_scene_camera_center_coord[1]	=	-15.0f;//{ 0.0f,-70.0f,0.0f };
-		first_scene_camera_center_coord[2]	=	9.7f;//{ 0.0f,-70.0f,0.0f };
-		first_scene_camera_up_coord[0]		=	0.0f;//{ 0.0f,1.0f,0.0f };
-		first_scene_camera_up_coord[1]		=	0.0f;//{ 0.0f,1.0f,0.0f };
-		first_scene_camera_up_coord[2]		=	-1.0f;//{ 0.0f,1.0f,0.0f };
-		/*
-		first_scene_camera_eye_coord[1] -= (40.0f - 10.0f) / 100.0f;
-		first_scene_camera_eye_coord[2] -= (60.0f - 9.5f) / 100.0f;
+	//if (endOfFirstScene == true && firstSceneBottomUpDone == true && 1
+	//	//first_scene_camera_eye_coord[1]		>  10.0f	&& first_scene_camera_eye_coord[2]		>  9.5f &&
+	//	//first_scene_camera_center_coord[1]	> -15.0f	&& first_scene_camera_center_coord[2]	<  9.7f &&
+	//	//first_scene_camera_up_coord[1]		>  0.0f		&& first_scene_camera_up_coord[2]		> -1.0f
+	//	)
+	//{
+	//	
+	//	first_scene_camera_eye_coord[0]		=	0.0f;//{ 0.0f,-50.0f,100.0f };
+	//	first_scene_camera_eye_coord[1]		=	10.0f;//{ 0.0f,-50.0f,100.0f };
+	//	first_scene_camera_eye_coord[2]		=	9.5f;//{ 0.0f,-50.0f,100.0f };
+	//	first_scene_camera_center_coord[0]	=	0.0f;//{ 0.0f,-70.0f,0.0f };
+	//	first_scene_camera_center_coord[1]	=	-15.0f;//{ 0.0f,-70.0f,0.0f };
+	//	first_scene_camera_center_coord[2]	=	9.7f;//{ 0.0f,-70.0f,0.0f };
+	//	first_scene_camera_up_coord[0]		=	0.0f;//{ 0.0f,1.0f,0.0f };
+	//	first_scene_camera_up_coord[1]		=	0.0f;//{ 0.0f,1.0f,0.0f };
+	//	first_scene_camera_up_coord[2]		=	-1.0f;//{ 0.0f,1.0f,0.0f };
+	//	/*
+	//	first_scene_camera_eye_coord[1] -= (40.0f - 10.0f) / 100.0f;
+	//	first_scene_camera_eye_coord[2] -= (60.0f - 9.5f) / 100.0f;
 
-		first_scene_camera_center_coord[1] -= (15.0f - 5.0f) / 100.0f;
-		first_scene_camera_center_coord[2] += (9.7f - 0.0f) / 100.0f;
+	//	first_scene_camera_center_coord[1] -= (15.0f - 5.0f) / 100.0f;
+	//	first_scene_camera_center_coord[2] += (9.7f - 0.0f) / 100.0f;
 
-		first_scene_camera_up_coord[1] -= 1.0f / 100.0f;
-		first_scene_camera_up_coord[2] -= 1.0f / 100.0f;
-		*/
-	}
+	//	first_scene_camera_up_coord[1] -= 1.0f / 100.0f;
+	//	first_scene_camera_up_coord[2] -= 1.0f / 100.0f;
+	//	*/
+	//}
 
 }

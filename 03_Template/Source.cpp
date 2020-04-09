@@ -703,6 +703,7 @@ int initialize(void)
 	initGodRaysPostProcessing();
 	
 	initFirstScene();
+
 	// ................................................................................................
 	//
 	// Initialize your specific scene here above
