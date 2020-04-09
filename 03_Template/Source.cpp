@@ -181,6 +181,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		bIsLKeyPressed = true;
 		bShowBloom_bloom = true;
 		break;
+
 	case WM_SETFOCUS:
 		gbActiveWindow = true;
 		break;
@@ -288,9 +289,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case 'b':
 			//bShowBloom_bloom = !bShowBloom_bloom;
 
-			first_scene_camera_eye_coord = { 0.0f,0.0f,5.0f };
-			first_scene_camera_center_coord = { 0.0f,0.0f,0.0f };
-			first_scene_camera_up_coord = { 0.0f,1.0f,0.0f };
+			//first_scene_camera_eye_coord = { 0.0f,0.0f,5.0f };
+			first_scene_camera_eye_coord	= { 0.0f,-50.0f,100.0f };
+			first_scene_camera_center_coord = { 0.0f,-70.0f,0.0f };
+			first_scene_camera_up_coord		= { 0.0f,1.0f,0.0f };
 
 			vmath_camera_eye_coord = { 2910.0f, 75.0f, 560.0f };
 			vmath_camera_center_coord = { 0.0f,-255.0f,0.0f };
@@ -342,6 +344,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			ZTransitionForName_fluidText = -35.0f;
 			global_temp_count_fluidText = 2.0;
 			
+			// first scene
+			firstSceneBottomUpDone = false;
+			endOfFirstScene		= false;
 
 			break;
 			
@@ -436,6 +441,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			break;
 
 		case 'p':
+			/*
 			fprintf(gpFile, "Current Positins  : \n");
 			fprintf(gpFile, "___________________________________________________ \n");
 			fprintf(gpFile, "eye coodinates    :  %f     , %f     , %f  \n", vmath_camera_eye_coord[0], vmath_camera_eye_coord[1], vmath_camera_eye_coord[2]);
@@ -444,19 +450,30 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			fprintf(gpFile, "___________________________________________________ \n");
 			fprintf(gpFile, "ftime_krishnaAnimate : %f \n", ftime_krishnaAnimate);
 			fprintf(gpFile, "___________________________________________________ \n");
-			
+			/*
+
+
+			/*
 			fprintf(gpFile, "Depth Of Field Variables: \n");
 			fprintf(gpFile, "____________________________________________________\n");
 			fprintf(gpFile, "focal_distance: %f\n", focal_distance);
 			fprintf(gpFile, "focal_depth: %f\n", focal_depth);
 			fprintf(gpFile, "____________________________________________________\n");
-			
+			*/
 
+			/*
 			fprintf(gpFile, "Sudarshan Variables: \n");
 			fprintf(gpFile, "____________________________________________________\n");
 			fprintf(gpFile, "XForSudarshan : %f ,YForSudarshan  : %f ,ZForSudarshan  : %f \n ",XForSudarshan,YForSudarshan,ZForSudarshan);
 			fprintf(gpFile, "____________________________________________________\n");
+			*/
 
+			fprintf(gpFile, "\n\n First Scene Current Positins Camera  : \n");
+			fprintf(gpFile, "___________________________________________________ \n");
+			fprintf(gpFile, "eye coodinates    :  %f     , %f     , %f  \n", first_scene_camera_eye_coord[0], first_scene_camera_eye_coord[1], first_scene_camera_eye_coord[2]);
+			fprintf(gpFile, "center coodinates :  %f     , %f     , %f  \n", first_scene_camera_center_coord[0], first_scene_camera_center_coord[1], first_scene_camera_center_coord[2]);
+			fprintf(gpFile, "up coodinates     :  %f     , %f     , %f  \n", first_scene_camera_up_coord[0], first_scene_camera_up_coord[1], first_scene_camera_up_coord[2]);
+			fprintf(gpFile, "___________________________________________________ \n");
 
 			fflush(gpFile);
 			break;
@@ -468,34 +485,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			isModelAnimationStart = false;
 			isAssimpAnimatedModelShow = false;
 			gpIXAudio2_SceneFirstSourceVoice->Start(0);
-			/*
-			vmath_camera_eye_coord[0] = -40.0f;
-			vmath_camera_eye_coord[1] = 180.0f;
-			vmath_camera_eye_coord[2] = 1.0f;
-
-			vmath_camera_center_coord[0] = -1000.0f;
-			vmath_camera_center_coord[1] = 200.00f;
-			vmath_camera_center_coord[2] = 0.0f;
-		
-
-			vmath_camera_eye_coord[0] = 144.0f;
-			vmath_camera_eye_coord[1] = 39.0f;
-			vmath_camera_eye_coord[2] = -2.0f;
-
-			vmath_camera_center_coord[0] = 0.0f;
-			vmath_camera_center_coord[1] = 91.00f;
-			vmath_camera_center_coord[2] = 0.0f;
-
-			
-
-			vmath_camera_eye_coord[0] = 245.0f;
-			vmath_camera_eye_coord[1] = 95.0f;
-			vmath_camera_eye_coord[2] = -240.0f;
-
-			vmath_camera_center_coord[0] = -260.0f;
-			vmath_camera_center_coord[1] = 260.0f;
-			vmath_camera_center_coord[2] = 0.0f;
-			*/
 			
 			vmath_camera_eye_coord[0] = -35.0f;
 			vmath_camera_eye_coord[1] = 105.0f;
