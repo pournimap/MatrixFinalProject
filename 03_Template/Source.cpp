@@ -284,6 +284,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			gbStartAnimationOfSudarshan = !gbStartAnimationOfSudarshan;
 			break;
 
+		case '7':
+			gpIXAudio2_SceneFirstSourceVoice->Start(0);
+			startAnimation = true;
+			break;
+
 		//Reset Logic
 		case 'B':
 		case 'b':
@@ -375,7 +380,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case 'I':
 			
 			if(isShowStartingScene)
-				first_scene_camera_eye_coord[2] -= 0.1f;
+				first_scene_camera_eye_coord[2] -= 1.0f;
 			else
 				vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] - 10.0f;
 			break;
@@ -384,7 +389,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case 'o':
 		case 'O':
 			if (isShowStartingScene)
-				first_scene_camera_eye_coord[2] += 0.1f;
+				first_scene_camera_eye_coord[2] += 1.0f;
 			else
 				vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] + 10.0f;
 			break;
@@ -392,7 +397,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case 'j':
 		case 'J':
 			if (isShowStartingScene)
-				first_scene_camera_eye_coord[0] -= 0.1f;
+				first_scene_camera_eye_coord[0] -= 1.0f;
 			else
 				vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] - 10.0f;
 			break;
@@ -400,7 +405,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case 'k':
 		case 'K':
 			if (isShowStartingScene)
-				first_scene_camera_eye_coord[0] += 0.1f;
+				first_scene_camera_eye_coord[0] += 1.0f;
 			else
 				vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + 10.0f;
 			break;
@@ -410,7 +415,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case 'w':
 		case 'W':
 			if (isShowStartingScene)
-				first_scene_camera_center_coord[1] += 0.1f;
+				first_scene_camera_center_coord[1] += 1.0f;
 			else
 				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] + 10.0f;
 			break;
@@ -418,7 +423,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case 's':
 		case 'S':
 			if (isShowStartingScene)
-				first_scene_camera_center_coord[1] -= 0.1f;
+				first_scene_camera_center_coord[1] -= 1.0f;
 			else
 				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - 10.0f;
 			break;
@@ -427,7 +432,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case 'A':
 		case 'a':
 			if (isShowStartingScene)
-				first_scene_camera_center_coord[0] -= 0.1f;
+				first_scene_camera_center_coord[0] -= 1.0f;
 			else
 				vmath_camera_center_coord[0] = vmath_camera_center_coord[0] - 10.0f;
 			break;
@@ -435,7 +440,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case 'D':
 		case 'd':
 			if (isShowStartingScene)
-				first_scene_camera_center_coord[0] += 0.1f;
+				first_scene_camera_center_coord[0] += 1.0f;
 			else
 				vmath_camera_center_coord[0] = vmath_camera_center_coord[0] + 10.0f;
 			break;
@@ -469,11 +474,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			*/
 
 			fprintf(gpFile, "\n\n First Scene Current Positins Camera  : \n");
+			fflush(gpFile);
 			fprintf(gpFile, "___________________________________________________ \n");
-			fprintf(gpFile, "eye coodinates    :  %f     , %f     , %f  \n", first_scene_camera_eye_coord[0], first_scene_camera_eye_coord[1], first_scene_camera_eye_coord[2]);
-			fprintf(gpFile, "center coodinates :  %f     , %f     , %f  \n", first_scene_camera_center_coord[0], first_scene_camera_center_coord[1], first_scene_camera_center_coord[2]);
-			fprintf(gpFile, "up coodinates     :  %f     , %f     , %f  \n", first_scene_camera_up_coord[0], first_scene_camera_up_coord[1], first_scene_camera_up_coord[2]);
+			fflush(gpFile);
+			fprintf(gpFile, "eye coodinates    :  %f     , %f     , %f  \n", first_scene_camera_eye_coord[0],		first_scene_camera_eye_coord[1],	first_scene_camera_eye_coord[2]);
+			fflush(gpFile);
+			fprintf(gpFile, "center coodinates :  %f     , %f     , %f  \n", first_scene_camera_center_coord[0],	first_scene_camera_center_coord[1], first_scene_camera_center_coord[2]);
+			fflush(gpFile);
+			fprintf(gpFile, "up coodinates     :  %f     , %f     , %f  \n", first_scene_camera_up_coord[0],		first_scene_camera_up_coord[1],		first_scene_camera_up_coord[2]);
+			fflush(gpFile);
 			fprintf(gpFile, "___________________________________________________ \n");
+			fflush(gpFile);
 
 			fflush(gpFile);
 			break;
