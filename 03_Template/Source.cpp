@@ -32,7 +32,8 @@ extern void Clothunintialize(void);
 
 bool isAssimpAnimatedModelShow = false;
 bool iShowEndScene = false;
-bool isShowStartingScene = true;
+
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
 {
 	// Function Declaration
@@ -766,37 +767,41 @@ void display(void)
 		glClearBufferfv(GL_COLOR, 2, black);	// GL_COLOR_ATTACHMENT2
 		glClearBufferfv(GL_DEPTH, 0, &one);
 
-		if (isShowStartingScene)
+	
+		if(isShowStartingScene == false)
+		{ 
+		
+		//applyDOF();
+		if (gbGoToFullViewKrishna)
+		{
+			//renderBrightSource();
+			renderBrightChakraSource();
+		}
+
+		display_perFragmentLight();
+
+		display_pointLight();
+
+		Clothdisplay();
+
+		display_fire();
+
+		if (isFirstScene == false)
+		{
+			if (isAssimpAnimatedModelShow == true)
+				display_AssimpModelLoader();
+			else
+				display_krishnaAnimate();
+		}
+
+		//stopApplyingDOF();
+		}
+		if (bDoneFadeOutFirstScene == false)
 		{
 			renderLampWithPointLight();
 		}
-		else
-		{
-			//applyDOF();
-			if (gbGoToFullViewKrishna)
-			{
-				//renderBrightSource();
-				renderBrightChakraSource();
-			}
+		
 
-			display_perFragmentLight();
-
-			display_pointLight();
-
-			Clothdisplay();
-
-			display_fire();
-
-			if (isFirstScene == false)
-			{
-				if (isAssimpAnimatedModelShow == true)
-					display_AssimpModelLoader();
-				else
-					display_krishnaAnimate();
-			}
-
-			//stopApplyingDOF();
-		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 

@@ -18,6 +18,7 @@ GLuint gLKeyPressedUniform_perFragmentLight;
 GLuint gTextureSamplerUniform_perFragmentLight, gTextureActiveUniform_perFragmentLight, gAlphaUniform_perFragmentLight;
 GLuint applyBloomUniform_perFragmentLight, u_bloom_is_activeUniform_perFragmentLight;
 GLuint bloom_thresh_minUniform_perFragmentLight, bloom_thresh_maxUniform_perFragmentLight;
+GLuint fadeinFactor_perFragmentLight, fadeoutFactor_perFragmentLight;
 
 GLfloat lightAmbient[] = { 0.0f,0.0f,0.0f,1.0f };
 GLfloat lightDiffuse[] = { 1.0f,1.0f,1.0f,1.0f };
@@ -54,6 +55,8 @@ GLfloat ZForSudarshan = 480.0f;
 
 bool gbStartAnimationOfSudarshan = false;
 
+float FadeOutFactor_perFragmentLight = 1.0f;
+float FadeInFactor_perFragmentLight = 0.0f;
 
 void initPerFragmentShader()
 {
@@ -135,7 +138,9 @@ void initPerFragmentShader()
 		"uniform float bloom_thresh_max = 1.2f;" \
 		"uniform int u_bloom_is_active;" \
 
-		
+		"uniform float fadeinFactor;" \
+		"uniform float fadeoutFactor;" \
+
 		"void main(void)" \
 		"{" \
 			"vec3 phong_ads_color;" \
@@ -159,11 +164,11 @@ void initPerFragmentShader()
 			"if(u_is_texture == 1)" \
 			"{" \
 				"Final_Texture = texture(u_texture0_sampler, out_texcord); " \
-				"FragColor = vec4(phong_ads_color, u_alpha) * Final_Texture;" \
+				"FragColor = vec4(phong_ads_color, u_alpha) * Final_Texture * fadeinFactor * fadeoutFactor;" \
 			"}" \
 			"else" \
 			"{" \
-				"FragColor = vec4(phong_ads_color, u_alpha);" \
+				"FragColor = vec4(phong_ads_color, u_alpha) * fadeinFactor * fadeoutFactor;" \
 			"}" \
 
 		"if(applyBloom == 1)" \
@@ -241,6 +246,9 @@ void initPerFragmentShader()
 	bloom_thresh_minUniform_perFragmentLight = glGetUniformLocation(gShaderProgramObject_perFragmentLight, "bloom_thresh_min");
 	bloom_thresh_maxUniform_perFragmentLight = glGetUniformLocation(gShaderProgramObject_perFragmentLight, "bloom_thresh_max");
 
+	fadeinFactor_perFragmentLight = glGetUniformLocation(gShaderProgramObject_perFragmentLight, "fadeinFactor");
+	fadeoutFactor_perFragmentLight = glGetUniformLocation(gShaderProgramObject_perFragmentLight, "fadeoutFactor");
+
 }
 
 
@@ -257,7 +265,14 @@ void display_perFragmentLight()
 
 	glUseProgram(gShaderProgramObject_perFragmentLight);
 
-	
+	/*if (isShowStartingScene == false)
+	{*/
+		if (FadeInFactor_perFragmentLight <= 1.0f)
+			FadeInFactor_perFragmentLight += 0.001f;
+		
+	//}
+	glUniform1f(fadeoutFactor_perFragmentLight, FadeOutFactor_perFragmentLight);
+	glUniform1f(fadeinFactor_perFragmentLight, FadeInFactor_perFragmentLight);
 
 	glUniform1i(u_bloom_is_activeUniform_perFragmentLight, (GLint)one);
 	glUniform1f(bloom_thresh_minUniform_perFragmentLight, bloom_thresh_min);

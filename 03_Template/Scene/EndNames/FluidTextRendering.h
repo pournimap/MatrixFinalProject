@@ -18,7 +18,7 @@ GLuint gVbo_Text_Texture_fluidText;
 GLuint gModelMatrixUniform_fluidText, gViewMatrixUniform_fluidText, gProjectionMatrixUniform_fluidText;
 GLuint gTextSamplerUniform_fluidText;
 GLuint gTextColorUniform_fluidText;
-
+GLuint fadeinFactorUniform_fluidText, fadeoutFactorUniform_fluidText;
 mat4 gPerspectiveProjectionMatrix_fluidText;
 
 struct Character {
@@ -37,6 +37,7 @@ GLuint gFragmentShaderObject_FBO_fluidText;
 GLuint gShaderProgramObject_FBO_fluidText;
 GLuint mvpUniform_FBO_fluidText;
 GLuint samplerUniform_fluidText;
+GLuint fadeinFactorUniform_FBO_fluidText, fadeoutFactorUniform_FBO_fluidText;
 
 GLuint fbo_fluidText;
 
@@ -308,6 +309,9 @@ void initFluidText(void)
 		"uniform sampler2D text;" \
 		"uniform sampler2D u_sampler;" \
 
+		"uniform float fadeinFactor;" \
+		"uniform float fadeoutFactor;" \
+
 		"vec3 glyph_color			= vec3(1.0, 1.0, 0.0);" \
 		"const float glyph_center	= 0.5;" \
 		"vec3 glow_color			= vec3(1.0, 1.0, 1.0);" \
@@ -323,7 +327,7 @@ void initFluidText(void)
 			"vec3 rgb		= mix(glow_color, glyph_color, alpha);" \
 			"float mu		= smoothstep(glyph_center, glow_center, sqrt(dist));" \
 			"FragColor		= vec4(rgb, max(alpha, mu));" \
-			"FragColor		= FragColor * fluid_tex;" \
+			"FragColor		= FragColor * fluid_tex * fadeinFactor * fadeoutFactor;" \
 		"}";
 
 	glShaderSource(gFragmentShaderObject_fluidText, 1, (const GLchar**)&fragmentShaderSourceCode_fluidText, NULL);
@@ -348,7 +352,8 @@ void initFluidText(void)
 	gTextSamplerUniform_fluidText	= glGetUniformLocation(gShaderProgramObject_fluidText, "text");
 	samplerUniform_fluidText		= glGetUniformLocation(gShaderProgramObject_fluidText, "u_sampler");
 
-
+	fadeinFactorUniform_fluidText = glGetUniformLocation(gShaderProgramObject_fluidText, "fadeinFactor");
+	fadeoutFactorUniform_fluidText = glGetUniformLocation(gShaderProgramObject_fluidText, "fadeoutFactor");
 	
 
 
@@ -381,9 +386,13 @@ void initFluidText(void)
 		"\n" \
 		"in vec4 out_color;" \
 		"out vec4 FragColor;" \
+
+		"uniform float fadeinFactor;" \
+		"uniform float fadeoutFactor;" \
+
 		"void main(void)" \
 		"{" \
-			"FragColor = out_color * vec4(1.0,0.1,0.0,1.0);" \
+			"FragColor = out_color * vec4(1.0,0.1,0.0,1.0) * fadeinFactor * fadeoutFactor;" \
 			/*"if(FragColor.r < 0.1 && FragColor.g < 0.1 && FragColor.b < 0.1)" \
 					"discard;" \*/
 		"}";
@@ -408,6 +417,8 @@ void initFluidText(void)
 	
 
 	mvpUniform_FBO_fluidText = glGetUniformLocation(gShaderProgramObject_FBO_fluidText, "u_mvp_matrix");
+	fadeinFactorUniform_FBO_fluidText = glGetUniformLocation(gShaderProgramObject_FBO_fluidText, "fadeinFactor");
+	fadeoutFactorUniform_FBO_fluidText = glGetUniformLocation(gShaderProgramObject_FBO_fluidText, "fadeoutFactor");
 
 // --------------------------------------------------------------------------------------------------------------------------------
 
@@ -585,6 +596,11 @@ void display_FluidText(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(gShaderProgramObject_FBO_fluidText);
+
+
+	glUniform1f(fadeoutFactorUniform_FBO_fluidText, 1.0f);
+	glUniform1f(fadeinFactorUniform_FBO_fluidText, 1.0f);
+
 	modelViewProjectionMatrixOrtho_fluidText = ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
 
 	glUniformMatrix4fv(mvpUniform_FBO_fluidText, 1, GL_FALSE, modelViewProjectionMatrixOrtho_fluidText);
@@ -607,6 +623,9 @@ void display_FluidText(void)
 	glViewport(0, 0, (GLsizei)gWidth, (GLsizei)gHeight);
 
 	glUseProgram(gShaderProgramObject_fluidText);
+
+	glUniform1f(fadeoutFactorUniform_fluidText, 1.0f);
+	glUniform1f(fadeinFactorUniform_fluidText, 1.0f);
 
 	mat4 modelMatrix_fluidText		= mat4::identity();
 	mat4 viewMatrix_fluidText		= mat4::identity();

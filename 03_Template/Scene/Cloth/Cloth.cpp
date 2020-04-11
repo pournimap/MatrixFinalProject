@@ -76,6 +76,7 @@ GLuint Clothka_Uniform, Clothkd_Uniform, Clothks_Uniform;
 GLuint ClothLKeyPress_Uniform, ClothmaterialShinyness_Uniform;
 GLuint ClothApplyBloomUniform, ClothBloomIsActiveUniform;
 GLuint ClothBloom_thresh_minUniform, ClothBloom_thresh_maxUniform;
+GLuint ClothFadeinFactorUniform, ClothFadeoutFactorUniform;
 
 float ClothlightAmbient[4] = { 0.0f,0.0f,0.0f,0.0f };
 float ClothlightDiffuse[4] = { 0.5f,0.0f,0.0f,1.0f };
@@ -413,6 +414,9 @@ int Clothintialize(void)
 		"uniform float bloom_thresh_max = 1.2f;" \
 		"uniform int u_bloom_is_active;" \
 
+		"uniform float fadeinFactor;" \
+		"uniform float fadeoutFactor;" \
+
 		"vec3 phong_ads_light;" \
 		"in vec3 Transformednormal;" \
 		"in vec3 lightDirection;" \
@@ -435,7 +439,7 @@ int Clothintialize(void)
 		"{" \
 		"phong_ads_light = vec3(1.0f,1.0f,1.0f);" \
 		"}" \
-		"fragColor = vec4(phong_ads_light,1.0);" \
+		"fragColor = vec4(phong_ads_light,1.0) * fadeinFactor * fadeoutFactor;" \
 
 		"if(applyBloom == 1)" \
 		"{" \
@@ -555,6 +559,9 @@ int Clothintialize(void)
 	ClothBloomIsActiveUniform = glGetUniformLocation(ClothglShaderProgramObject, "u_bloom_is_active");
 	ClothBloom_thresh_minUniform = glGetUniformLocation(ClothglShaderProgramObject, "bloom_thresh_min");
 	ClothBloom_thresh_maxUniform = glGetUniformLocation(ClothglShaderProgramObject, "bloom_thresh_max");
+
+	ClothFadeinFactorUniform = glGetUniformLocation(ClothglShaderProgramObject, "fadeinFactor");
+	ClothFadeoutFactorUniform = glGetUniformLocation(ClothglShaderProgramObject, "fadeoutFactor");
 	//Ortho fixfunction program
 	
 	
@@ -840,6 +847,8 @@ extern mat4 gViewMatrix;
 extern float bloom_thresh_min;
 extern float bloom_thresh_max;
 extern bool startJoin_krishnaAnimate;
+extern bool isShowStartingScene;
+float FadeInFactor_cloth = 0.0f;
 void Clothdisplay()
 {
 	//code
@@ -847,6 +856,15 @@ void Clothdisplay()
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(ClothglShaderProgramObject);
+
+	if (isShowStartingScene == false)
+	{
+		if (FadeInFactor_cloth <= 1.0f)
+			FadeInFactor_cloth += 0.001f;
+	}
+
+	glUniform1f(ClothFadeoutFactorUniform, 1.0f);
+	glUniform1f(ClothFadeinFactorUniform, 1.0f);
 
 	glUniform1i(ClothBloomIsActiveUniform, 1);
 	glUniform1i(ClothApplyBloomUniform, 1);

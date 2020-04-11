@@ -19,6 +19,7 @@ GLuint gTextureSamplerUniform_pointLight, gTextureActiveUniform_pointLight, gAlp
 GLuint gViewPosUniform_pointLight, gNumPointLightsUniform_pointLight;
 GLuint applyBloomUniform_pointLight, u_bloom_is_activeUniform_pointLight;
 GLuint bloom_thresh_minUniform_pointLight, bloom_thresh_maxUniform_pointLight;
+GLuint fadeinFactorUniform_pointLight, fadeoutFactorUniform_pointLight;
 
 #define gNumPointLights_pointLight  20
 struct PointLightUniform
@@ -82,6 +83,8 @@ vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
 bool gbStartCamera			= false;
 bool gbZoomOutForFullView	= false;*/
  
+float FadeOutFactor_pointLight = 1.0f;
+float FadeInFactor_pointLight = 0.0f;
 
 void initPointLightShader()
 {
@@ -184,6 +187,9 @@ void initPointLightShader()
 		"uniform float bloom_thresh_max = 1.2f;" \
 		"uniform int u_bloom_is_active;" \
 
+		"uniform float fadeinFactor;" \
+		"uniform float fadeoutFactor;" \
+
 		"vec3 calculatePointLight(int index)" \
 		"{" \
 		"vec3 pointLightColor;" \
@@ -254,11 +260,11 @@ void initPointLightShader()
 			"if(u_is_texture == 1)" \
 			"{" \
 				"Final_Texture = texture(u_texture0_sampler, out_texcord); " \
-				"FragColor = vec4(phong_ads_color, u_alpha) * Final_Texture;" \
+				"FragColor = vec4(phong_ads_color, u_alpha) * Final_Texture * fadeinFactor * fadeoutFactor;" \
 			"}" \
 			"else" \
 			"{" \
-				"FragColor = vec4(phong_ads_color, u_alpha);" \
+				"FragColor = vec4(phong_ads_color, u_alpha) * fadeinFactor * fadeoutFactor;" \
 			"}" \
 
 			"if(applyBloom == 1)" \
@@ -368,6 +374,8 @@ void initPointLightShader()
 	bloom_thresh_minUniform_pointLight = glGetUniformLocation(gShaderProgramObject_pointLight, "bloom_thresh_min");
 	bloom_thresh_maxUniform_pointLight = glGetUniformLocation(gShaderProgramObject_pointLight, "bloom_thresh_max");
 
+	fadeinFactorUniform_pointLight = glGetUniformLocation(gShaderProgramObject_pointLight, "fadeinFactor");
+	fadeoutFactorUniform_pointLight = glGetUniformLocation(gShaderProgramObject_pointLight, "fadeoutFactor");
 }
 
 
@@ -420,6 +428,14 @@ void display_pointLight()
 	
 	glUseProgram(gShaderProgramObject_pointLight);
 
+	if (isShowStartingScene == false)
+	{
+		if (FadeInFactor_pointLight <= 1.0f)
+			FadeInFactor_pointLight += 0.001f;
+	}
+
+	glUniform1f(fadeoutFactorUniform_pointLight, 1.0f);
+	glUniform1f(fadeinFactorUniform_pointLight, FadeInFactor_pointLight);
 
 	glUniform1i(u_bloom_is_activeUniform_pointLight, 1);
 	glUniform1f(bloom_thresh_minUniform_pointLight, bloom_thresh_min);

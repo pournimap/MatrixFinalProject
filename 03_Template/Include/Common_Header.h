@@ -91,6 +91,8 @@ float bloom_thresh_max = 1.2f;
 
 bool isFirstScene = true;
 bool isHandsUpDone = false;
+bool isShowStartingScene = true;
+bool bDoneFadeOutFirstScene = false;
 void programObjectSafeRelease(GLuint shaderProgramObject) {
 	// code
 	if (shaderProgramObject) {

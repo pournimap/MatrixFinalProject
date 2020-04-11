@@ -4,6 +4,7 @@ GLuint gFragmentShaderObject_color;
 GLuint gShaderProgramObject_color;
 
 GLuint gModelMatrixUniform_Color, gViewMatrixUniform_Color, gProjMatrixUniform_Color, gColorUniform_Color;
+GLuint fadeinFactorUniform_color, fadeoutFactorUniform_color;
 
 void InitColorProgramShaders()
 {
@@ -38,13 +39,16 @@ void InitColorProgramShaders()
 		"#version 460" \
 		"\n" \
 		"uniform vec3 uColor;" \
+		"uniform float fadeinFactor;" \
+		"uniform float fadeoutFactor;" \
+
 		"layout (location = 0) out vec4 FragColor;" \
 		"layout (location = 1) out vec4 BloomColor;" \
 		"layout (location = 2) out vec4 GodRaysColor;" \
 
 		"void main(void)" \
 		"{" \
-		"FragColor = vec4(uColor, 1.0);" \
+		"FragColor = vec4(uColor, 1.0) * fadeinFactor * fadeoutFactor;" \
 		"BloomColor = FragColor;" \
 		"GodRaysColor = FragColor;" \
 		"}";
@@ -75,6 +79,8 @@ void InitColorProgramShaders()
 	gProjMatrixUniform_Color = glGetUniformLocation(gShaderProgramObject_color, "u_projection_matrix");
 	gColorUniform_Color = glGetUniformLocation(gShaderProgramObject_color, "uColor");
 
+	fadeinFactorUniform_color = glGetUniformLocation(gShaderProgramObject_color, "fadeinFactor");
+	fadeoutFactorUniform_color = glGetUniformLocation(gShaderProgramObject_color, "fadeoutFactor");
 }
 
 vec3 SourceDir;
@@ -96,6 +102,9 @@ void renderBrightSource()
 	}
 
 	glUseProgram(gShaderProgramObject_color);
+
+	glUniform1f(fadeoutFactorUniform_color, 1.0f);
+	glUniform1f(fadeinFactorUniform_color, 1.0f);
 
 	modelMatrix = vmath::translate(SourceDir);
 	scaleMatrix = vmath::scale(gfKrishnaModelScale, gfKrishnaModelScale, gfKrishnaModelScale);
@@ -188,6 +197,9 @@ void renderBrightChakraSource()
 	}
 
 	glUseProgram(gShaderProgramObject_color);
+
+	glUniform1f(fadeoutFactorUniform_color, 1.0f);
+	glUniform1f(fadeinFactorUniform_color, 1.0f);
 
 	modelMatrix = translate(SourceDir);
 	scaleMatrix = vmath::scale(gfKrishnaModelScale, gfKrishnaModelScale, gfKrishnaModelScale);
@@ -287,6 +299,7 @@ GLuint gShaderProgramObject_godRays;
 GLuint gScreenSpaceSunPosUniform_godRays, gDensityUniform_godRays, gWeightUniform_godRays, gDecayUniform_godRays,
 		gExposureUniform_godRays, gNumSamplesUniform_godRays, gOcclusionTextureUniform_godRays;
 GLuint gModelMatrixUniform_godRays, gViewMatrixUniform_godRays, gProjectionMatrixUniform_godRays;
+GLuint fadeinFactorUniform_godRays, fadeoutFactorUniform_godRays;
 
 void initGodRaysPostProcessing()
 {
@@ -332,6 +345,9 @@ void initGodRaysPostProcessing()
 		"uniform float uExposure;" \
 		"uniform int uNumSamples;" \
 
+		"uniform float fadeinFactor;" \
+		"uniform float fadeoutFactor;" \
+
 		"out vec4 FragColor;" \
 
 		"void main(void)" \
@@ -353,7 +369,7 @@ void initGodRaysPostProcessing()
 		"}" \
 
 		"fragColor *= uExposure;" \
-		"FragColor = vec4(fragColor, 1.0) * vec4(0.98, 0.83f, 0.25, 1.0f);" \
+		"FragColor = vec4(fragColor, 1.0) * vec4(0.98, 0.83f, 0.25, 1.0f)  * fadeinFactor * fadeoutFactor;" \
 		"}";
 
 	glShaderSource(gFragmentShaderObject_godRays, 1, (const GLchar**)&fragmentShaderSourceCode, NULL);
@@ -384,7 +400,9 @@ void initGodRaysPostProcessing()
 	gExposureUniform_godRays = glGetUniformLocation(gShaderProgramObject_godRays, "uExposure");
 	gNumSamplesUniform_godRays = glGetUniformLocation(gShaderProgramObject_godRays, "uNumSamples");
 	gOcclusionTextureUniform_godRays = glGetUniformLocation(gShaderProgramObject_godRays, "uOcclusionTexture");
-	
+
+	fadeinFactorUniform_godRays = glGetUniformLocation(gShaderProgramObject_godRays, "fadeinFactor");
+	fadeoutFactorUniform_godRays = glGetUniformLocation(gShaderProgramObject_godRays, "fadeoutFactor");
 }
 
 
@@ -395,6 +413,9 @@ void display_GodRaysPostProcessing()
 	glViewport(0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT);
 
 	glUseProgram(gShaderProgramObject_godRays);
+
+	glUniform1f(fadeoutFactorUniform_godRays, 1.0f);
+	glUniform1f(fadeinFactorUniform_godRays, 1.0f);
 
 	vec2 screenPos = getScreenSpaceSunPos();
 	glUniform2fv(gScreenSpaceSunPosUniform_godRays, 1, vec2(screenPos[0], screenPos[1]));

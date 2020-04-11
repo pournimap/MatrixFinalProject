@@ -51,7 +51,8 @@ GLuint texture7_book;
 
 
 bool startAnimation = false;
-
+GLfloat temp_counter_for_candleShow = 0.0f;
+bool ShowCandleDone = false;
 BOOL loadTexture_firstScene(GLuint* texture, TCHAR imageResourceID[])
 {
 	HBITMAP hBitmap = NULL;
@@ -250,10 +251,10 @@ void initFirstScene()
 		fprintf(gpFile, "LoadGLTextures_fire Failed in FirstScene\n");
 	}
 
-	status = LoadGLTextures_fire(&gWoodTexture_FirstScene, MAKEINTRESOURCE(104));
+	status = loadTexture_firstScene(&gWoodTexture_FirstScene, MAKEINTRESOURCE(104));
 	if (status == FALSE)
 	{
-		fprintf(gpFile, "LoadGLTextures_fire Failed in FirstScene\n");
+		fprintf(gpFile, "loadTexture_firstScene Failed in FirstScene\n");
 	}
 
 }
@@ -262,7 +263,7 @@ float t_fire_FirstScene = 0.0f;
 //vec3 positionLamp_FirstScene[] = { vec3(0.0f, 0.0f, 0.0f), vec3(0.5f, -0.5f, 0.0f) };
 
 //vec3 positionLamp_FirstScene[] = { vec3(-20.0f, 30.0f, 0.0f), vec3(0.5f, -0.5f, 0.0f) };
-vec3 positionLamp_FirstScene[] = { vec3(0.0f, 30.0f, -30.0f), vec3(0.5f, -0.5f, 0.0f) };
+vec3 positionLamp_FirstScene[] = { vec3(0.0f, 50.0f, 20.0f), vec3(0.0f, -0.5f, 0.0f) };
 //vec3 positionLamp_FirstScene[] = { vec3(-25.0f, -3.0f, -10.0f), vec3(0.0f, 10.0f, -10.0f) };
 
 void draw_image(int isBloom, GLfloat TranslateX, GLfloat TranslateY, GLfloat TranslateZ, GLfloat RotateAngleZ, GLfloat RotateZDir, GLuint texture_id)
@@ -291,7 +292,7 @@ void draw_image(int isBloom, GLfloat TranslateX, GLfloat TranslateY, GLfloat Tra
 	glBindVertexArray(0);
 }
 
-
+float FadeOutFactor_pointLightFirstScene = 1.0f;
 void renderLampWithPointLight()
 {
 	void updteForFirstScene(void);
@@ -321,6 +322,15 @@ void renderLampWithPointLight()
 	
 		glUseProgram(gShaderProgramObject_pointLight);
 
+		if (isShowStartingScene == false)
+		{
+			if (FadeOutFactor_pointLightFirstScene >= 0.0f)
+				FadeOutFactor_pointLightFirstScene -= 0.01f;
+			else
+				bDoneFadeOutFirstScene = true;
+		}
+		glUniform1f(fadeoutFactorUniform_pointLight, FadeOutFactor_pointLightFirstScene);
+		glUniform1f(fadeinFactorUniform_pointLight, 1.0f);
 
 		glUniform1i(u_bloom_is_activeUniform_pointLight, 1);
 		glUniform1f(bloom_thresh_minUniform_pointLight, bloom_thresh_min);
@@ -497,9 +507,18 @@ void renderLampWithPointLight()
 		glUseProgram(0);
 
 #pragma region FIRE
-
+		
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		glUseProgram(gShaderProgramObject_fire);
+
+		if (isShowStartingScene == false)
+		{
+			if (FadeOutFactor_pointLightFirstScene >= 0.0f)
+				FadeOutFactor_pointLightFirstScene -= 0.0001f;
+		}
+
+		glUniform1f(fadeoutFactorUniform_pointLight, FadeOutFactor_pointLightFirstScene);
+		glUniform1f(fadeinFactorUniform_pointLight, 1.0f);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -511,7 +530,7 @@ void renderLampWithPointLight()
 		//t_fire_FirstScene += 0.01f;
 		t_fire_FirstScene += 0.1f;
 		if (t_fire_FirstScene > 360.0f)
-		t_fire_FirstScene = 0.0f;
+			t_fire_FirstScene = 0.0f;
 
 		glUseProgram(gShaderProgramObject_fire);
 
@@ -526,8 +545,8 @@ void renderLampWithPointLight()
 
 		//modelMatrix_fire = vmath::translate(-20.0f, 1.0f, -90.0f);
 		//modelMatrix_fire = vmath::translate(-25.5f, -3.0f, -10.0f);
-		modelMatrix_fire = vmath::translate(0.0f, -3.0f, -30.0f);
-		scaleMatrix_fire = vmath::scale(0.05f, 2.0f, 0.05f);
+		modelMatrix_fire = vmath::translate(-0.3f, -3.5f, -30.0f);
+		scaleMatrix_fire = vmath::scale(0.1f, 2.0f, 0.05f);
 		//scaleMatrix_fire	= vmath::scale(50.0f, 50.0f, 100.0f);
 		//rotateMatrix_fire = rotate(75.0f, 0.0f, 1.0f, 0.0f);
 
@@ -601,18 +620,18 @@ void updteForFirstScene()
 	// here we should write 1st scene camera movement
 	if (first_scene_camera_eye_coord[1] < 50.0f && first_scene_camera_eye_coord[2] < 165.0f && first_scene_camera_center_coord[1] < 30.0f && firstSceneBottomUpDone == false)
 	{
-		first_scene_camera_eye_coord[1]		+= (50.0f + 50.0f) / 1500.0f;
-		first_scene_camera_eye_coord[2]		+= (165.0f - 100.0f) / 1500.0f;
-		first_scene_camera_center_coord[1]	+= (70.0f + 30.0f) / 1500.0f;
+		first_scene_camera_eye_coord[1] += (50.0f + 50.0f) / 1500.0f;
+		first_scene_camera_eye_coord[2] += (165.0f - 100.0f) / 1500.0f;
+		first_scene_camera_center_coord[1] += (70.0f + 30.0f) / 1500.0f;
 	}
 	else				// BOTTOM TO TOP DONE
 	{
 		firstSceneBottomUpDone = true;
-		
-		
+
+
 		if (FirstImageDone == false &&
-			first_scene_camera_eye_coord[0]		> -80.0f && first_scene_camera_eye_coord[1]		> 10.0f && first_scene_camera_eye_coord[2] > 5.0f &&
-			first_scene_camera_center_coord[0]	> -80.0f && first_scene_camera_center_coord[1]	> 5.0f
+			first_scene_camera_eye_coord[0] > -80.0f && first_scene_camera_eye_coord[1] > 10.0f && first_scene_camera_eye_coord[2] > 5.0f &&
+			first_scene_camera_center_coord[0] > -80.0f && first_scene_camera_center_coord[1] > 5.0f
 			)
 		{
 			first_scene_camera_eye_coord[0] -= (80.0f - 0.0f) / 400.0f;
@@ -622,38 +641,38 @@ void updteForFirstScene()
 			first_scene_camera_center_coord[0] -= (80.0f - 0.0f) / 400.0f;
 			first_scene_camera_center_coord[1] -= (30.0f - 5.0f) / 400.0f;
 
-			
+
 		}
 		else				// FIRST IMAGE DONE
 		{
 			FirstImageDone = true;
-			
+
 			if (SecondImageDone == false &&
-				first_scene_camera_eye_coord[0] < -45.0f && 
+				first_scene_camera_eye_coord[0] < -45.0f &&
 				first_scene_camera_center_coord[0] < -45.0f && first_scene_camera_center_coord[1] > 2.0f
 				)
 			{
 				first_scene_camera_eye_coord[0] += (80.0f - 45.0f) / 700.0f;
-				
+
 				first_scene_camera_center_coord[0] += (80.0f - 45.0f) / 700.0f;
 				first_scene_camera_center_coord[1] -= (5.0f - 2.0f) / 700.0f;
 			}
 			else               // SECOND IMAGE DONE
 			{
 				SecondImageDone = true;
-				
+
 				if (ThirdImageDone_1 == false &&
 					first_scene_camera_eye_coord[0] > -55.0f && first_scene_camera_eye_coord[1] > 1.0f && first_scene_camera_eye_coord[2] < 32.0f &&
 					first_scene_camera_center_coord[0] > -70.0f && first_scene_camera_center_coord[1] > -80.0f
 					)
 				{
 					first_scene_camera_eye_coord[0] -= (55.0f - 45.0f) / 500.0f;
-					first_scene_camera_eye_coord[1] -= (10.0f - 1.0f)  / 500.0f;
-					first_scene_camera_eye_coord[2] += (32.0f - 5.0f)  / 500.0f;
+					first_scene_camera_eye_coord[1] -= (10.0f - 1.0f) / 500.0f;
+					first_scene_camera_eye_coord[2] += (32.0f - 5.0f) / 500.0f;
 
 
 					first_scene_camera_center_coord[0] -= (70.0f - 45.0f) / 500.0f;
-					first_scene_camera_center_coord[1] -= (80.0f + 2.0f)  / 500.0f;
+					first_scene_camera_center_coord[1] -= (80.0f + 2.0f) / 500.0f;
 				}
 				else           // THIRD IMAGE DONE
 				{
@@ -668,25 +687,25 @@ void updteForFirstScene()
 					else     // THIRD V2 IMAGE DONE
 					{
 						ThirdImageDone_2 = true;
-						
+
 						if (ForthImageDone == false &&
 							first_scene_camera_eye_coord[0] < 74.0f && first_scene_camera_eye_coord[1] < 6.0f && first_scene_camera_eye_coord[2] > 12.0f &&
 							first_scene_camera_center_coord[0] < 73.0f && first_scene_camera_center_coord[1] < -1.0f
 							)
 						{
-							first_scene_camera_eye_coord[0] += (74.0f + 55.0f)	/ 100.0f;
-							first_scene_camera_eye_coord[1] += (6.0f - 1.0f)	/ 100.0f;
-							first_scene_camera_eye_coord[2] -= (32.0f - 12.0f)	/ 100.0f;
+							first_scene_camera_eye_coord[0] += (74.0f + 55.0f) / 100.0f;
+							first_scene_camera_eye_coord[1] += (6.0f - 1.0f) / 100.0f;
+							first_scene_camera_eye_coord[2] -= (32.0f - 12.0f) / 100.0f;
 
 							first_scene_camera_center_coord[0] += (73.0f + 34.0f) / 100.0f;
-							first_scene_camera_center_coord[1] += (80.0f - 1.0f)  / 100.0f;
+							first_scene_camera_center_coord[1] += (80.0f - 1.0f) / 100.0f;
 						}
 						else   // FORTH IMAGE DONE
 						{
 							ForthImageDone = true;
 
 							if (FifthImageDone == false &&
-								first_scene_camera_eye_coord[0] > 51.0f &&  first_scene_camera_eye_coord[2] < 15.0f &&
+								first_scene_camera_eye_coord[0] > 51.0f && first_scene_camera_eye_coord[2] < 15.0f &&
 								first_scene_camera_center_coord[0] > 55.0f && first_scene_camera_center_coord[1] > -10.0f
 								)
 							{
@@ -700,7 +719,7 @@ void updteForFirstScene()
 							{
 								FifthImageDone = true;  // FIFTH IMAGE DONE
 
-								
+
 								if (SixthImageDone == false &&
 									first_scene_camera_eye_coord[0] < 84.0f && first_scene_camera_eye_coord[1] > 3.0f && first_scene_camera_eye_coord[2] < 38.0f &&
 									first_scene_camera_center_coord[0] < 85.0f && first_scene_camera_center_coord[1] > -38.0f
@@ -716,48 +735,67 @@ void updteForFirstScene()
 								else
 								{
 									SixthImageDone = true; // SIXTH IMAGE DONE
-									
+
 									if (SevenImageDone == false &&
 										first_scene_camera_eye_coord[0] > 46.0f &&
 										first_scene_camera_center_coord[0] > 43.0f && first_scene_camera_center_coord[1] > -54.0f
 										)
 									{
-										first_scene_camera_eye_coord[0] -= (84.0f - 46.0f) / 1000.0f;
+										first_scene_camera_eye_coord[0] -= (84.0f - 46.0f) / 700.0f;
 
-										first_scene_camera_center_coord[0] -= (85.0f - 43.0f) / 1000.0f;
-										first_scene_camera_center_coord[1] -= (54.0f - 38.0f) / 1000.0f;
+										first_scene_camera_center_coord[0] -= (85.0f - 43.0f) / 700.0f;
+										first_scene_camera_center_coord[1] -= (54.0f - 38.0f) / 700.0f;
 									}
 									else
 									{
 										SevenImageDone = true;  // SEVEN IMAGE DONE
-										
-										if (LastImageDone == false &&
-											first_scene_camera_eye_coord[0] > 10.0f && first_scene_camera_eye_coord[1] > -2.0f && first_scene_camera_eye_coord[2] > 24.0f &&
-											first_scene_camera_center_coord[0] > 10.0f && first_scene_camera_center_coord[1] < -28.0f
+
+										if (ShowCandleDone == false &&
+											first_scene_camera_eye_coord[0] > 0.0f && first_scene_camera_eye_coord[1] > -1.0f && first_scene_camera_eye_coord[2] > 7.0f &&
+											first_scene_camera_center_coord[0] > 0.0f && first_scene_camera_center_coord[1] < -2.0f
 											)
 										{
-											first_scene_camera_eye_coord[0] -= (46.0f - 10.0f) / 2000.0f;
-											first_scene_camera_eye_coord[1] -= (3.f - 2.0f) / 2000.0f;
-											first_scene_camera_eye_coord[2] -= (38.0f - 24.0f) / 2000.0f;
+											first_scene_camera_eye_coord[0] -= (46.0f - 0.0f) / 200.0f;
+											first_scene_camera_eye_coord[1] -= (3.f - 1.0f) / 200.0f;
+											first_scene_camera_eye_coord[2] -= (38.0f - 7.0f) / 200.0f;
 
-											first_scene_camera_center_coord[0] -= (43.0f - 10.0f) / 2000.0f;
-											first_scene_camera_center_coord[1] += (54.0f - 28.0f) / 2000.0f;
+											first_scene_camera_center_coord[0] -= (43.0f - 0.0f) / 200.0f;
+											first_scene_camera_center_coord[1] += (54.0f - 2.0f) / 200.0f;
 										}
 										else
 										{
-											LastImageDone = true;
+											ShowCandleDone = true;
+											temp_counter_for_candleShow = temp_counter_for_candleShow + 0.01f;
+											if (temp_counter_for_candleShow > 19.8f && LastImageDone == false &&
+												first_scene_camera_eye_coord[0] < 10.0f && first_scene_camera_eye_coord[1] > -2.0f && first_scene_camera_eye_coord[2] < 24.0f &&
+												first_scene_camera_center_coord[0] < 10.0f && first_scene_camera_center_coord[1] > -28.0f
+												)
+											{
+												first_scene_camera_eye_coord[0] += (10.0f - 0.0f) / 200.0f;
+												first_scene_camera_eye_coord[1] -= (2.0f - 1.0f) / 200.0f;
+												first_scene_camera_eye_coord[2] += (24.0f - 7.0f) / 200.0f;
+
+												first_scene_camera_center_coord[0] += (10.0f - 0.0f) / 200.0f;
+												first_scene_camera_center_coord[1] -= (28.0f - 2.0f) / 200.0f;
+											}
+											else
+											{
+												if (temp_counter_for_candleShow > 20.0f)
+													LastImageDone = true;
+											}
+
 										}
 									}
-									
+
 								}
-								
+
 							}
 
 						}
 					}
 				}
 			}
-			
+
 		}
 
 	}

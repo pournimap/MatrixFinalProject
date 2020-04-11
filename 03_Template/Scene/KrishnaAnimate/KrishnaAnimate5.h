@@ -40,6 +40,7 @@ GLuint gViratRoopStartUniform_krishnaAnimate, gIs_animatedUniform_krishnaAnimate
 
 GLuint applyBloomUniform_krishnaAnimate, u_bloom_is_activeUniform_krishnaAnimate;
 GLuint bloom_thresh_minUniform_krishnaAnimate, bloom_thresh_maxUniform_krishnaAnimate;
+GLuint fadeinFactorUniform_krishnaAnimate, fadeoutFactorUniform_krishnaAnimate;
 
 bool startJoin_krishnaAnimate = false;
 
@@ -76,6 +77,7 @@ GLuint gViewMatrixUniform_krishnaAttractor;
 GLuint gProjectionMatrixUniform_krishnaAttractor;
 GLuint applyBloomUniform_krishnaAttractor, u_bloom_is_activeUniform_krishnaAttractor;
 GLuint bloom_thresh_minUniform_krishnaAttractor, bloom_thresh_maxUniform_krishnaAttractor;
+GLuint fadeinFactorUniform_krishnaAttractor, fadeoutFactorUniform_krishnaAttractor;
 
 Model krishna_Animated_StandUpHand;
 
@@ -96,6 +98,7 @@ GLuint samplerUniform2_mor_pis;
 
 GLuint textureFeather1_mor_pis;
 GLuint textureFeather2_mor_pis;
+GLuint fadeinFactorUniform_mor_pis, fadeoutFactorUniform_mor_pis;
 
 GLfloat X_Pos_mor_pis = -250.0f;
 
@@ -215,6 +218,9 @@ void initKrishnaAnimate()
 		"uniform float bloom_thresh_max = 1.2f;" \
 		"uniform int u_bloom_is_active;" \
 
+		"uniform float fadeinFactor;" \
+		"uniform float fadeoutFactor;" \
+
 		"void main(void)" \
 		"{" \
 		"vec3 phong_ads_color;" \
@@ -246,11 +252,11 @@ void initKrishnaAnimate()
 		"if(u_is_texture == 1)" \
 		"{" \
 		"Final_Texture	= texture(u_texture0_sampler, out_texcord); " \
-		"FragColor		= vec4(phong_ads_color, 1.0f) * Final_Texture;" \
+		"FragColor		= vec4(phong_ads_color, 1.0f) * Final_Texture * fadeinFactor * fadeoutFactor;" \
 		"}" \
 		"else" \
 		"{" \
-		"FragColor		= vec4(phong_ads_color,1.0f);"\
+		"FragColor		= vec4(phong_ads_color,1.0f) * fadeinFactor * fadeoutFactor;"\
 		"}" \
 
 		"if(applyBloom == 1)" \
@@ -343,6 +349,9 @@ void initKrishnaAnimate()
 	bloom_thresh_maxUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "bloom_thresh_max");
 
 	gIs_animatedUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "is_animated");
+
+	fadeinFactorUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "fadeinFactor");
+	fadeoutFactorUniform_krishnaAnimate = glGetUniformLocation(gShaderProgramObject_krishnaAnimate, "fadeoutFactor");
 #pragma endregion
 
 	// SHADER PROGRAM OBJECT 3
@@ -391,9 +400,12 @@ void initKrishnaAnimate()
 		"uniform float bloom_thresh_max = 1.2f;" \
 		"uniform int u_bloom_is_active;" \
 
+		"uniform float fadeinFactor;" \
+		"uniform float fadeoutFactor;" \
+
 		"void main(void)" \
 		"{" \
-		"FragColor = vec4(255.0/255.0,115.0/255.0,0.0,0.5);" \
+		"FragColor = vec4(255.0/255.0,115.0/255.0,0.0,0.5) * fadeinFactor * fadeoutFactor;" \
 		//"FragColor = vec4(255.0/255.0,215.0/255.0,0.0,0.5);" 
 		
 		"if(applyBloom == 1)" \
@@ -450,6 +462,8 @@ void initKrishnaAnimate()
 	bloom_thresh_minUniform_krishnaAttractor = glGetUniformLocation(gShaderProgramObject_attractor_krishna, "bloom_thresh_min");
 	bloom_thresh_maxUniform_krishnaAttractor = glGetUniformLocation(gShaderProgramObject_attractor_krishna, "bloom_thresh_max");
 
+	fadeinFactorUniform_krishnaAttractor = glGetUniformLocation(gShaderProgramObject_attractor_krishna, "fadeinFactor");
+	fadeoutFactorUniform_krishnaAttractor = glGetUniformLocation(gShaderProgramObject_attractor_krishna, "fadeoutFactor");
 #pragma endregion
 
 #pragma region MORPIS
@@ -486,11 +500,14 @@ void initKrishnaAnimate()
 		"uniform sampler2D u_sampler1;" \
 		"uniform sampler2D u_sampler2;" \
 
+		"uniform float fadeinFactor;" \
+		"uniform float fadeoutFactor;" \
+
 		"void main(void)" \
 		"{" \
 		"vec4 FragColor1 = texture(u_sampler1,out_texcoord);" \
 		"vec4 FragColor2 = texture(u_sampler2,out_texcoord);" \
-		"FragColor = FragColor1 * FragColor2;"
+		"FragColor = FragColor1 * FragColor2  * fadeinFactor * fadeoutFactor;"
 		"if(FragColor.r < 0.1 && FragColor.g < 0.1 && FragColor.b < 0.1)" \
 		"discard;" \
 		"}";
@@ -521,6 +538,9 @@ void initKrishnaAnimate()
 
 	samplerUniform1_mor_pis = glGetUniformLocation(gShaderProgramObject_mor_pis_krishna, "u_sampler1");
 	samplerUniform2_mor_pis = glGetUniformLocation(gShaderProgramObject_mor_pis_krishna, "u_sampler2");
+
+	fadeinFactorUniform_mor_pis = glGetUniformLocation(gShaderProgramObject_mor_pis_krishna, "fadeinFactor");
+	fadeoutFactorUniform_mor_pis = glGetUniformLocation(gShaderProgramObject_mor_pis_krishna, "fadeoutFactor");
 #pragma endregion
 }
 
@@ -670,6 +690,9 @@ void display_krishnaAnimate()
 	
 	krishna_Animated_StandUpHand.initShaders(gShaderProgramObject_krishnaAnimate);
 
+	glUniform1f(fadeoutFactorUniform_krishnaAnimate, 1.0f);
+	glUniform1f(fadeinFactorUniform_krishnaAnimate, 1.0f);
+
 	glUniform1i(u_bloom_is_activeUniform_krishnaAnimate, 1);
 	glUniform1f(bloom_thresh_minUniform_krishnaAnimate, bloom_thresh_min);
 	glUniform1f(bloom_thresh_maxUniform_krishnaAnimate, bloom_thresh_max);
@@ -735,6 +758,9 @@ void display_krishnaAnimate()
 		glPointSize(3.0);
 		glUseProgram(gShaderProgramObject_attractor_krishna);
 
+		glUniform1f(fadeoutFactorUniform_krishnaAttractor, 1.0f);
+		glUniform1f(fadeinFactorUniform_krishnaAttractor, 1.0f);
+
 		glUniform1i(u_bloom_is_activeUniform_krishnaAttractor, 1);
 		glUniform1f(bloom_thresh_minUniform_krishnaAttractor, bloom_thresh_min);
 		glUniform1f(bloom_thresh_maxUniform_krishnaAttractor, bloom_thresh_max);
@@ -784,6 +810,9 @@ void display_krishnaAnimate()
 	scaleMatrix = scale(75.0f, 75.0f, 75.0f);
 	rotateMatrix = rotate(90.0f, 0.0f, 1.0f, 0.0f);
 	modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
+
+	glUniform1f(fadeoutFactorUniform_mor_pis, 1.0f);
+	glUniform1f(fadeinFactorUniform_mor_pis, 1.0f);
 
 	glUniformMatrix4fv(gModelMatrixUniform_mor_pis, 1, GL_FALSE, modelMatrix);
 	glUniformMatrix4fv(gViewMatrixUniform_mor_pis, 1, GL_FALSE, gViewMatrix);								    // globally camera set in perFrag file

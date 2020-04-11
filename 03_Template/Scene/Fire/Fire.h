@@ -11,6 +11,7 @@ GLuint gShaderProgramObject_fire;
 GLuint gModelMatrixUniform_fire, gViewMatrixUniform_fire, gProjectionMatrixUniform_fire;
 GLuint applyBloomUniform_fire, u_bloom_is_activeUniform_fire;
 GLuint bloom_thresh_minUniform_fire, bloom_thresh_maxUniform_fire;
+GLuint fadeinFactorUniform_fire, fadeoutFactorUniform_fire;
 
 mat4 gPerspectiveProjectionMatrix_fire;
 
@@ -121,6 +122,9 @@ void initfire(void)
 		"uniform float bloom_thresh_max = 1.2f;" \
 		"uniform int u_bloom_is_active;" \
 
+		"uniform float fadeinFactor;" \
+		"uniform float fadeoutFactor;" \
+
 		"void main(void)" \
 		"{" \
 		/*"gl_PointSize = 5;" \*/
@@ -130,7 +134,7 @@ void initfire(void)
 		"ColorTemp.a	= vLifetime + 0.9;" \
 		"if(ColorTemp.r < 0.1 && ColorTemp.g < 0.1 && ColorTemp.b < 0.1)" \
 			"discard;" \
-		"FragColor		= ColorTemp;" \
+		"FragColor		= ColorTemp * fadeinFactor * fadeoutFactor;" \
 
 
 		"if(applyBloom == 1)" \
@@ -189,6 +193,8 @@ void initfire(void)
 	bloom_thresh_minUniform_fire = glGetUniformLocation(gShaderProgramObject_fire, "bloom_thresh_min");
 	bloom_thresh_maxUniform_fire = glGetUniformLocation(gShaderProgramObject_fire, "bloom_thresh_max");
 
+	fadeinFactorUniform_fire = glGetUniformLocation(gShaderProgramObject_fire, "fadeinFactor");
+	fadeoutFactorUniform_fire = glGetUniformLocation(gShaderProgramObject_fire, "fadeoutFactor");
 }
 
 void initialize_fire(void)
@@ -259,6 +265,7 @@ void initialize_fire(void)
 
 }
 
+float FadeInFactor_fire = 0.0f;
 void display_fire(void)
 {
 	//glShadeModel(GL_SMOOTH);
@@ -278,6 +285,15 @@ void display_fire(void)
 		t_fire = 0.0f;
 		
 	glUseProgram(gShaderProgramObject_fire);
+
+	/*if (isShowStartingScene == false)
+	{
+		if (FadeInFactor_fire <= 1.0f)
+			FadeInFactor_fire += 0.001f;
+	}*/
+
+	glUniform1f(fadeoutFactorUniform_fire, 1.0f);
+	glUniform1f(fadeinFactorUniform_fire, 1.0f);
 
 	glUniform1i(u_bloom_is_activeUniform_fire, 1);
 	glUniform1f(bloom_thresh_minUniform_fire, bloom_thresh_min);
