@@ -428,13 +428,18 @@ void display_pointLight()
 	
 	glUseProgram(gShaderProgramObject_pointLight);
 
-	if (isShowStartingScene == false)
-	{
+	//if (isShowStartingScene == false)
+	//{
 		if (FadeInFactor_pointLight <= 1.0f)
 			FadeInFactor_pointLight += 0.001f;
-	}
+	/*}*/
 
-	glUniform1f(fadeoutFactorUniform_pointLight, 1.0f);
+	if (bStartFadeOutSecondScene == true)
+	{
+		if (FadeOutFactor_pointLight >= 0.0f)
+			FadeOutFactor_pointLight -= 0.001f;
+	}
+	glUniform1f(fadeoutFactorUniform_pointLight, FadeOutFactor_pointLight);
 	glUniform1f(fadeinFactorUniform_pointLight, FadeInFactor_pointLight);
 
 	glUniform1i(u_bloom_is_activeUniform_pointLight, 1);

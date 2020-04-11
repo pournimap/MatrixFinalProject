@@ -30,7 +30,7 @@ void initAudio()
 	
 	//Fetching data from wav file
 	//getDataFromWav(TEXT("Resources/Audio/ShankhDhvani.wav"), &wfx_scene_first, &buffer_scene_first);
-	getDataFromWav(TEXT("Resources/Audio/FirstScene.wav"), &wfx_scene_first, &buffer_scene_first);
+	getDataFromWav(TEXT("Resources/Audio/FirstScene5.wav"), &wfx_scene_first, &buffer_scene_first);
 	
 	//Initializing XAudio2
 	initializeXAudio2();

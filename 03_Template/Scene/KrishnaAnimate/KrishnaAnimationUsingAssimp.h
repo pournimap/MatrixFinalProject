@@ -20,7 +20,7 @@ GLuint bloom_thresh_minUniform_krishnaAnimateAssimp, bloom_thresh_maxUniform_kri
 
 Model krishna_Animated_SeatToStand;
 
-bool isModelAnimationStart = false;
+
 
 void initAssimpModelLoaderShader()
 {

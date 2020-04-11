@@ -30,8 +30,8 @@ extern void Clothdisplay();
 extern void Clothunintialize(void);
 
 
-bool isAssimpAnimatedModelShow = false;
-bool iShowEndScene = false;
+
+
 
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
@@ -474,7 +474,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			fprintf(gpFile, "____________________________________________________\n");
 			*/
 
-			fprintf(gpFile, "\n\n First Scene Current Positins Camera  : \n");
+			/*fprintf(gpFile, "\n\n First Scene Current Positins Camera  : \n");
 			fflush(gpFile);
 			fprintf(gpFile, "___________________________________________________ \n");
 			fflush(gpFile);
@@ -485,8 +485,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			fprintf(gpFile, "up coodinates     :  %f     , %f     , %f  \n", first_scene_camera_up_coord[0],		first_scene_camera_up_coord[1],		first_scene_camera_up_coord[2]);
 			fflush(gpFile);
 			fprintf(gpFile, "___________________________________________________ \n");
-			fflush(gpFile);
-
+			fflush(gpFile);*/
+			fprintf(gpFile, "fps_counter_second_scene = %f\n", fps_counter_second_scene);
 			fflush(gpFile);
 			break;
 
@@ -771,30 +771,31 @@ void display(void)
 		if(isShowStartingScene == false)
 		{ 
 		
-		//applyDOF();
-		if (gbGoToFullViewKrishna)
-		{
-			//renderBrightSource();
-			renderBrightChakraSource();
-		}
+			//applyDOF();
+			if (gbGoToFullViewKrishna)
+			{
+				//renderBrightSource();
+				renderBrightChakraSource();
+			}
 
-		display_perFragmentLight();
+			display_perFragmentLight();
 
-		display_pointLight();
+			display_pointLight();
 
-		Clothdisplay();
+			Clothdisplay();
+			if (isFireInYadnya == true)
+			{
+				display_fire();
+			}
+			if (isFirstScene == false)
+			{
+				if (isAssimpAnimatedModelShow == true)
+					display_AssimpModelLoader();
+				else
+					display_krishnaAnimate();
+			}
 
-		display_fire();
-
-		if (isFirstScene == false)
-		{
-			if (isAssimpAnimatedModelShow == true)
-				display_AssimpModelLoader();
-			else
-				display_krishnaAnimate();
-		}
-
-		//stopApplyingDOF();
+			//stopApplyingDOF();
 		}
 		if (bDoneFadeOutFirstScene == false)
 		{
@@ -837,6 +838,92 @@ void update(void)
 	update_perFragmentLight();
 	//update_pointLight();
 	update_krishnaAnimate();
+
+	/*static float count = 0.0f;
+	if (bFadeOutSecondSceneDone == true)
+	{
+		count += 0.1f;
+		if(count >= 7.5f)
+		iShowEndScene = true;
+	}*/
+	if (isShowStartingScene == false)
+	{
+		fps_counter_second_scene += 1;
+		if (fps_counter_second_scene == 885.0f)
+		{
+			//yadny kunat fir ali ani raje basle
+			isFireInYadnya = true;
+			isRajeInSabha = true;
+		}
+		//if (fps_counter_second_scene == 1500)
+		//{
+		//	//Krishna Baslay, shishupal alay
+		//	isFirstScene = false;
+		//	isAssimpAnimatedModelShow = true;
+		//}
+		//if (fps_counter_second_scene == 2100)
+		//{
+		//	//krishna cha angle side vala
+		//	//e
+		//	vmath_camera_eye_coord[0] = -60.0f;
+		//	vmath_camera_eye_coord[1] = 180.0f;
+		//	vmath_camera_eye_coord[2] = 330.0f;
+
+		//	vmath_camera_center_coord[0] = -250.0f;
+		//	vmath_camera_center_coord[1] = 195.00f;
+		//	vmath_camera_center_coord[2] = 0.0f;
+		//}
+		if (fps_counter_second_scene == 2700)
+		{
+			isModelAnimationStart = true;
+		}
+		//if (fps_counter_second_scene == 2860)
+		//{
+		//	//shishupal angle
+		//	//q
+		//	vmath_camera_eye_coord[0] = 2910.0f;
+		//	vmath_camera_eye_coord[1] = 75.0f;
+		//	vmath_camera_eye_coord[2] = 560.0f;
+
+		//	vmath_camera_center_coord[0] = 0.0f;
+		//	vmath_camera_center_coord[1] = -255.00f;
+		//	vmath_camera_center_coord[2] = 0.0f;
+
+		//}
+		if (fps_counter_second_scene == 3150)
+		{
+			//c
+			isModelAnimationStart = false;
+			isAssimpAnimatedModelShow = false;
+			//gpIXAudio2_SceneFirstSourceVoice->Start(0);
+
+			vmath_camera_eye_coord[0] = -35.0f;
+			vmath_camera_eye_coord[1] = 105.0f;
+			vmath_camera_eye_coord[2] = 10.0f;
+
+			vmath_camera_center_coord[0] = -350.0f;
+			vmath_camera_center_coord[1] = 100.0f;
+			vmath_camera_center_coord[2] = 0.0f;
+
+			gbStartCamera = !gbStartCamera;
+			startJoin_krishnaAnimate = true;
+
+		}
+		if (fps_counter_second_scene == 6700)
+		{
+			//0
+			gbGoToFullViewKrishna = !gbGoToFullViewKrishna;
+			X_Pos_mor_pis = -260.0f;
+		}
+		if (fps_counter_second_scene == 7750)
+		{
+			isModelAnimationStart = true;
+		}
+		if (fps_counter_second_scene == 8450)
+		{
+			gbStartAnimationOfSudarshan = true;
+		}
+	}
 }
 
 void resize(int width, int height)

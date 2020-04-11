@@ -266,6 +266,7 @@ void initialize_fire(void)
 }
 
 float FadeInFactor_fire = 0.0f;
+float FadeOutFactor_fire = 1.0f;
 void display_fire(void)
 {
 	//glShadeModel(GL_SMOOTH);
@@ -291,8 +292,13 @@ void display_fire(void)
 		if (FadeInFactor_fire <= 1.0f)
 			FadeInFactor_fire += 0.001f;
 	}*/
-
-	glUniform1f(fadeoutFactorUniform_fire, 1.0f);
+	if (bStartFadeOutSecondScene == true)
+	{
+		if (FadeOutFactor_fire >= 0.0f)
+			FadeOutFactor_fire -= 0.001f;
+	}
+	
+	glUniform1f(fadeoutFactorUniform_fire, FadeOutFactor_fire);
 	glUniform1f(fadeinFactorUniform_fire, 1.0f);
 
 	glUniform1i(u_bloom_is_activeUniform_fire, 1);
@@ -304,8 +310,8 @@ void display_fire(void)
 	mat4 scaleMatrix_fire	= mat4::identity();
 	mat4 rotateMatrix_fire	= mat4::identity();
 
-	modelMatrix_fire	= vmath::translate(1200.0f, 120.0f, 0.0f);
-	scaleMatrix_fire	= vmath::scale(100.0f, 100.0f, 100.0f);
+	modelMatrix_fire	= vmath::translate(1200.0f, 120.0f, 00.0f);
+	scaleMatrix_fire	= vmath::scale(130.0f, 100.0f, 100.0f);
 	//scaleMatrix_fire	= vmath::scale(50.0f, 50.0f, 100.0f);
 	rotateMatrix_fire	= rotate(75.0f, 0.0f, 1.0f, 0.0f);
 

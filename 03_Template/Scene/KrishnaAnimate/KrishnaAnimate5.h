@@ -665,6 +665,7 @@ void initialize_krishnaAnimate()
 	
 }
 
+float FadeOutFactor_krishnaAnimate = 1.0f;
 void display_krishnaAnimate()
 {
 	/*glEnable(GL_ALPHA_TEST);
@@ -690,7 +691,12 @@ void display_krishnaAnimate()
 	
 	krishna_Animated_StandUpHand.initShaders(gShaderProgramObject_krishnaAnimate);
 
-	glUniform1f(fadeoutFactorUniform_krishnaAnimate, 1.0f);
+	if (bStartFadeOutSecondScene == true)
+	{
+		if (FadeOutFactor_krishnaAnimate >= 0.0f)
+			FadeOutFactor_krishnaAnimate -= 0.001f;
+	}
+	glUniform1f(fadeoutFactorUniform_krishnaAnimate, FadeOutFactor_krishnaAnimate);
 	glUniform1f(fadeinFactorUniform_krishnaAnimate, 1.0f);
 
 	glUniform1i(u_bloom_is_activeUniform_krishnaAnimate, 1);
@@ -758,7 +764,7 @@ void display_krishnaAnimate()
 		glPointSize(3.0);
 		glUseProgram(gShaderProgramObject_attractor_krishna);
 
-		glUniform1f(fadeoutFactorUniform_krishnaAttractor, 1.0f);
+		glUniform1f(fadeoutFactorUniform_krishnaAttractor, FadeOutFactor_krishnaAnimate);
 		glUniform1f(fadeinFactorUniform_krishnaAttractor, 1.0f);
 
 		glUniform1i(u_bloom_is_activeUniform_krishnaAttractor, 1);
@@ -811,7 +817,7 @@ void display_krishnaAnimate()
 	rotateMatrix = rotate(90.0f, 0.0f, 1.0f, 0.0f);
 	modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
 
-	glUniform1f(fadeoutFactorUniform_mor_pis, 1.0f);
+	glUniform1f(fadeoutFactorUniform_mor_pis, FadeOutFactor_krishnaAnimate);
 	glUniform1f(fadeinFactorUniform_mor_pis, 1.0f);
 
 	glUniformMatrix4fv(gModelMatrixUniform_mor_pis, 1, GL_FALSE, modelMatrix);

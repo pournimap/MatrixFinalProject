@@ -38,11 +38,14 @@ vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
 */
 
 //vec3 vmath_camera_eye_coord		= { 3190.0f, 80.0f, 610.0f };
-vec3 vmath_camera_eye_coord		= { 2910.0f, 75.0f, 560.0f };
-//vec3 vmath_camera_center_coord	= { 0.0f,-235.0f,0.0f };
-vec3 vmath_camera_center_coord	= { 0.0f,-255.0f,0.0f };
+//vec3 vmath_camera_eye_coord		= { 2910.0f, 75.0f, 560.0f };
+////vec3 vmath_camera_center_coord	= { 0.0f,-235.0f,0.0f };
+//vec3 vmath_camera_center_coord	= { 0.0f,-255.0f,0.0f };
+////vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
 //vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
-vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
+vec3 vmath_camera_eye_coord = { 3000.0f, 600.0f, 0.0f };
+vec3 vmath_camera_center_coord = { 0.0f,-415.0f,0.0f };
+vec3 vmath_camera_up_coord = { 0.0f,1.0f,0.0f };
 
 bool gbStartCamera			= false;
 bool gbZoomOutForFullView	= false;
@@ -57,6 +60,14 @@ bool gbStartAnimationOfSudarshan = false;
 
 float FadeOutFactor_perFragmentLight = 1.0f;
 float FadeInFactor_perFragmentLight = 0.0f;
+
+bool showEmptyMahal = false;
+bool showEmptyMahalGoInDone = false;
+bool showEmptyMahalGoRtToLeftDone = false;
+bool showEmptyMahalGoOutDone = false;
+bool showEmptyMahalGoInVer2Done = false;
+bool showEmptyMahalGoOutVer2Done = false;
+bool GoKrishnaCloserLook = false;
 
 void initPerFragmentShader()
 {
@@ -271,6 +282,18 @@ void display_perFragmentLight()
 			FadeInFactor_perFragmentLight += 0.001f;
 		
 	//}
+
+	if (bStartFadeOutSecondScene == true)
+	{
+		if (FadeOutFactor_perFragmentLight >= 0.0f)
+			FadeOutFactor_perFragmentLight -= 0.001f;
+		else
+		{
+			bFadeOutSecondSceneDone = true;
+			iShowEndScene = true;
+		}
+	}
+
 	glUniform1f(fadeoutFactor_perFragmentLight, FadeOutFactor_perFragmentLight);
 	glUniform1f(fadeinFactor_perFragmentLight, FadeInFactor_perFragmentLight);
 
@@ -317,7 +340,7 @@ void display_perFragmentLight()
 	
 	glUniform1i(applyBloomUniform_perFragmentLight, 0);
 
-	if (isFirstScene == false)
+	if (isRajeInSabha == true)
 	{
 		//other raje
 		for (int i = 0; i < 14; i++)
@@ -328,8 +351,11 @@ void display_perFragmentLight()
 				if (i < 7)
 				{
 					modelMatrix = vmath::translate(TranslateMeasure[i], -10.0f, 650.0f);
-					if (i == 4)
-						goto NEXT;
+					if (isFirstScene == false)
+					{
+						if (i == 4)
+							goto NEXT;
+					}
 				}
 				else {
 					modelMatrix = vmath::translate(TranslateMeasure[i - 7], -10.0f, -650.0f);
@@ -580,9 +606,13 @@ void display_perFragmentLight()
 		}
 		glBindVertexArray(0);
 
-
+		static float gAngle_rotateY = 0.0f;
 		if (isHandsUpDone == true)
 		{
+			if (gAngle_rotateY >= 360.0f)
+				gAngle_rotateY = 0.0f;
+			gAngle_rotateY += 0.1f;
+
 			//sudarshan chakra
 			glUniform1i(applyBloomUniform_perFragmentLight, 1);
 			modelMatrix = mat4::identity();
@@ -592,7 +622,7 @@ void display_perFragmentLight()
 			modelMatrix = vmath::translate(XForSudarshan, YForSudarshan, ZForSudarshan);
 			scaleMatrix = scale(50.0f, 50.0f, 50.0f);
 			rotateMatrix = rotate(-25.0f, 0.0f, 0.0f, 1.0f);
-
+			//rotateMatrix = rotate(gAngle_rotateY, 0.0f, 1.0f, 0.0f);
 			modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
 
 			glUniformMatrix4fv(gModelMatrixUniform_perFragmentLight, 1, GL_FALSE, modelMatrix);
@@ -627,7 +657,114 @@ void display_perFragmentLight()
 
 void update_perFragmentLight()
 {
-	
+	if (isShowStartingScene == false)
+	{
+		if (showEmptyMahalGoInDone == false &&
+			vmath_camera_eye_coord[0] > 380.0f && vmath_camera_eye_coord[1] > 250.0f && vmath_camera_eye_coord[2] > -510.0f &&
+			vmath_camera_center_coord[0] > -630.0f && vmath_camera_center_coord[1] < 125.0f
+			)
+		{
+			vmath_camera_eye_coord[0] -= (3000.0f - 380.0f) / 250.0f;
+			vmath_camera_eye_coord[1] -= (600.0f - 250.0f) / 250.0f;
+			vmath_camera_eye_coord[2] -= (510.0f - 0.0f) / 250.0f;
+
+			vmath_camera_center_coord[0] -= (630.0f - 0.0f) / 250.0f;
+			vmath_camera_center_coord[1] += (415.0f + 125.0f) / 250.0f;
+		}
+		else
+		{
+			showEmptyMahalGoInDone = true;
+
+			if (showEmptyMahalGoRtToLeftDone == false &&
+				vmath_camera_eye_coord[2] < 510.0f
+				)
+			{
+				vmath_camera_eye_coord[2] += (510.0f + 510.0f) / 200.0f;
+			}
+			else
+			{
+				showEmptyMahalGoRtToLeftDone = true;
+
+				if (showEmptyMahalGoOutDone == false &&
+					vmath_camera_eye_coord[0] < 3000.0f && vmath_camera_eye_coord[1] < 600.0f && vmath_camera_eye_coord[2] > 0.0f &&
+					vmath_camera_center_coord[0] < 0.0f && vmath_camera_center_coord[1] > -415.0f
+					)
+				{
+					vmath_camera_eye_coord[0] += (3000.0f - 380.0f) / 250.0f;
+					vmath_camera_eye_coord[1] += (600.0f - 250.0f) / 250.0f;
+					vmath_camera_eye_coord[2] -= (510.0f - 0.0f) / 250.0f;
+
+					vmath_camera_center_coord[0] += (630.0f - 0.0f) / 250.0f;
+					vmath_camera_center_coord[1] -= (415.0f + 125.0f) / 250.0f;
+				}
+				else
+				{
+					showEmptyMahalGoOutDone = true;
+
+					//yadny kunat fir ali ani raje basle
+					/*isFireInYadnya = true;
+					isRajeInSabha = true;*/
+					
+
+					if (showEmptyMahalGoInVer2Done == false &&
+						vmath_camera_eye_coord[0] > 2090.0f && vmath_camera_eye_coord[1] > 200.0f
+						)
+					{
+						vmath_camera_eye_coord[0] -= (3000.0f - 2090.0f) / 500.0f;
+						vmath_camera_eye_coord[1] -= (600.0f - 200.0f) / 500.0f;
+					}
+					else
+					{
+						showEmptyMahalGoInVer2Done = true;
+						
+						
+
+						if (showEmptyMahalGoOutVer2Done == false &&
+							vmath_camera_eye_coord[0] < 2910.0f && vmath_camera_eye_coord[1] > 75.0f && vmath_camera_eye_coord[2] < 560.0f &&
+							vmath_camera_center_coord[1] < -255.0f
+							)
+						{
+							//krishna ala, shishupal alay
+							isFirstScene = false;
+							isAssimpAnimatedModelShow = true;
+
+							vmath_camera_eye_coord[0] += (2910.0f - 2090.0f) / 800.0f;
+							vmath_camera_eye_coord[1] -= (200.0f - 75.0f) / 800.0f;
+							vmath_camera_eye_coord[2] += (560.0f - 0.0f) / 800.0f;
+
+							vmath_camera_center_coord[1] += (415.0f - 255.0f) / 800.0f;
+						}
+						else
+						{
+							showEmptyMahalGoOutVer2Done = true;
+
+							if (GoKrishnaCloserLook == false &&
+								vmath_camera_eye_coord[0] > -60.0f && vmath_camera_eye_coord[1] < 180.0f && vmath_camera_eye_coord[2] > 330.0f &&
+								vmath_camera_center_coord[0] > -250.0f && vmath_camera_center_coord[1] < 195.0f
+								)
+							{
+								vmath_camera_eye_coord[0] -= (2910.0f + 60.0f) / 750.0f;
+								vmath_camera_eye_coord[1] += (180.0f - 75.0f) / 750.0f;
+								vmath_camera_eye_coord[2] -= (560.0f - 330.0f) / 750.0f;
+
+								vmath_camera_center_coord[0] -= (250.0f - 0.0f) / 750.0f;
+								vmath_camera_center_coord[1] += (255.0f + 195.0f) / 750.0f;
+							}
+							else
+							{
+								GoKrishnaCloserLook = true;
+								
+							}
+
+
+
+						}
+
+					}
+				}
+			}
+		}
+	}
 	if (gbStartCamera)
 	{
 
@@ -744,6 +881,7 @@ void update_perFragmentLight()
 	}
 	if (gbGoToFullViewKrishna)
 	{
+		//0 key handle
 		/*
 		vmath_camera_eye_coord[0] = 1055.0f;
 		vmath_camera_eye_coord[1] = 890.0f;
@@ -756,12 +894,12 @@ void update_perFragmentLight()
 		//&& vmath_camera_center_coord[0] < -270.0f
 		if (vmath_camera_eye_coord[0] < 1055.0f && vmath_camera_eye_coord[1] < 890.0f && vmath_camera_eye_coord[2] < -20.0f  && vmath_camera_center_coord[1] < 630.0f)
 		{
-			vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + ((1055.0f - 600.0f) / 500.0f);				// -35.0f	: inital,585.0f : final, 2000 number of steps 
-			vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] + ((890.0f - 15.0f) / 500.0f);					// 60.0f	: final, 105.0f : initial
-			vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] + ((340.0f - 10.0f) / 500.0f);					// -240.0f	: final, 10.0f : initial
+			vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + ((1055.0f - 600.0f) / 800.0f);				// -35.0f	: inital,585.0f : final, 2000 number of steps 
+			vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] + ((890.0f - 15.0f) / 800.0f);					// 60.0f	: final, 105.0f : initial
+			vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] + ((340.0f - 10.0f) / 800.0f);					// -240.0f	: final, 10.0f : initial
 
 			//vmath_camera_center_coord[0] = vmath_camera_center_coord[0] + ((350.0f - 270.0f) / 3000.0f);
-			vmath_camera_center_coord[1] = vmath_camera_center_coord[1] + ((630.0f - 490.0f) / 500.0f);
+			vmath_camera_center_coord[1] = vmath_camera_center_coord[1] + ((630.0f - 490.0f) / 800.0f);
 		}
 
 	}
@@ -774,6 +912,10 @@ void update_perFragmentLight()
 			XForSudarshan = XForSudarshan + ((250.0f + 885.0f) / 500.0f);
 			YForSudarshan = YForSudarshan - ((790.0f - 650.0f) / 500.0f);
 			ZForSudarshan = ZForSudarshan - ((480.0f - 260.0f) / 500.0f);
+		}
+		else
+		{
+			bStartFadeOutSecondScene = true;
 		}
 	}
 }

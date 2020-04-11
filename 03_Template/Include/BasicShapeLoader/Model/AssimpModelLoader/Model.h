@@ -111,7 +111,7 @@ void Model::draw(GLuint shaders_program, bool isAnimated, int sequence)
 		{
 			boneTransform(count1, transforms);
 
-			if (count1 >= 1.1f)
+			if (count1 >= 1.19f)
 				isHandsUpDone = true;
 		}
 			

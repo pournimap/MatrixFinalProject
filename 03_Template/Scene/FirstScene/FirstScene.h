@@ -546,7 +546,7 @@ void renderLampWithPointLight()
 		//modelMatrix_fire = vmath::translate(-20.0f, 1.0f, -90.0f);
 		//modelMatrix_fire = vmath::translate(-25.5f, -3.0f, -10.0f);
 		modelMatrix_fire = vmath::translate(-0.3f, -3.5f, -30.0f);
-		scaleMatrix_fire = vmath::scale(0.1f, 2.0f, 0.05f);
+		scaleMatrix_fire = vmath::scale(0.4f, 2.0f, 0.05f);
 		//scaleMatrix_fire	= vmath::scale(50.0f, 50.0f, 100.0f);
 		//rotateMatrix_fire = rotate(75.0f, 0.0f, 1.0f, 0.0f);
 
@@ -560,7 +560,7 @@ void renderLampWithPointLight()
 
 		//glPointSize(gWidth_fire / 10);
 		//glPointSize(50);
-		glPointSize(3);
+		glPointSize(5);
 		glActiveTexture(GL_TEXTURE0);
 
 		glBindTexture(GL_TEXTURE_2D, gParticleTexture_fire);
@@ -781,7 +781,10 @@ void updteForFirstScene()
 											else
 											{
 												if (temp_counter_for_candleShow > 20.0f)
+												{
 													LastImageDone = true;
+													isShowStartingScene = false;
+												}
 											}
 
 										}

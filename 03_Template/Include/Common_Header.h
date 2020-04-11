@@ -93,6 +93,15 @@ bool isFirstScene = true;
 bool isHandsUpDone = false;
 bool isShowStartingScene = true;
 bool bDoneFadeOutFirstScene = false;
+bool bStartFadeOutSecondScene = false;
+bool bFadeOutSecondSceneDone = false;
+bool iShowEndScene = false;
+
+float fps_counter_second_scene = 0.0f;
+bool isFireInYadnya = false;
+bool isRajeInSabha = false;
+bool isAssimpAnimatedModelShow = false;
+bool isModelAnimationStart = false;
 void programObjectSafeRelease(GLuint shaderProgramObject) {
 	// code
 	if (shaderProgramObject) {

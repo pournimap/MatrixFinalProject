@@ -238,9 +238,9 @@ void draw_density(void)
 
 void Update_FluidText(void)
 {
-	if (ZTransitionForName_fluidText < 0.1f && NameCount_fluidText < 5)
+	if (ZTransitionForName_fluidText < 0.1f && NameCount_fluidText < 7)
 	{
-		if(ZTransitionForName_fluidText < -17.0f)
+		if (ZTransitionForName_fluidText < -17.0f)
 			ZTransitionForName_fluidText = ZTransitionForName_fluidText + 0.02f;
 		else
 			ZTransitionForName_fluidText = ZTransitionForName_fluidText + 0.3f;
@@ -646,6 +646,16 @@ void display_FluidText(void)
 	{
 		text = "Ajaya Ambaure";
 		modelMatrix_fluidText = translate(-15.0f, -0.0f, ZTransitionForName_fluidText);
+	}
+	else if (NameCount_fluidText == 4)
+	{
+		text = "yaaegaeSvar rsaaL";
+		modelMatrix_fluidText = translate(-15.0f, -0.0f, ZTransitionForName_fluidText);
+	}
+	else if (NameCount_fluidText == 5)
+	{
+		text = "kumaar Baartai";
+		modelMatrix_fluidText = translate(-12.0f, -0.0f, ZTransitionForName_fluidText);
 	}
 	else
 	{

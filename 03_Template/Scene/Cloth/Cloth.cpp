@@ -848,7 +848,9 @@ extern float bloom_thresh_min;
 extern float bloom_thresh_max;
 extern bool startJoin_krishnaAnimate;
 extern bool isShowStartingScene;
+extern bool bStartFadeOutSecondScene;
 float FadeInFactor_cloth = 0.0f;
+float FadeOutFactor_cloth = 1.0f;
 void Clothdisplay()
 {
 	//code
@@ -857,13 +859,18 @@ void Clothdisplay()
 
 	glUseProgram(ClothglShaderProgramObject);
 
-	if (isShowStartingScene == false)
-	{
+	/*if (isShowStartingScene == false)
+	{*/
 		if (FadeInFactor_cloth <= 1.0f)
 			FadeInFactor_cloth += 0.001f;
-	}
+	/*}*/
 
-	glUniform1f(ClothFadeoutFactorUniform, 1.0f);
+	if (bStartFadeOutSecondScene == true)
+	{
+		if (FadeOutFactor_cloth >= 0.0f)
+			FadeOutFactor_cloth -= 0.001f;
+	}
+	glUniform1f(ClothFadeoutFactorUniform, FadeOutFactor_cloth);
 	glUniform1f(ClothFadeinFactorUniform, 1.0f);
 
 	glUniform1i(ClothBloomIsActiveUniform, 1);
