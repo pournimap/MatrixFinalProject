@@ -358,7 +358,7 @@ void LoadAllModels()
 
 
 	/*****************Candle Model*****************/
-	std::string CandleModelFilePath = "Resources/Candle/CandleWithHolderNew.obj";
+	std::string CandleModelFilePath = "Resources/Candle/NormalPanati/panati.obj";
 
 	LoadMeshData(CandleModelFilePath.c_str(), gModel_Candle.model_vertices, gModel_Candle.model_textures, gModel_Candle.model_normals, gModel_Candle.model_mesh_data, gModel_Candle.model_materialFileName);
 

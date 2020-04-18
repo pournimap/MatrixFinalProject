@@ -447,10 +447,11 @@ void renderLampWithPointLight()
 		//modelMatrix = vmath::translate(-20.0f, -16.0f, -90.0f);
 		//modelMatrix = vmath::translate(-25.0f, -20.0f, -10.0f);
 		modelMatrix = vmath::translate(0.0f, -20.0f, -30.0f);
-		scaleMatrix = scale(0.07f, 0.07f, 0.07f);
-		//rotateMatrix = rotate(-90.0f, 0.0f, 1.0f, 0.0f);
+		scaleMatrix = scale(3.0f, 3.0f, 3.0f);
+		rotateMatrix = rotate(90.0f, 0.0f, 1.0f, 0.0f);
 
 		modelMatrix = modelMatrix * scaleMatrix;
+		modelMatrix = modelMatrix * rotateMatrix;
 
 		glUniformMatrix4fv(gModelMatrixUniform_pointLight, 1, GL_FALSE, modelMatrix);
 		glUniformMatrix4fv(gViewMatrixUniform_pointLight, 1, GL_FALSE, viewMatrix_for_firstScene);
@@ -545,8 +546,8 @@ void renderLampWithPointLight()
 
 		//modelMatrix_fire = vmath::translate(-20.0f, 1.0f, -90.0f);
 		//modelMatrix_fire = vmath::translate(-25.5f, -3.0f, -10.0f);
-		modelMatrix_fire = vmath::translate(-0.3f, -3.5f, -30.0f);
-		scaleMatrix_fire = vmath::scale(0.4f, 2.0f, 0.05f);
+		modelMatrix_fire = vmath::translate(-0.2f, -6.0f, -20.0f);
+		scaleMatrix_fire = vmath::scale(1.0f, 3.5f, 0.5f);
 		//scaleMatrix_fire	= vmath::scale(50.0f, 50.0f, 100.0f);
 		//rotateMatrix_fire = rotate(75.0f, 0.0f, 1.0f, 0.0f);
 
@@ -560,7 +561,7 @@ void renderLampWithPointLight()
 
 		//glPointSize(gWidth_fire / 10);
 		//glPointSize(50);
-		glPointSize(5);
+		glPointSize(15);
 		glActiveTexture(GL_TEXTURE0);
 
 		glBindTexture(GL_TEXTURE_2D, gParticleTexture_fire);
