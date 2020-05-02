@@ -29,9 +29,10 @@ extern int Clothintialize();
 extern void Clothdisplay();
 extern void Clothunintialize(void);
 
-
-
-
+//FPS calc in milliseconds
+UINT64 iSysFrequency = 0;
+UINT64 iCurrentTime = 0;
+UINT64 iPreviousTime = 0;
 
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
@@ -131,6 +132,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	SetFocus(hwnd);
 	ToggleFullScreen();						// default full screen mode
 
+	//start Counter
+	QueryPerformanceFrequency((LARGE_INTEGER*)&iSysFrequency);
+
 	while (bDone == false)
 	{
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -147,11 +151,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 		}
 		else
 		{
-			if (gbActiveWindow == true)
+			QueryPerformanceCounter((LARGE_INTEGER*)&iCurrentTime);
+			if ((((double)iCurrentTime - (double)iPreviousTime) / (double)iSysFrequency) >= (1.0 / 60.0))
 			{
-				update();
+				if (gbActiveWindow == true)
+				{
+					update();
+				}
+				display();
+				
+				iPreviousTime = iCurrentTime;
 			}
-			display();
+			
 		}
 	}
 
