@@ -10,6 +10,10 @@ GLuint intermediate_texScene_bloom;
 GLuint intermediate_texBrightPass_bloom;
 GLuint intermediate_texGodRaysPass;
 GLuint intermediate_texDepth_bloom;
+
+
+GLuint shaodowMap_fbo;
+GLuint shadowMap_texCubeMapAttachment;
 void initAllFrameBuffer()
 {
 	static const GLenum buffers[] = { GL_COLOR_ATTACHMENT0};
@@ -39,8 +43,12 @@ void initAllFrameBuffer()
 		fprintf(gpFile, "fbo_godRays frameBuffer not successful\n");
 		fflush(gpFile);
 	}
-	fprintf(gpFile, "fbo_godRays frameBuffer  successful\n");
-	fflush(gpFile);
+	else
+	{
+		fprintf(gpFile, "fbo_godRays frameBuffer  successful\n");
+		fflush(gpFile);
+	}
+	
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -81,9 +89,46 @@ void initAllFrameBuffer()
 		fprintf(gpFile, "intermediate_fbo frameBuffer not successful\n");
 		fflush(gpFile);
 	}
-	fprintf(gpFile, "intermediate_fbo frameBuffer  successful\n");
-	fflush(gpFile);
+	else
+	{
+		fprintf(gpFile, "intermediate_fbo frameBuffer  successful\n");
+		fflush(gpFile);
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+
+
+	glGenFramebuffers(1, &shaodowMap_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, shaodowMap_fbo);
+
+	glGenTextures(1, &shadowMap_texCubeMapAttachment);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, shadowMap_texCubeMapAttachment);
+	for (unsigned int i = 0; i < 6; i++)
+	{
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, MAX_SCENE_WIDTH / 2, MAX_SCENE_HEIGHT / 2,
+			0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	
+	// attach depth texture as FBO's depth buffer
+
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, shadowMap_texCubeMapAttachment, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		fprintf(gpFile, "shaodowMap_fbo frameBuffer not successful\n");
+		fflush(gpFile);
+	}
+	else
+	{
+		fprintf(gpFile, "shaodowMap_fbo frameBuffer  successful\n");
+		fflush(gpFile);
+	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 }

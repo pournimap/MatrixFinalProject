@@ -10,7 +10,7 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Bump Resources/Candle/NormalPanati/STUCCO~1.JPG
+map_Bump Resources/Candle/NormalPanati/STUCCO_Norm.JPG
 map_Kd Resources/Candle/NormalPanati/TERRAC~1.JPG
 
 newmtl LAMP144_-_Oil
@@ -32,5 +32,5 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Bump Resources/Candle/NormalPanati/FABRIC~2.JPE
+map_Bump Resources/Candle/NormalPanati/FABRIC_Norm.JPE
 map_Kd Resources/Candle/NormalPanati/FABRIC~1.JPE

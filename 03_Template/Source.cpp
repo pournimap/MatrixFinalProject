@@ -682,16 +682,17 @@ int initialize(void)
 	// ................................................................................................
 
 	initAudio();
-
+	
 	//Load All Shapes and Model
 	initCubeShape();
+	
 	initSphereShape();
 	initQuadShape();
 	LoadAllModels();
-
+	
 	//Load FrameBuffer
 	initAllFrameBuffer();
-
+	
 	//Load All Scenes
 
 	initialize_perFragmentLight();
@@ -714,7 +715,9 @@ int initialize(void)
 	initBrightChakraSource();
 	initGodRaysPostProcessing();
 	
+	
 	initFirstScene();
+
 
 	// ................................................................................................
 	//
@@ -748,6 +751,7 @@ int initialize(void)
 
 void display(void)
 {
+	
 	if (iShowEndScene)
 	{
 		display_FluidText();
@@ -757,6 +761,10 @@ void display(void)
 		static const GLfloat one = { 1.0f };
 		static const GLfloat black[] = { 0.0f, 0.0f, 0.0, 1.0f };
 
+		if (bDoneFadeOutFirstScene == false)
+		{
+			renderShadowDepthShader_FirstScene();
+		}
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, gWidth, gHeight);
 		//call your scene Display here

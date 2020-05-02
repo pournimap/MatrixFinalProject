@@ -385,7 +385,7 @@ void display_perFragmentLight()
 						if (gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].ismap_Kd == true)
 						{
 							glActiveTexture(GL_TEXTURE0);
-							glBindTexture(GL_TEXTURE_2D, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].gTexture);
+							glBindTexture(GL_TEXTURE_2D, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].gTexture_diffuse);
 							glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
 							glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
 							/*fprintf(gpFile, "perFragmentLight Krishna ismapKd true \n");
@@ -413,7 +413,7 @@ void display_perFragmentLight()
 						if (gModel_Krishna_Seated2.model_material[gModel_Krishna_Seated2.model_mesh_data[i].material_index].ismap_Kd == true)
 						{
 							glActiveTexture(GL_TEXTURE0);
-							glBindTexture(GL_TEXTURE_2D, gModel_Krishna_Seated2.model_material[gModel_Krishna_Seated2.model_mesh_data[i].material_index].gTexture);
+							glBindTexture(GL_TEXTURE_2D, gModel_Krishna_Seated2.model_material[gModel_Krishna_Seated2.model_mesh_data[i].material_index].gTexture_diffuse);
 							glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
 							glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
 							/*fprintf(gpFile, "perFragmentLight Krishna ismapKd true \n");
@@ -458,7 +458,7 @@ void display_perFragmentLight()
 				if (gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].ismap_Kd == true)
 				{
 					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].gTexture);
+					glBindTexture(GL_TEXTURE_2D, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].gTexture_diffuse);
 					glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
 					glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
 					/*fprintf(gpFile, "perFragmentLight Krishna ismapKd true \n");
@@ -509,7 +509,7 @@ void display_perFragmentLight()
 			if (gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].ismap_Kd == true)
 			{
 				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].gTexture);
+				glBindTexture(GL_TEXTURE_2D, gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].gTexture_diffuse);
 				glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
 				glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
 				/*fprintf(gpFile, "perFragmentLight Krishna ismapKd true \n");
@@ -551,7 +551,7 @@ void display_perFragmentLight()
 			if (gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].ismap_Kd == true)
 			{
 				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].gTexture);
+				glBindTexture(GL_TEXTURE_2D, gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].gTexture_diffuse);
 				glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
 				glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
 				/*fprintf(gpFile, "perFragmentLight Krishna ismapKd true \n");
@@ -593,7 +593,7 @@ void display_perFragmentLight()
 				if (gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].ismap_Kd == true)
 				{
 					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].gTexture);
+					glBindTexture(GL_TEXTURE_2D, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].gTexture_diffuse);
 					glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
 					glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
 					/*fprintf(gpFile, "perFragmentLight Krishna ismapKd true \n");
@@ -639,7 +639,7 @@ void display_perFragmentLight()
 					if (gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].ismap_Kd == true)
 					{
 						glActiveTexture(GL_TEXTURE0);
-						glBindTexture(GL_TEXTURE_2D, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].gTexture);
+						glBindTexture(GL_TEXTURE_2D, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].gTexture_diffuse);
 						glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
 						glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
 					}

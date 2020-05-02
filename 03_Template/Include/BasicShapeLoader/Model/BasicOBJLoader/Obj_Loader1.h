@@ -50,7 +50,8 @@ struct Mesh_Data
 
 bool nextmtl = false;
 
-void LoadMeshData(const char *filename, std::vector<float> &vertices, std::vector<float> &textures, std::vector<float> &normals, std::vector<Mesh_Data> &mesh_data,char mtllib[256])
+void LoadMeshData(const char *filename, std::vector<float> &vertices, std::vector<float> &textures, std::vector<float> &normals, 
+	std::vector<float>& tangents, std::vector<float>& bitangents, std::vector<Mesh_Data> &mesh_data,char mtllib[256])
 {
 	char *context = NULL;
 	//Open Mesh file, name of mesh file can be parameterized
@@ -266,6 +267,64 @@ void LoadMeshData(const char *filename, std::vector<float> &vertices, std::vecto
 		}
 	}
 
+	
+	for (int i = 0, j = 0; i < vertices.size(), j < textures.size(); i += 9, j += 6)
+	{
+		
+		vec3& v0 = vec3(0);
+		vec3& v1 = vec3(0);
+		vec3& v2 = vec3(0);
+
+		v0[0] = vertices[i + 0];
+		v0[1] = vertices[i + 1];
+		v0[2] = vertices[i + 2];
+
+		v1[0] = vertices[i + 3];
+		v1[1] = vertices[i + 4];
+		v1[2] = vertices[i + 5];
+
+		v2[0] = vertices[i + 6];
+		v2[1] = vertices[i + 7];
+		v2[2] = vertices[i + 8];
+
+		// Shortcuts for UVs
+		vec2& uv0 = vec2(0);
+		vec2& uv1 = vec2(0);
+		vec2& uv2 = vec2(0);
+
+		uv0[0] = textures[j + 0];
+		uv0[1] = textures[j + 1];
+
+		uv1[0] = textures[j + 2];
+		uv1[1] = textures[j + 3];
+
+		uv2[0] = textures[j + 4];
+		uv2[1] = textures[j + 5];
+
+		// Edges of the triangle : position delta
+		vec3 deltaPos1 = v1 - v0;
+		vec3 deltaPos2 = v2 - v0;
+
+		// UV delta
+		vec2 deltaUV1 = uv1 - uv0;
+		vec2 deltaUV2 = uv2 - uv0;
+
+
+		float r = 1.0f / (deltaUV1[0] * deltaUV2[1] - deltaUV1[1] * deltaUV2[0]);
+		vec3 tangent = (deltaPos1 * deltaUV2[1] - deltaPos2 * deltaUV1[1]) * r;
+		vec3 bitangent = (deltaPos2 * deltaUV1[0] - deltaPos1 * deltaUV2[0]) * r;
+
+		for (int i = 0; i < 3; i++)
+		{
+			tangents.push_back(tangent[0]);
+			tangents.push_back(tangent[1]);
+			tangents.push_back(tangent[2]);
+
+			bitangents.push_back(bitangent[0]);
+			bitangents.push_back(bitangent[1]);
+			bitangents.push_back(bitangent[2]);
+		}
+	}
 	wsprintf(str, TEXT("count_of_vertices Value : %d\n count by method : %zu\n Face Count : %d\n Counter : %d\n"), count_of_vertices, g_temp_vertices.size(), count_vertex, counter);
 	//MessageBox(NULL, str, TEXT("MSG"), MB_OK);
 

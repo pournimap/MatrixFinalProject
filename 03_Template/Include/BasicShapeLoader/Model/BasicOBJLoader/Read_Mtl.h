@@ -47,7 +47,8 @@ struct material {
 	bool ismap_Ka = false;
 	bool ismap_Ks = false;
 	bool ismap_Bump = false;
-	GLuint gTexture;
+	GLuint gTexture_diffuse;
+	GLuint gTexture_bump;
 
 	material()
 	{
@@ -85,7 +86,7 @@ void LoadMaterialData(char *filename, std::vector<material>&mat)
 	ZeroMemory(&material_temp, sizeof(material));
 	mat.clear();
 
-	
+	int size;
 	while (fgets(line_mtl, BUFFER_SIZE, gpMtlFile) != NULL)
 	{
 		first_token = strtok_s(line_mtl, sep_space, &context);
@@ -172,7 +173,7 @@ void LoadMaterialData(char *filename, std::vector<material>&mat)
 		{
 			/*fprintf(gpFile, "map_Kd:\n");
 			fflush(gpFile);*/
-			int size;
+			
 			token = strtok_s(NULL, sep_space, &context);
 			size = strlen(token);
 
@@ -205,7 +206,10 @@ void LoadMaterialData(char *filename, std::vector<material>&mat)
 			/*fprintf(gpFile, "map_Bump:\n");
 			fflush(gpFile);*/
 			token = strtok_s(NULL, sep_space, &context);
-			strcpy_s(material_temp.map_Bump, token);
+			size = strlen(token);
+
+			memcpy(material_temp.map_Bump, token, size - 1);
+			//strcpy_s(material_temp.map_Bump, token);
 			material_temp.ismap_Bump = true;
 			counter_map_Bump++;
 		}
@@ -223,20 +227,38 @@ void LoadMaterialData(char *filename, std::vector<material>&mat)
 
 void InitTextures(std::vector<material>&mat)
 {
+	int result;
 	int LoadGLTextures(GLuint *, char *);
 	for (int i = 0; i < mat.size(); i++)
 	{
 		if (mat[i].ismap_Kd == true)
 		{
-			int result = LoadGLTextures(&mat[i].gTexture, mat[i].map_Kd);
+			result = LoadGLTextures(&mat[i].gTexture_diffuse, mat[i].map_Kd);
 			if (result == FALSE)
 			{
-				wsprintf(str_material, TEXT("Cannot Load Image :%s."), mat[i].map_Kd);
+				wsprintf(str_material, TEXT("Cannot Load Image map_Kd :%s."), mat[i].map_Kd);
 				MessageBox(NULL, str_material, TEXT("Error"), MB_OK);
 			}
 			else if (result == TRUE)
 			{
 				//MessageBox(NULL, TEXT("Texture Loaded Successfully"), TEXT("MSG"), MB_OK);
+				//wsprintf(str_material, TEXT("Load Image :%s. Successfully"), mat[i].map_Kd);
+				//MessageBox(NULL, str_material, TEXT("MSG"), MB_OK);
+			}
+		}
+
+		if (mat[i].ismap_Bump == true)
+		{
+			result = LoadGLTextures(&mat[i].gTexture_bump, mat[i].map_Bump);
+			if (result == FALSE)
+			{
+				wsprintf(str_material, TEXT("Cannot Load Image map_Bump:%s."), mat[i].map_Bump);
+				MessageBox(NULL, str_material, TEXT("Error"), MB_OK);
+			}
+			else if (result == TRUE)
+			{
+				//wsprintf(str_material, TEXT("Load Image :%s."), mat[i].map_Bump);
+				//MessageBox(NULL, str_material, TEXT("MSG"), MB_OK);
 			}
 		}
 	}
@@ -276,9 +298,16 @@ int LoadGLTextures(GLuint *texture, char *filename)
 
 		glGenerateMipmap(GL_TEXTURE_2D);
 		
+		/*wsprintf(str_material, TEXT("stbi_load success:%s."), filename);
+		MessageBox(NULL, str_material, TEXT("Error"), MB_OK);*/
 
 		//DeleteObject(hBitmap);
 		stbi_image_free(image);
+	}
+	else
+	{
+		wsprintf(str_material, TEXT("stbi_load failed:%s."), filename);
+		MessageBox(NULL, str_material, TEXT("Error"), MB_OK);
 	}
 	return(iStatus);
 }

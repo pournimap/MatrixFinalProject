@@ -1,8 +1,9 @@
 Log File Successfully Created.
-4.6.0 NVIDIA 441.66
+4.6.0 NVIDIA 445.87
 Shading Lang Version : 4.60 NVIDIA 
 fbo_godRays frameBuffer  successful
 intermediate_fbo frameBuffer  successful
+shaodowMap_fbo frameBuffer  successful
 Success::ASSIMP::MODEL::ReadFile success
 ASSIMP::MODEL:: Directory-> Resources/11MarchKrishnaModel
 scene->HasAnimations() 1: 1
@@ -97,6 +98,7 @@ Data : R_toe.001_end
 Data : R_toe.001_end_end
 Data : God
 bones: 11 , vertices: 2756
+Texture::Jewelry_Misc.png of type_name:texture_diffuse
 Texture load at path : Jewelry_Misc.png 
 MODEL::Stomach 
 MODEL::Stomach_up 
@@ -128,6 +130,7 @@ MODEL::Neck
 MODEL::Head 
 MODEL::joint8 
 bones: 7 , vertices: 17664
+Texture::Hair2.jpg of type_name:texture_diffuse
 Texture load at path : Hair2.jpg 
 MODEL::Stomach 
 MODEL::Stomach_up 
@@ -156,6 +159,7 @@ MODEL::L_elbow
 MODEL::R_sho 
 MODEL::R_elbow 
 bones: 5 , vertices: 4
+Texture::Feather.jpg of type_name:texture_diffuse
 Texture load at path : Feather.jpg 
 MODEL::Stomach_up 
 MODEL::Chest 
@@ -163,6 +167,7 @@ MODEL::Neck
 MODEL::Head 
 MODEL::joint8 
 bones: 5 , vertices: 248
+Texture::KrishnaCrown2.png of type_name:texture_diffuse
 Texture load at path : KrishnaCrown2.png 
 MODEL::Stomach_up 
 MODEL::Chest 
@@ -170,6 +175,7 @@ MODEL::Neck
 MODEL::Head 
 MODEL::joint8 
 bones: 5 , vertices: 3600
+Texture::KrishnaCrown_Back2.png of type_name:texture_diffuse
 Texture load at path : KrishnaCrown_Back2.png 
 MODEL::Stomach_up 
 MODEL::Chest 
@@ -203,6 +209,7 @@ MODEL::R_knee
 MODEL::R_foot 
 MODEL::R_toe.001 
 bones: 52 , vertices: 305440
+Texture::KrishnaFace_2.jpg of type_name:texture_diffuse
 Texture load at path : KrishnaFace_2.jpg 
 MODEL::Main 
 MODEL::Abdo 
@@ -257,6 +264,7 @@ MODEL::R_knee
 MODEL::R_foot 
 MODEL::R_toe.001 
 bones: 5 , vertices: 164
+Texture::KrishnaCrown2.png of type_name:texture_diffuse
 Texture load at path : KrishnaCrown2.png 
 MODEL::Main 
 MODEL::Abdo 
@@ -264,6 +272,7 @@ MODEL::Stomach
 MODEL::Stomach_up 
 MODEL::Chest 
 bones: 6 , vertices: 302
+Texture::KrishnaCrown_Back2.png of type_name:texture_diffuse
 Texture load at path : KrishnaCrown_Back2.png 
 MODEL::Abdo 
 MODEL::Stomach 
@@ -431,6 +440,7 @@ Data : R_toe.001_end
 Data : R_toe.001_end_end
 Data : God
 bones: 11 , vertices: 2756
+Texture::Jewelry_Misc.png of type_name:texture_diffuse
 Texture load at path : Jewelry_Misc.png 
 MODEL::Stomach 
 MODEL::Stomach_up 
@@ -462,6 +472,7 @@ MODEL::Neck
 MODEL::Head 
 MODEL::joint8 
 bones: 7 , vertices: 17664
+Texture::Hair2.jpg of type_name:texture_diffuse
 Texture load at path : Hair2.jpg 
 MODEL::Stomach 
 MODEL::Stomach_up 
@@ -490,6 +501,7 @@ MODEL::L_elbow
 MODEL::R_sho 
 MODEL::R_elbow 
 bones: 5 , vertices: 4
+Texture::Feather.jpg of type_name:texture_diffuse
 Texture load at path : Feather.jpg 
 MODEL::Stomach_up 
 MODEL::Chest 
@@ -497,6 +509,7 @@ MODEL::Neck
 MODEL::Head 
 MODEL::joint8 
 bones: 5 , vertices: 248
+Texture::KrishnaCrown2.png of type_name:texture_diffuse
 Texture load at path : KrishnaCrown2.png 
 MODEL::Stomach_up 
 MODEL::Chest 
@@ -504,6 +517,7 @@ MODEL::Neck
 MODEL::Head 
 MODEL::joint8 
 bones: 5 , vertices: 3600
+Texture::KrishnaCrown_Back2.png of type_name:texture_diffuse
 Texture load at path : KrishnaCrown_Back2.png 
 MODEL::Stomach_up 
 MODEL::Chest 
@@ -537,6 +551,7 @@ MODEL::R_knee
 MODEL::R_foot 
 MODEL::R_toe.001 
 bones: 52 , vertices: 305440
+Texture::KrishnaFace_2.jpg of type_name:texture_diffuse
 Texture load at path : KrishnaFace_2.jpg 
 MODEL::Main 
 MODEL::Abdo 
@@ -591,6 +606,7 @@ MODEL::R_knee
 MODEL::R_foot 
 MODEL::R_toe.001 
 bones: 5 , vertices: 164
+Texture::KrishnaCrown2.png of type_name:texture_diffuse
 Texture load at path : KrishnaCrown2.png 
 MODEL::Main 
 MODEL::Abdo 
@@ -598,6 +614,7 @@ MODEL::Stomach
 MODEL::Stomach_up 
 MODEL::Chest 
 bones: 6 , vertices: 302
+Texture::KrishnaCrown_Back2.png of type_name:texture_diffuse
 Texture load at path : KrishnaCrown_Back2.png 
 MODEL::Abdo 
 MODEL::Stomach 

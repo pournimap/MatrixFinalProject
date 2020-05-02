@@ -525,7 +525,7 @@ void display_pointLight()
 			if (gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].ismap_Kd == true)
 			{
 				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].gTexture);
+				glBindTexture(GL_TEXTURE_2D, gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].gTexture_diffuse);
 				glUniform1i(gTextureSamplerUniform_pointLight, 0);
 				glUniform1i(gTextureActiveUniform_pointLight, 1);
 				/*fprintf(gpFile, "perFragmentLight Mahal ismapKd true \n");
@@ -649,7 +649,7 @@ void display_pointLight()
 				if (gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].ismap_Kd == true)
 				{
 					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].gTexture);
+					glBindTexture(GL_TEXTURE_2D, gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].gTexture_diffuse);
 					glUniform1i(gTextureSamplerUniform_pointLight, 0);
 					glUniform1i(gTextureActiveUniform_pointLight, 1);
 					

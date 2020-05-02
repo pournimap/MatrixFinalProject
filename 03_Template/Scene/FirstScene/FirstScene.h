@@ -66,13 +66,15 @@ GLuint gProjectionMatrixUniform_pointLight_FirstScene;
 GLuint gLdUniform_pointLight_FirstScene, gLaUniform_pointLight_FirstScene, gLsUniform_pointLight_FirstScene;
 GLuint gLightPositionUniform_pointLight_FirstScene;
 GLuint gKdUniform_pointLight_FirstScene, gKaUniform_pointLight_FirstScene, gKsUniform_pointLight_FirstScene;
-GLuint gMaterialShininessUniform_pointLight_FirstScene;
-GLuint gLKeyPressedUniform_pointLight_FirstScene;
-GLuint gTextureSamplerUniform_pointLight_FirstScene, gTextureActiveUniform_pointLight_FirstScene, gAlphaUniform_pointLight_FirstScene;
+
+GLuint gLKeyPressedUniform_pointLight_FirstScene, gTextureActiveUniform_pointLight_FirstScene;
+GLuint gAlphaUniform_pointLight_FirstScene;
 GLuint gViewPosUniform_pointLight_FirstScene, gNumPointLightsUniform_pointLight_FirstScene;
 GLuint applyBloomUniform_pointLight_FirstScene, u_bloom_is_activeUniform_pointLight_FirstScene;
 GLuint bloom_thresh_minUniform_pointLight_FirstScene, bloom_thresh_maxUniform_pointLight_FirstScene;
 GLuint fadeinFactorUniform_pointLight_FirstScene, fadeoutFactorUniform_pointLight_FirstScene;
+GLuint depthMapSamplerUniform_pointLight_FirstScene, farPlaneUniform_pointLight_FirstScene, shadowsUniform_pointLight_FirstScene;
+GLuint isBumpTexturePresentUniform_pointLight_FirstScene;
 
 //#define gNumPointLights_pointLight_FirstScene  20
 struct PointLightUniform_FirstScene
@@ -88,8 +90,19 @@ struct PointLightUniform_FirstScene
 };
 PointLightUniform_FirstScene m_pointLightsLocation_FirstScene[gNumPointLights_pointLight_FirstScene];
 
+struct MaterialUniform_FirstScene
+{
+	GLuint diffuseSampler;
+	GLuint normalSampler;
+	GLuint specularSampler;
+	GLuint shininess;
+};
+MaterialUniform_FirstScene m_material_FirstScene;
 /**********************************************************/
 
+float near_plane = 0.1f;
+float far_plane = 200.0f;
+vec3 lightPos;
 
 
 BOOL loadTexture_firstScene(GLuint* texture, TCHAR imageResourceID[])
@@ -132,8 +145,10 @@ BOOL loadTexture_firstScene(GLuint* texture, TCHAR imageResourceID[])
 void initFirstScene()
 {
 	void initPointLightShader_FirstScene();
+	void initShadowDepthShader_FirstScene();
 
 	initPointLightShader_FirstScene();
+	initShadowDepthShader_FirstScene();
 	/*//VERTEX SHADER
 	gVertexShaderObject_book = glCreateShader(GL_VERTEX_SHADER);
 	const GLchar* vertextShaderSourceCode_book =
@@ -301,8 +316,8 @@ void initFirstScene()
 
 float t_fire_FirstScene = 0.0f;
 
-vec3 positionLamp_FirstScene[] = { vec3(0.0f, 50.0f, 20.0f), vec3(0.0f, -0.5f, 0.0f) };
-//vec3 positionLamp_FirstScene[] = { vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, -0.5f, 0.0f) };
+//vec3 positionLamp_FirstScene[] = { vec3(0.0f, 50.0f, 20.0f), vec3(0.0f, -0.5f, 0.0f) };
+vec3 positionLamp_FirstScene[] = { vec3(-0.2f, 50.0f, -20.0f), vec3(0.0f, -0.5f, 0.0f) };
 //0.0f, -20.0f, -30.0f
 
 void draw_image(int isBloom, GLfloat TranslateX, GLfloat TranslateY, GLfloat TranslateZ, GLfloat RotateAngleZ, GLfloat RotateZDir, GLuint texture_id)
@@ -318,17 +333,139 @@ void draw_image(int isBloom, GLfloat TranslateX, GLfloat TranslateY, GLfloat Tra
 	rotateMatrix2	= rotate(RotateAngleZ, 0.0f, 0.0f, RotateZDir);
 	modelMatrix		= modelMatrix * rotateMatrix * rotateMatrix2 *scaleMatrix;
 
-	glUniformMatrix4fv(gModelMatrixUniform_pointLight, 1, GL_FALSE, modelMatrix);
-	glUniform1i(applyBloomUniform_pointLight, isBloom);
+	glUniformMatrix4fv(gModelMatrixUniform_pointLight_FirstScene, 1, GL_FALSE, modelMatrix);
+	glUniform1i(applyBloomUniform_pointLight_FirstScene, isBloom);
 
-	glUniform1i(gTextureActiveUniform_pointLight, 1);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
-	glUniform1i(gTextureSamplerUniform_pointLight, 0);
-	//drawMyQuadShape();
+	
 	glBindVertexArray(vao_rectangle_book);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glBindVertexArray(0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void renderModels_FirstScene(GLuint& NewModel)
+{
+	mat4 modelMatrix = mat4::identity();
+	mat4 scaleMatrix = mat4::identity();
+	mat4 rotateMatrix = mat4::identity();
+
+
+	modelMatrix = mat4::identity();
+	scaleMatrix = mat4::identity();
+
+	//modelMatrix = vmath::translate(0.0f, -20.0f, -100.0f);
+	modelMatrix = vmath::translate(0.0f, -20.0f, 0.0f);
+	scaleMatrix = vmath::scale(100.0f, 2.0f, 40.0f);
+	modelMatrix = modelMatrix * scaleMatrix;
+	
+	glUniformMatrix4fv(NewModel, 1, GL_FALSE, modelMatrix);
+
+	glUniform1i(isBumpTexturePresentUniform_pointLight_FirstScene, 0);
+
+	drawCubeShape();
+
+
+	draw_image(0, 10.0f, -17.6f, 10.0f, 0.0f, 1.0f, texture0_book);
+
+	// image 1
+	draw_image(0, -80.0f, -17.6f, -20.0f, 10.0f, 1.0f, texture1_book);
+
+	// image 2
+	draw_image(0, -30.0f, -17.6f, -5.0f, 5.0f, -1.0f, texture2_book);
+
+	// image 3.1,3.2,3.3
+	draw_image(0, -80.0f, -17.6f, 25.0f, 10.0f, 1.0f, texture33_book);
+	draw_image(0, -50.0f, -17.55f, 15.0f, 5.0f, -1.0f, texture31_book);
+	draw_image(0, -25.0f, -17.5f, 30.0f, 5.0f, 1.0f, texture32_book);
+
+	// image 4
+	draw_image(0, 70.0f, -17.6f, -25.0f, 10.0f, 1.0f, texture4_book);
+
+	// image 5
+	draw_image(0, 50.0f, -17.55f, 0.0f, 5.0f, -1.0f, texture5_book);
+
+	// image 6
+	draw_image(0, 80.0f, -17.6f, 25.0f, 10.0f, 1.0f, texture6_book);
+
+	// image 7
+	draw_image(0, 40.0f, -17.55f, 30.0f, 5.0f, 1.0f, texture7_book);
+
+
+	modelMatrix = mat4::identity();
+	scaleMatrix = mat4::identity();
+	rotateMatrix = mat4::identity();
+
+	//modelMatrix = vmath::translate(-20.0f, -16.0f, -90.0f);
+	//modelMatrix = vmath::translate(-25.0f, -20.0f, -10.0f);
+	modelMatrix = vmath::translate(0.0f, -20.0f, -30.0f);
+	scaleMatrix = scale(3.0f, 3.0f, 3.0f);
+	rotateMatrix = rotate(90.0f, 0.0f, 1.0f, 0.0f);
+
+	modelMatrix = modelMatrix * scaleMatrix;
+	modelMatrix = modelMatrix * rotateMatrix;
+
+	glUniformMatrix4fv(NewModel, 1, GL_FALSE, modelMatrix);
+
+	glUniform1i(applyBloomUniform_pointLight_FirstScene, 0);
+
+	glUniform1i(isBumpTexturePresentUniform_pointLight_FirstScene, 0);
+
+	glBindVertexArray(gModel_Candle.Vao);
+	for (int i = 0; i < gModel_Candle.model_mesh_data.size(); i++)
+	{
+		if (gbLight == true)
+		{
+			glUniform3fv(gKaUniform_pointLight_FirstScene, 1, gModel_Candle.model_material[gModel_Candle.model_mesh_data[i].material_index].Ka);
+			glUniform3fv(gKdUniform_pointLight_FirstScene, 1, gModel_Candle.model_material[gModel_Candle.model_mesh_data[i].material_index].Kd);
+			glUniform3fv(gKsUniform_pointLight_FirstScene, 1, gModel_Candle.model_material[gModel_Candle.model_mesh_data[i].material_index].Ks);
+			//glUniform1f(m_material_FirstScene.shininess, gModel_Candle.model_material[gModel_Candle.model_mesh_data[i].material_index].Ns);
+			glUniform1f(gAlphaUniform_pointLight_FirstScene, gModel_Candle.model_material[gModel_Candle.model_mesh_data[i].material_index].d);
+			if (gModel_Candle.model_material[gModel_Candle.model_mesh_data[i].material_index].ismap_Kd == true)
+			{
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, gModel_Candle.model_material[gModel_Candle.model_mesh_data[i].material_index].gTexture_diffuse);
+			
+				glUniform1i(gTextureActiveUniform_pointLight_FirstScene, 1);
+				
+			}
+			if (gModel_Candle.model_material[gModel_Candle.model_mesh_data[i].material_index].ismap_Bump == true)
+			{
+				glActiveTexture(GL_TEXTURE2);
+				glBindTexture(GL_TEXTURE_2D, gModel_Candle.model_material[gModel_Candle.model_mesh_data[i].material_index].gTexture_bump);
+			}
+			else
+				glUniform1i(gTextureActiveUniform_pointLight_FirstScene, 0);
+
+			glBindTexture(GL_TEXTURE_2D, 0);
+		}
+		glDrawArrays(GL_TRIANGLES, gModel_Candle.model_mesh_data[i].vertex_Index, gModel_Candle.model_mesh_data[i].vertex_Count);
+	}
+	glBindVertexArray(0);
+
+	glUniform1i(applyBloomUniform_pointLight_FirstScene, 0);
+	glUniform1i(isBumpTexturePresentUniform_pointLight_FirstScene, 0);
+
+
+
+	for (int i = 0; i < gNumPointLights_pointLight_FirstScene; i++)
+	{
+		modelMatrix = mat4::identity();
+		scaleMatrix = mat4::identity();
+		rotateMatrix = mat4::identity();
+
+		modelMatrix = vmath::translate(positionLamp_FirstScene[i]);
+	//	scaleMatrix = scale(0.4f, 0.4f, 0.4f);
+
+		modelMatrix = modelMatrix * scaleMatrix;
+
+		glUniformMatrix4fv(NewModel, 1, GL_FALSE, modelMatrix);
+
+		drawCubeShape();					// small quad in code
+	}
+
 }
 
 float FadeOutFactor_pointLightFirstScene = 1.0f;
@@ -353,7 +490,6 @@ void renderLampWithPointLight()
 				pointLight[i].u_linear			= 0.01;
 				pointLight[i].u_constant		= 0.0;
 				pointLight[i].u_quadratic		= 0.0;
-				pointLight[i].DiffuseIntensity	= 1.0f;
 
 				pointLight[i].position = positionLamp_FirstScene[i];
 		}
@@ -375,6 +511,8 @@ void renderLampWithPointLight()
 		glUniform1f(bloom_thresh_minUniform_pointLight_FirstScene, bloom_thresh_min);
 		glUniform1f(bloom_thresh_maxUniform_pointLight_FirstScene, bloom_thresh_max);
 		glUniform1i(applyBloomUniform_pointLight_FirstScene, 0);
+
+		glUniform3fv(gViewPosUniform_pointLight_FirstScene, 1, first_scene_camera_eye_coord);
 		if (gbLight == true)
 		{
 			glUniform1i(gLKeyPressedUniform_pointLight_FirstScene, 1);
@@ -391,7 +529,7 @@ void renderLampWithPointLight()
 				glUniform3fv(m_pointLightsLocation_FirstScene[i].u_La, 1, pointLight[i].u_La);
 				glUniform3fv(m_pointLightsLocation_FirstScene[i].u_Ls, 1, pointLight[i].u_Ls);
 				glUniform3fv(m_pointLightsLocation_FirstScene[i].u_Ld, 1, pointLight[i].u_Ld);
-				glUniform1f(m_pointLightsLocation_FirstScene[i].DiffuseIntensity, pointLight[i].DiffuseIntensity);
+			
 
 				glUniform3fv(m_pointLightsLocation_FirstScene[i].position, 1, pointLight[i].position);
 				glUniform1f(m_pointLightsLocation_FirstScene[i].u_constant, pointLight[i].u_constant);
@@ -399,10 +537,13 @@ void renderLampWithPointLight()
 				glUniform1f(m_pointLightsLocation_FirstScene[i].u_quadratic, pointLight[i].u_quadratic);
 			}
 
+			glUniform1i(m_material_FirstScene.diffuseSampler, 0);
+			glUniform1i(m_material_FirstScene.normalSampler, 2);
+			glUniform1f(m_material_FirstScene.shininess, 128.0f);
 			glUniform3fv(gKdUniform_pointLight_FirstScene, 1, material_diffuse);
 			glUniform3fv(gKaUniform_pointLight_FirstScene, 1, material_ambient);
 			glUniform3fv(gKsUniform_pointLight_FirstScene, 1, material_specular);
-			glUniform1f(gMaterialShininessUniform_pointLight_FirstScene, material_shininess);
+			
 
 		}
 		else
@@ -410,138 +551,23 @@ void renderLampWithPointLight()
 			glUniform1i(gLKeyPressedUniform_pointLight_FirstScene, 0);
 		}
 
+		
+		glUniform1f(farPlaneUniform_pointLight_FirstScene, far_plane);
+		glUniform1i(shadowsUniform_pointLight_FirstScene, 1);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, shadowMap_texCubeMapAttachment);
+		glUniform1i(depthMapSamplerUniform_pointLight_FirstScene, 1);
 
 		glUniform1i(applyBloomUniform_pointLight_FirstScene, 0);
 
-		modelMatrix = mat4::identity();
-		scaleMatrix = mat4::identity();
-
-		//modelMatrix = vmath::translate(0.0f, -20.0f, -100.0f);
-		modelMatrix = vmath::translate(0.0f, -20.0f, 0.0f);
-		scaleMatrix = vmath::scale(100.0f, 2.0f, 40.0f);
-		modelMatrix = modelMatrix * scaleMatrix;
-
-		glUniformMatrix4fv(gModelMatrixUniform_pointLight_FirstScene, 1, GL_FALSE, modelMatrix);
+	
 		glUniformMatrix4fv(gProjectionMatrixUniform_pointLight_FirstScene, 1, GL_FALSE, gPerspectiveProjectionMatrix);
 		glUniformMatrix4fv(gViewMatrixUniform_pointLight_FirstScene, 1, GL_FALSE, viewMatrix_for_firstScene);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, gWoodTexture_FirstScene);
-		glUniform1i(gTextureSamplerUniform_pointLight_FirstScene, 0);
-		glUniform1i(gTextureActiveUniform_pointLight_FirstScene, 1);
-		//glUniform1i(samplerUniform1_book, 0);
-
-		drawCubeShape();																	// for khalcha motha paat
-
-		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		//////				FOR TEXTURES																															//////////////////
-		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-		glUniformMatrix4fv(gViewMatrixUniform_pointLight_FirstScene, 1, GL_FALSE, viewMatrix_for_firstScene);					// globally camera set in perFrag file
-		glUniformMatrix4fv(gProjectionMatrixUniform_pointLight_FirstScene, 1, GL_FALSE, gPerspectiveProjectionMatrix);			// globally pojection set
-
-		// void draw_image(int isBloom, GLfloat TranslateX, GLfloat TranslateY, GLfloat TranslateZ, GLfloat RotateAngleZ, GLfloat RotateZDir, GLuint texture_id)
-		// image 0 
-		draw_image(0, 10.0f, -17.6f, 10.0f, 0.0f, 1.0f,texture0_book);
-
-		// image 1
-		draw_image(0, -80.0f, -17.6f, -20.0f, 10.0f, 1.0f,texture1_book);
-
-		// image 2
-		draw_image(0, -30.0f, -17.6f, -5.0f, 5.0f, -1.0f,texture2_book);
-
-		// image 3.1,3.2,3.3
-		draw_image(0, -80.0f, -17.6f, 25.0f, 10.0f, 1.0f,texture33_book);
-		draw_image(0, -50.0f, -17.55f, 15.0f, 5.0f, -1.0f,texture31_book);
-		draw_image(0, -25.0f, -17.5f, 30.0f, 5.0f, 1.0f,texture32_book);
-
-		// image 4
-		draw_image(0, 70.0f, -17.6f, -25.0f, 10.0f, 1.0f, texture4_book);
-
-		// image 5
-		draw_image(0, 50.0f, -17.55f, 0.0f, 5.0f, -1.0f, texture5_book);
-
-		// image 6
-		draw_image(0, 80.0f, -17.6f, 25.0f, 10.0f, 1.0f, texture6_book);
-
-		// image 7
-		draw_image(0, 40.0f, -17.55f, 30.0f, 5.0f, 1.0f, texture7_book);
-
-		/*
-		// bind with vao
-		glBindVertexArray(vao_rectangle_book);
-		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-		glBindVertexArray(0);
-		*/
-		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		//////				FOR TEXTURES END																														//////////////////
-		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-		glUniform1i(applyBloomUniform_pointLight_FirstScene, 0);
-		//candle model
-		modelMatrix		= mat4::identity();
-		scaleMatrix		= mat4::identity();
-		rotateMatrix	= mat4::identity();
-
-		//modelMatrix = vmath::translate(-20.0f, -16.0f, -90.0f);
-		//modelMatrix = vmath::translate(-25.0f, -20.0f, -10.0f);
-		modelMatrix = vmath::translate(0.0f, -20.0f, -30.0f);
-		scaleMatrix = scale(3.0f, 3.0f, 3.0f);
-		rotateMatrix = rotate(90.0f, 0.0f, 1.0f, 0.0f);
-
-		modelMatrix = modelMatrix * scaleMatrix;
-		modelMatrix = modelMatrix * rotateMatrix;
-
-		glUniformMatrix4fv(gModelMatrixUniform_pointLight_FirstScene, 1, GL_FALSE, modelMatrix);
-		glUniformMatrix4fv(gViewMatrixUniform_pointLight_FirstScene, 1, GL_FALSE, viewMatrix_for_firstScene);
-		glUniformMatrix4fv(gProjectionMatrixUniform_pointLight_FirstScene, 1, GL_FALSE, gPerspectiveProjectionMatrix);
 		
-
-		glBindVertexArray(gModel_Candle.Vao);
-		for (int i = 0; i < gModel_Candle.model_mesh_data.size(); i++)
-		{
-			if (gbLight == true)
-			{
-				glUniform3fv(gKaUniform_pointLight_FirstScene, 1, gModel_Candle.model_material[gModel_Candle.model_mesh_data[i].material_index].Ka);
-				glUniform3fv(gKdUniform_pointLight_FirstScene, 1, gModel_Candle.model_material[gModel_Candle.model_mesh_data[i].material_index].Kd);
-				glUniform3fv(gKsUniform_pointLight_FirstScene, 1, gModel_Candle.model_material[gModel_Candle.model_mesh_data[i].material_index].Ks);
-				glUniform1f(gMaterialShininessUniform_pointLight_FirstScene, material_shininess);
-				glUniform1f(gAlphaUniform_pointLight_FirstScene, gModel_Candle.model_material[gModel_Candle.model_mesh_data[i].material_index].d);
-				if (gModel_Candle.model_material[gModel_Candle.model_mesh_data[i].material_index].ismap_Kd == true)
-				{
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, gModel_Candle.model_material[gModel_Candle.model_mesh_data[i].material_index].gTexture);
-					glUniform1i(gTextureSamplerUniform_pointLight_FirstScene, 0);
-					glUniform1i(gTextureActiveUniform_pointLight_FirstScene, 1);
-					/*fprintf(gpFile, "perFragmentLight Krishna ismapKd true \n");
-					fflush(gpFile);*/
-				}
-				else
-					glUniform1i(gTextureActiveUniform_pointLight_FirstScene, 0);
-			}
-			glDrawArrays(GL_TRIANGLES, gModel_Candle.model_mesh_data[i].vertex_Index, gModel_Candle.model_mesh_data[i].vertex_Count);
-		}
-		glBindVertexArray(0);
-
-		for (int i = 0; i < gNumPointLights_pointLight_FirstScene; i++)
-		{
-			modelMatrix = mat4::identity();
-			scaleMatrix = mat4::identity();
-			rotateMatrix = mat4::identity();
-
-			modelMatrix = vmath::translate(positionLamp_FirstScene[i]);
-			scaleMatrix = scale(0.1f, 0.1f, 0.1f);
-
-			modelMatrix = modelMatrix * scaleMatrix;
-
-			glUniformMatrix4fv(gModelMatrixUniform_pointLight_FirstScene, 1, GL_FALSE, modelMatrix);
-			glUniformMatrix4fv(gProjectionMatrixUniform_pointLight_FirstScene, 1, GL_FALSE, gPerspectiveProjectionMatrix);
-			glUniformMatrix4fv(gViewMatrixUniform_pointLight_FirstScene, 1, GL_FALSE, viewMatrix_for_firstScene);
-
-			drawCubeShape();					// small quad in code
-		}
-
-
+		renderModels_FirstScene(gModelMatrixUniform_pointLight_FirstScene);
 
 		
 		glUseProgram(0);
@@ -618,43 +644,13 @@ void renderLampWithPointLight()
 
 #pragma endregion
 
-		// books ....................................................
-
-		/*glUseProgram(gShaderProgramObject_book);
-
-		modelMatrix = mat4::identity();
-		scaleMatrix = mat4::identity();
-		rotateMatrix = mat4::identity();
-
-		modelMatrix = vmath::translate(0.0f, -15.0f, 10.0f);
-		scaleMatrix = vmath::scale(20.0f, 10.0f, 1.0f);
-		rotateMatrix = rotate(90.0f, -1.0f, 0.0f, 0.0f);
-		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
-
-		glUniformMatrix4fv(gModelMatrixUniform_book, 1, GL_FALSE, modelMatrix);
-		glUniformMatrix4fv(gViewMatrixUniform_book, 1, GL_FALSE, viewMatrix_for_firstScene);								    // globally camera set in perFrag file
-		glUniformMatrix4fv(gProjectionMatrixUniform_book, 1, GL_FALSE, gPerspectiveProjectionMatrix);			// globally pojection set
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture1_book);
-		glUniform1i(samplerUniform1_book, 0);
-
-		// bind with vao
-		glBindVertexArray(vao_rectangle_book);
-		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-		glBindVertexArray(0);
-
-		glUseProgram(0);*/
-
 		if (startAnimation == true)
 		{
 			updteForFirstScene();
 		}
 }
 
-// vec3 first_scene_camera_eye_coord =		{ 0.0f,-50.0f,100.0f };
-// vec3 first_scene_camera_center_coord =	{ 0.0f,-70.0f,0.0f };
-// vec3 first_scene_camera_up_coord =		{ 0.0f,1.0f,0.0f };
+
 void updteForFirstScene()
 {
 	// here we should write 1st scene camera movement
@@ -857,35 +853,80 @@ void initPointLightShader_FirstScene()
 		"#version 400" \
 		"\n" \
 
+		"struct PointLight" \
+		"{" \
+		"vec3 u_La;" \
+		"vec3 u_Ld;" \
+		"vec3 u_Ls;" \
+		"float u_constant;" \
+		"float u_linear;" \
+		"float u_quadratic;" \
+		"vec3 position;" \
+
+		"};" \
+		"uniform PointLight pointLight[1];" \
+		"uniform vec3 viewPos;" \
+
 		"in vec4 vPosition;" \
 		"in vec3 vNormal;" \
 		"in vec2 vTexcoord;" \
 
+		"in vec3 vTangent;" \
+		"in vec3 vBitangent;" \
+
 		"uniform mat4 u_model_matrix;" \
 		"uniform mat4 u_view_matrix;" \
 		"uniform mat4 u_projection_matrix;" \
-		"uniform vec4 u_light_position;"\
+
 		"uniform int u_LKeyPressed;" \
 
-		"out vec3 transformed_normals;" \
-		"out vec3 light_direction;" \
-		"out vec3 viewer_vector;" \
+
 		"out vec3 fragment_position;" \
-		"out  vec2 out_texcord;" \
+		"out vec3 fragEyeSpace_position;" \
+		"out vec2 out_texcord;" \
+		
+		//BumpMap
+		"out vec3 eyeDir;" \
+		"out vec3 lightDir;" \
+
+		//Normal PointLight
+		"out vec3 Normal;" \
+
+		"uniform int isBumpTexturePresent;" \
 
 		"void main(void)" \
 		"{" \
-		"if(u_LKeyPressed == 1)" \
+		"if(isBumpTexturePresent == 1)" \
 		"{" \
-		"fragment_position = vec3(u_model_matrix * vPosition);" \
-		"vec4 eye_coordinates=u_view_matrix * u_model_matrix * vPosition;" \
-		"transformed_normals=mat3(u_view_matrix * u_model_matrix) * vNormal;" \
-		"light_direction = vec3(u_light_position) - eye_coordinates.xyz;" \
-		"viewer_vector = -eye_coordinates.xyz;" \
-		"}"\
+			//calculate ViewSpace coordinate
+			"vec4 P = u_view_matrix * u_model_matrix * vPosition;" \
+			//Normal in viewSpace
+			"vec3 N = normalize(mat3(u_view_matrix * u_model_matrix) * vNormal);" \
+			"vec3 T = normalize(mat3(u_view_matrix * u_model_matrix) * vTangent);" \
+		
+			"vec3 B = cross(N, T);" \
+
+			//calculate light vector
+			"vec3 L = pointLight[0].position - P.xyz;" \
+			//calculate view vector
+			"vec3 V = -P.xyz;" \
+		
+			"lightDir = normalize(vec3(dot(V, T), dot(V, B), dot(V, N)));" \
+
+			"eyeDir = normalize(vec3(dot(V, T), dot(V, B), dot(V, N)));" \
+		"}" \
+		"else" \
+		"{" \
+			"Normal = transpose(inverse(mat3(u_model_matrix))) * vNormal;" \
+			
+		"}" \
 
 		"out_texcord = vTexcoord;" \
+
 		"gl_Position = u_projection_matrix * u_view_matrix * u_model_matrix * vPosition;" \
+		"fragment_position = vec3(u_model_matrix * vPosition);" \
+		"fragEyeSpace_position = vec3(u_view_matrix * u_model_matrix * vPosition);" \
+
 		"}";
 
 	glShaderSource(gVertexShaderObject_pointLight_FirstScene, 1, (const GLchar**)&vertextShaderSourceCode_FirstScene, NULL);
@@ -904,6 +945,16 @@ void initPointLightShader_FirstScene()
 	const GLchar* fragmentShaderSourceCode_FirstScene =
 		"#version 400" \
 		"\n" \
+		"struct Material" \
+		"{" \
+		"sampler2D diffuseMap;" \
+		"sampler2D normalMap;" \
+
+		/*"sampler2D specular;" \*/
+
+		"float shininess;" \
+		"};" \
+
 		"struct PointLight" \
 		"{" \
 		"vec3 u_La;" \
@@ -913,33 +964,37 @@ void initPointLightShader_FirstScene()
 		"float u_linear;" \
 		"float u_quadratic;" \
 		"vec3 position;" \
-		"float diffuseIntensity;" \
+		/*"float diffuseIntensity;" \*/
 		"};" \
 
+		"uniform samplerCube depthMap; " \
+		"uniform float far_plane;" \
+		"uniform bool shadows;" \
+
 		"uniform int gNumPointLights;" \
-		"uniform PointLight pointLight[20];" \
+		"uniform Material material;" \
+		"uniform PointLight pointLight[1];" \
 		"uniform vec3 viewPos;" \
 
-		"in vec3 transformed_normals;" \
-		"in vec3 light_direction;" \
-		"in vec3 viewer_vector;" \
+		"uniform int isBumpTexturePresent;" \
+
+		"uniform int u_is_texture;" \
+
 		"in vec3 fragment_position;" \
+		"in vec3 fragEyeSpace_position;" \
 		"in vec2 out_texcord;" \
+		//Bump
+		"in vec3 eyeDir;" \
+		"in vec3 lightDir;" \
+		//normal
+		"in vec3 Normal;" \
 
 		"layout (location = 0) out vec4 FragColor;" \
 		"layout (location = 1) out vec4 BloomColor;" \
 		"layout (location = 2) out vec4 GodRaysColor;" \
 
-		"uniform vec3 u_La;" \
-		"uniform vec3 u_Ld;" \
-		"uniform vec3 u_Ls;" \
-		"uniform vec3 u_Ka;" \
-		"uniform vec3 u_Kd;" \
-		"uniform vec3 u_Ks;" \
-		"uniform float u_material_shininess;" \
 		"uniform int u_LKeyPressed;" \
-		"uniform sampler2D u_texture0_sampler;"\
-		"uniform int u_is_texture;" \
+		
 		"uniform float u_alpha;" \
 
 		"uniform int applyBloom;" \
@@ -950,40 +1005,123 @@ void initPointLightShader_FirstScene()
 		"uniform float fadeinFactor;" \
 		"uniform float fadeoutFactor;" \
 
+		"vec3 gridSamplingDisk[20] = vec3[]" \
+		"(" \
+		"vec3(1, 1, 1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1, 1,  1), " \
+		"vec3(1, 1, -1), vec3(1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1), " \
+		"vec3(1, 1, 0), vec3(1, -1, 0), vec3(-1, -1, 0), vec3(-1, 1, 0), " \
+		"vec3(1, 0, 1), vec3(-1, 0, 1), vec3(1, 0, -1), vec3(-1, 0, -1), " \
+		"vec3(0, 1, 1), vec3(0, -1, 1), vec3(0, -1, -1), vec3(0, 1, -1) " \
+		");" \
+
+		"float ShadowCalculation(vec3 fragPos)" \
+		"{" \
+		"vec3 fragToLight = fragPos - pointLight[0].position;" \
+		"float currentDepth = length(fragToLight);" \
+		"float shadow = 0.0;" \
+		"float bias = 0.05;" \
+		"int samples = 20;" \
+
+		/*"float viewDistance = length(viewPos - fragPos);" \
+		"float diskRadius = (1.0 + (viewDistance / far_plane)) / 200.0;" \
+
+		"for(int i = 0; i < samples; ++i)" \
+		"{" \
+		"float closestDepth = texture(depthMap, fragToLight  + gridSamplingDisk[i] * diskRadius).r;" \
+		"closestDepth *= far_plane;" \
+		"if(currentDepth - bias > closestDepth)" \
+		"shadow += 1.0;" \
+		"}" \
+		"shadow /= float(samples);" \*/
+
+
+		"float closestDepth = texture(depthMap, fragToLight).r;" \
+		"closestDepth *= far_plane;" \
+
+		"shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;" \
+		"return shadow;" \
+		"}" \
+
 		"vec3 calculatePointLight(int index)" \
 		"{" \
 		"vec3 pointLightColor;" \
 
-		"vec3 normalized_transformed_normals=normalize(transformed_normals);" \
-
-		"vec3 normalized_light_direction;" \
-		"vec3 normalized_viewer_vector;" \
-
-		"if(index > 8)" \
+		//ambient
+		"vec3 ambient = pointLight[index].u_La * texture(material.diffuseMap, out_texcord).rgb;" \
+		"vec3 diffuse = vec3(0.0);" \
+		"vec3 specular = vec3(0.0);" \
+		"if(isBumpTexturePresent == 1)" \
 		"{" \
-		"normalized_light_direction = normalize(pointLight[index].position - fragment_position); " \
-		"normalized_viewer_vector=normalize(viewPos - fragment_position);" \
-		"}" \
-		"else if(index <= 8)" \
+		"vec3 V = normalize(eyeDir);" \
+		"vec3 L = normalize(lightDir);" \
+		
+		//normalMap
+		"vec3 normMapVal = texture(material.normalMap, out_texcord).rgb;" \
+		"normMapVal = normalize(normMapVal * 2.0 - vec3(1.0));" \
+
+		//diffuse
+		/*"vec3 lightDir = normalize(TangentLightPos - TangentFragPos);" \*/
+	
+		"vec3 R = reflect(-L, normMapVal);" \
+	
+		"float diff = max(dot(L, normMapVal), 0.0);" \
+		
+		"if(u_is_texture == 1)" \
 		"{" \
-		"normalized_light_direction = normalize(pointLight[index].position + fragment_position); " \
-		"normalized_viewer_vector=normalize(viewPos + fragment_position);" \
+			"diffuse = pointLight[index].u_Ld * diff * texture(material.diffuseMap, out_texcord).rgb;" \
+		"}" \
+		"else" \
+		"{" \
+			"diffuse = pointLight[index].u_Ld * diff;" \
 		"}" \
 
+		//specular
+		/*"vec3 viewDir = normalize(TangentViewPos - TangentFragPos);" \*/
+		
+		/*"vec3 halfwayDir = normalize(lightDir + viewDir);" \*/
+		"float spec = max(pow(dot(R, V), 5.0), 0.0f);" \
+		"specular = pointLight[index].u_Ls * spec;" \
 
-		"vec3 ambient = pointLight[index].u_La * u_Ka;" \
-		"float tn_dot_ld = max(dot(normalized_transformed_normals, normalized_light_direction), 0.0);" \
-		"vec3 diffuse = pointLight[index].u_Ld * u_Kd * tn_dot_ld;" \
-		"vec3 reflection_vector = reflect(-normalized_light_direction, normalized_transformed_normals);" \
-		"vec3 specular = pointLight[index].u_Ls * pow(max(dot(reflection_vector, normalized_viewer_vector), 0.0), u_material_shininess);" \
+		
+		"}" \
+		"else{" \
+			"vec3 normal = normalize(Normal);" \
+			"vec3 lightDir = normalize(pointLight[index].position - fragment_position);" \
+			"float diff = max(dot(lightDir , normal), 0.0);" \
+			"if(u_is_texture == 1)" \
+			"{" \
+			"diffuse = pointLight[index].u_Ld * diff * texture(material.diffuseMap, out_texcord).rgb;" \
+			"}" \
+			"else" \
+			"{" \
+			"diffuse = pointLight[index].u_Ld * diff;" \
+			"}" \
 
+			//specular
+			"vec3 viewDir = normalize(viewPos - fragment_position);" \
+			"vec3 reflectDir = reflect(-lightDir, normal);" \
+			"float spec = 0.0;" \
+			"vec3 halfwayDir = normalize(lightDir + viewDir);" \
+			/*"spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);" \*/
+			"spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);" \
+
+			"specular = vec3(0.0, 0.0, 0.0);" \
+		"}" \
+
+		//attenuation
 		"float distance = length(pointLight[index].position - fragment_position);" \
-		"float attenuation = 1.0 / (pointLight[index].u_constant + pointLight[index].u_linear * distance + "\
+		"float attenuation = 1.0 / (pointLight[index].u_constant + pointLight[index].u_linear * distance + " \
 		"pointLight[index].u_quadratic * (distance * distance));" \
 
-		"diffuse = diffuse * attenuation;" \
-		"specular = specular * attenuation;" \
-		"pointLightColor = ambient + diffuse + specular;" \
+		"ambient *= attenuation;" \
+		"diffuse *= attenuation;" \
+		"specular *= attenuation;" \
+
+		// calculate shadow
+		"float shadow = shadows ? ShadowCalculation(fragment_position) : 0.0;" \
+
+		"pointLightColor = ambient + (1 - shadow) * (diffuse + specular);" \
+
 		"return pointLightColor;" \
 
 		"}" \
@@ -991,19 +1129,10 @@ void initPointLightShader_FirstScene()
 		"void main(void)" \
 		"{" \
 		"vec3 phong_ads_color;" \
-		"vec4 Final_Texture;" \
+	
 		"if(u_LKeyPressed==1)" \
 		"{" \
-		"vec3 normalized_transformed_normals=normalize(transformed_normals);" \
-		"vec3 normalized_light_direction=normalize(light_direction);" \
-		"vec3 normalized_viewer_vector=normalize(viewer_vector);" \
-		"vec3 ambient = u_La * u_Ka;" \
-		"float tn_dot_ld = max(dot(normalized_transformed_normals, normalized_light_direction),0.0);" \
-		"vec3 diffuse = u_Ld * u_Kd * tn_dot_ld;" \
-		"vec3 reflection_vector = reflect(-normalized_light_direction, normalized_transformed_normals);" \
-		"vec3 specular = u_Ls * u_Ks * pow(max(dot(reflection_vector, normalized_viewer_vector), 0.0), u_material_shininess);" \
-		"phong_ads_color=ambient + diffuse + specular;" \
-
+	
 		"vec3 pointLightColor = vec3(0.0, 0.0, 0.0);" \
 		"for(int i = 0; i < gNumPointLights; i++)" \
 		"{" \
@@ -1017,15 +1146,9 @@ void initPointLightShader_FirstScene()
 		"{" \
 		"phong_ads_color = vec3(1.0, 1.0, 1.0);" \
 		"}" \
-		"if(u_is_texture == 1)" \
-		"{" \
-		"Final_Texture = texture(u_texture0_sampler, out_texcord); " \
-		"FragColor = vec4(phong_ads_color, u_alpha) * Final_Texture * fadeinFactor * fadeoutFactor;" \
-		"}" \
-		"else" \
-		"{" \
+
 		"FragColor = vec4(phong_ads_color, u_alpha) * fadeinFactor * fadeoutFactor;" \
-		"}" \
+
 
 		"if(applyBloom == 1)" \
 		"{" \
@@ -1067,6 +1190,8 @@ void initPointLightShader_FirstScene()
 	glBindAttribLocation(gShaderProgramObject_pointLight_FirstScene, MATRIX_ATTRIBUTE_POSITION, "vPosition");
 	glBindAttribLocation(gShaderProgramObject_pointLight_FirstScene, MATRIX_ATTRIBUTE_NORMAL, "vNormal");
 	glBindAttribLocation(gShaderProgramObject_pointLight_FirstScene, MATRIX_ATTRIBUTE_TEXTURE0, "vTexcoord");
+	glBindAttribLocation(gShaderProgramObject_pointLight_FirstScene, MATRIX_ATTRIBUTE_TANGENT, "vTangent");
+	glBindAttribLocation(gShaderProgramObject_pointLight_FirstScene, MATRIX_ATTRIBUTE_BITANGENT, "vBitangent");
 
 	glLinkProgram(gShaderProgramObject_pointLight_FirstScene);
 
@@ -1084,20 +1209,13 @@ void initPointLightShader_FirstScene()
 	gLaUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "u_La");
 	gLsUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "u_Ls");
 
-	gKdUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "u_Kd");
-	gKsUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "u_Ks");
-	gKaUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "u_Ka");
-
-	gLightPositionUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "u_light_position");
-	gMaterialShininessUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "u_material_shininess");
-
-	gTextureSamplerUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "u_texture0_sampler");
-
-	gTextureActiveUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "u_is_texture");
+	
 	gAlphaUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "u_alpha");
 
 	gViewPosUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "viewPos");
 	gNumPointLightsUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "gNumPointLights");
+
+	gTextureActiveUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "u_is_texture");
 
 	char Name[128];
 	for (int i = 0; i < gNumPointLights_pointLight_FirstScene; i++)
@@ -1125,9 +1243,23 @@ void initPointLightShader_FirstScene()
 		snprintf(Name, sizeof(Name), "pointLight[%d].position", i);
 		m_pointLightsLocation_FirstScene[i].position = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, Name);
 
-		snprintf(Name, sizeof(Name), "pointLight[%d].diffuseIntensity", i);
-		m_pointLightsLocation_FirstScene[i].DiffuseIntensity = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, Name);
 	}
+
+	memset(Name, 0, sizeof(Name));
+	snprintf(Name, sizeof(Name), "material.diffuse");
+	m_material_FirstScene.diffuseSampler = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, Name);
+	
+	memset(Name, 0, sizeof(Name));
+	snprintf(Name, sizeof(Name), "material.normalMap");
+	m_material_FirstScene.normalSampler = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, Name);
+
+	memset(Name, 0, sizeof(Name));
+	snprintf(Name, sizeof(Name), "material.specular");
+	m_material_FirstScene.specularSampler = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, Name);
+	
+	memset(Name, 0, sizeof(Name));
+	snprintf(Name, sizeof(Name), "material.shininess");
+	m_material_FirstScene.shininess = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, Name);
 
 	applyBloomUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "applyBloom");
 	u_bloom_is_activeUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "u_bloom_is_active");
@@ -1136,4 +1268,179 @@ void initPointLightShader_FirstScene()
 
 	fadeinFactorUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "fadeinFactor");
 	fadeoutFactorUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "fadeoutFactor");
+
+	depthMapSamplerUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "depthMap");
+	farPlaneUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "far_plane");
+	shadowsUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "shadows");
+
+	isBumpTexturePresentUniform_pointLight_FirstScene = glGetUniformLocation(gShaderProgramObject_pointLight_FirstScene, "isBumpTexturePresent");
+}
+
+
+GLuint gVertexShaderObject_ShadowDepthMap_FirstScene, gGeometryShaderObject_ShadowDepthMap_FirstScene, gFragmentShaderObject_ShadowDepthMap_FirstScene;
+GLuint gShaderProgramObject_ShadowDepthMap_FirstScene;
+GLuint gModelMatrixUniform_ShadowDepthMap_FirstScene, gLightPosUniform_ShadowDepthMap_FirstScene, gFarPlaneUniform_ShadowDepthMap_FirstScene;
+GLuint gShadowMatricesUniform_ShadowDepthMap_FirstScene[6];
+std::vector<mat4> shadowTransforms;
+
+void initShadowDepthShader_FirstScene()
+{
+	//VERTEX SHADER
+	gVertexShaderObject_ShadowDepthMap_FirstScene = glCreateShader(GL_VERTEX_SHADER);
+
+	const GLchar* vertexShaderSourceCode_ShadowDepthMap_FirstScene =
+		"#version 400" \
+		"\n" \
+
+		"in vec3 vPosition;" \
+		
+		"uniform mat4 u_model_matrix;" \
+		
+		"void main(void)" \
+		"{" \
+		"gl_Position = u_model_matrix * vec4(vPosition, 1.0);" \
+		"}";
+
+	glShaderSource(gVertexShaderObject_ShadowDepthMap_FirstScene, 1, (const GLchar**)&vertexShaderSourceCode_ShadowDepthMap_FirstScene, NULL);
+
+	//compile shader
+	glCompileShader(gVertexShaderObject_ShadowDepthMap_FirstScene);
+
+	// Error checking
+	checkCompilationLog((char*)"gVertexShaderObject_ShadowDepthMap_FirstScene", gVertexShaderObject_ShadowDepthMap_FirstScene);
+
+
+	//GEOMETRY SHADER
+	gGeometryShaderObject_ShadowDepthMap_FirstScene = glCreateShader(GL_GEOMETRY_SHADER);
+
+	const GLchar* geometryShaderSourceCode_ShadowDepthMap_FirstScene =
+		"#version 400" \
+		"\n" \
+
+		"layout (triangles) in;" \
+		"layout (triangle_strip, max_vertices = 18) out;" \
+
+		"uniform mat4 shadowMatrices[6];" \
+
+		"out vec4 FragPos;" \
+
+		"void main(void)" \
+		"{" \
+		"for(int face = 0; face < 6; ++face)" \
+		"{" \
+			// built-in variable that specifies to which face we render.
+			"gl_Layer = face;" \
+			"for(int i = 0; i < 3; ++i)" \
+			"{" \
+				"FragPos = gl_in[i].gl_Position;" \
+				"gl_Position = shadowMatrices[face] * FragPos;" \
+				"EmitVertex();" \
+			"}" \
+			"EndPrimitive();" \
+		"}" \
+
+		"}";
+
+	glShaderSource(gGeometryShaderObject_ShadowDepthMap_FirstScene, 1, (const GLchar**)&geometryShaderSourceCode_ShadowDepthMap_FirstScene, NULL);
+
+	//compile shader
+	glCompileShader(gGeometryShaderObject_ShadowDepthMap_FirstScene);
+
+	// Error checking
+	checkCompilationLog((char*)"gGeometryShaderObject_ShadowDepthMap_FirstScene", gGeometryShaderObject_ShadowDepthMap_FirstScene);
+
+	//FRAGMENT SHADER
+
+	gFragmentShaderObject_ShadowDepthMap_FirstScene = glCreateShader(GL_FRAGMENT_SHADER);
+
+	const GLchar* fragmentShaderSourceCode_ShadowDepthMap_FirstScene =
+		"#version 400" \
+		"\n" \
+		"in vec4 FragPos;" \
+
+		"uniform vec3 lightPos;" \
+		"uniform float far_plane;" \
+
+		"void main(void)" \
+		"{" \
+		"float lightDistance = length(FragPos.xyz - lightPos);" \
+
+		//map to [0;1] range by dividing by far_plane
+		"lightDistance = lightDistance / far_plane;" \
+
+		//write this as modified depth
+		"gl_FragDepth  = lightDistance;" \
+		"}";
+
+	glShaderSource(gFragmentShaderObject_ShadowDepthMap_FirstScene, 1, (const GLchar**)&fragmentShaderSourceCode_ShadowDepthMap_FirstScene, NULL);
+
+	glCompileShader(gFragmentShaderObject_ShadowDepthMap_FirstScene);
+
+	// Error checking
+	checkCompilationLog((char*)"gFragmentShaderObject_ShadowDepthMap_FirstScene", gFragmentShaderObject_ShadowDepthMap_FirstScene);
+
+
+	//Shader Program
+
+	gShaderProgramObject_ShadowDepthMap_FirstScene = glCreateProgram();
+
+	glAttachShader(gShaderProgramObject_ShadowDepthMap_FirstScene, gVertexShaderObject_pointLight_FirstScene);
+	glAttachShader(gShaderProgramObject_ShadowDepthMap_FirstScene, gGeometryShaderObject_ShadowDepthMap_FirstScene);
+	glAttachShader(gShaderProgramObject_ShadowDepthMap_FirstScene, gFragmentShaderObject_pointLight_FirstScene);
+
+	glBindAttribLocation(gShaderProgramObject_ShadowDepthMap_FirstScene, MATRIX_ATTRIBUTE_POSITION, "vPosition");
+	//glBindAttribLocation(gShaderProgramObject_pointLight_FirstScene, MATRIX_ATTRIBUTE_NORMAL, "vNormal");
+	//glBindAttribLocation(gShaderProgramObject_pointLight_FirstScene, MATRIX_ATTRIBUTE_TEXTURE0, "vTexcoord");
+
+	glLinkProgram(gShaderProgramObject_ShadowDepthMap_FirstScene);
+
+	// Error checking
+	checkLinkLog((char*)"gShaderProgramObject_ShadowDepthMap_FirstScene", gShaderProgramObject_ShadowDepthMap_FirstScene);
+
+
+	gModelMatrixUniform_ShadowDepthMap_FirstScene = glGetUniformLocation(gShaderProgramObject_ShadowDepthMap_FirstScene, "u_model_matrix");
+	gLightPosUniform_ShadowDepthMap_FirstScene = glGetUniformLocation(gShaderProgramObject_ShadowDepthMap_FirstScene, "lightPos");
+	gFarPlaneUniform_ShadowDepthMap_FirstScene = glGetUniformLocation(gShaderProgramObject_ShadowDepthMap_FirstScene, "far_plane");
+
+	char Name[128];
+	for (int i = 0; i < 6; i++)
+	{
+		memset(Name, 0, sizeof(Name));
+
+		snprintf(Name, sizeof(Name), "shadowMatrices[%d]", i);
+		gShadowMatricesUniform_ShadowDepthMap_FirstScene[i] = glGetUniformLocation(gShaderProgramObject_ShadowDepthMap_FirstScene, Name);
+	}
+
+
+	
+
+	mat4 shadowProj = perspective(90.0f, (GLfloat)(MAX_SCENE_WIDTH / 2) / (GLfloat)(MAX_SCENE_HEIGHT / 2), near_plane, far_plane);
+	
+	lightPos = positionLamp_FirstScene[0];
+	shadowTransforms.push_back(shadowProj* lookat(lightPos, lightPos + vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f)));
+	shadowTransforms.push_back(shadowProj* lookat(lightPos, lightPos + vec3(-1.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f)));
+	shadowTransforms.push_back(shadowProj* lookat(lightPos, lightPos + vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f)));
+	shadowTransforms.push_back(shadowProj* lookat(lightPos, lightPos + vec3(0.0f, -1.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f)));
+	shadowTransforms.push_back(shadowProj* lookat(lightPos, lightPos + vec3(0.0f, 0.0f, 1.0f), vec3(0.0f, -1.0f, 0.0f)));
+	shadowTransforms.push_back(shadowProj* lookat(lightPos, lightPos + vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, -1.0f, 0.0f)));
+	
+	
+
+}
+
+
+void renderShadowDepthShader_FirstScene()
+{
+	glViewport(0, 0, MAX_SCENE_WIDTH / 2, MAX_SCENE_HEIGHT / 2);
+	glBindFramebuffer(GL_FRAMEBUFFER, shaodowMap_fbo);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glUseProgram(gShaderProgramObject_ShadowDepthMap_FirstScene);
+	for (unsigned int i = 0; i < 6; i++)
+		glUniformMatrix4fv(gShadowMatricesUniform_ShadowDepthMap_FirstScene[i], 1, GL_FALSE, shadowTransforms[i]);
+
+	glUniform1f(gFarPlaneUniform_ShadowDepthMap_FirstScene, far_plane);
+	glUniform3fv(gLightPosUniform_ShadowDepthMap_FirstScene, 1, lightPos);
+
+	renderModels_FirstScene(gModelMatrixUniform_ShadowDepthMap_FirstScene);
+
 }

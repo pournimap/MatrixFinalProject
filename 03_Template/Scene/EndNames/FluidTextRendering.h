@@ -36,7 +36,7 @@ GLuint gVertexShaderObject_FBO_fluidText;
 GLuint gFragmentShaderObject_FBO_fluidText;
 GLuint gShaderProgramObject_FBO_fluidText;
 GLuint mvpUniform_FBO_fluidText;
-GLuint samplerUniform_fluidText;
+GLuint samplerUniform_fluidText, iTimeUniform_fluidText;
 GLuint fadeinFactorUniform_FBO_fluidText, fadeoutFactorUniform_FBO_fluidText;
 
 GLuint fbo_fluidText;
@@ -86,6 +86,7 @@ bool gbIsAnimationStart_fluidText = true;
 GLfloat ZTransitionForName_fluidText = -35.0f;
 int NameCount_fluidText = 1;
 
+float time_fluid_Text = 0.0f;
 #pragma region FLUID_FUNCTION
 void free_data(void)
 {
@@ -251,6 +252,10 @@ void Update_FluidText(void)
 		NameCount_fluidText = NameCount_fluidText + 1;
 		clear_data();
 	}
+
+	time_fluid_Text += 0.05f;
+	if (time_fluid_Text >= 360.0f)
+		time_fluid_Text = 0.0f;
 }
 
 void uninitialize(void)
@@ -303,6 +308,8 @@ void initFluidText(void)
 	const GLchar* fragmentShaderSourceCode_fluidText =
 		"#version 450" \
 		"\n" \
+		"uniform float iTime;" \
+
 		"in vec2 TexCoords;" \
 		"out vec4 FragColor;" \
 
@@ -324,9 +331,16 @@ void initFluidText(void)
 			"float dist		= color.r;" \
 			"float width	= fwidth(dist);" \
 			"float alpha	= smoothstep(glyph_center - width, glyph_center+width, dist);" \
+
+			"vec2 uv = TexCoords.xy;" \
+			"uv.y = uv.y + 0.1 * sin(iTime + 5.0 * uv.x);" \
+			
+			"vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, uv).r);" \
+			/*"FragColor = vec4(1.0, 1.0,1.0, 1.0) * sampled;" \*/
 			"vec3 rgb		= mix(glow_color, glyph_color, alpha);" \
 			"float mu		= smoothstep(glyph_center, glow_center, sqrt(dist));" \
-			"FragColor		= vec4(rgb, max(alpha, mu));" \
+			"FragColor		= vec4(rgb, max(alpha, mu)) * sampled;" \
+			
 			"FragColor		= FragColor * fluid_tex * fadeinFactor * fadeoutFactor;" \
 		"}";
 
@@ -354,7 +368,7 @@ void initFluidText(void)
 
 	fadeinFactorUniform_fluidText = glGetUniformLocation(gShaderProgramObject_fluidText, "fadeinFactor");
 	fadeoutFactorUniform_fluidText = glGetUniformLocation(gShaderProgramObject_fluidText, "fadeoutFactor");
-	
+	iTimeUniform_fluidText = glGetUniformLocation(gShaderProgramObject_fluidText, "iTime");
 
 
 // fbo_fluidText .....................................
@@ -419,7 +433,7 @@ void initFluidText(void)
 	mvpUniform_FBO_fluidText = glGetUniformLocation(gShaderProgramObject_FBO_fluidText, "u_mvp_matrix");
 	fadeinFactorUniform_FBO_fluidText = glGetUniformLocation(gShaderProgramObject_FBO_fluidText, "fadeinFactor");
 	fadeoutFactorUniform_FBO_fluidText = glGetUniformLocation(gShaderProgramObject_FBO_fluidText, "fadeoutFactor");
-
+	
 // --------------------------------------------------------------------------------------------------------------------------------
 
 	
@@ -605,6 +619,7 @@ void display_FluidText(void)
 
 	glUniformMatrix4fv(mvpUniform_FBO_fluidText, 1, GL_FALSE, modelViewProjectionMatrixOrtho_fluidText);
 
+	
 	draw_density();
 	get_from_UI(dens_prev_fluidText, u_prev_fluidText, v_prev_fluidText);
 	vel_step(N_fluidText, u_fluidText, v_fluidText, u_prev_fluidText, v_prev_fluidText, visc_fluidText, dt_fluidText);
@@ -626,6 +641,8 @@ void display_FluidText(void)
 
 	glUniform1f(fadeoutFactorUniform_fluidText, 1.0f);
 	glUniform1f(fadeinFactorUniform_fluidText, 1.0f);
+
+	glUniform1f(iTimeUniform_fluidText, time_fluid_Text);
 
 	mat4 modelMatrix_fluidText		= mat4::identity();
 	mat4 viewMatrix_fluidText		= mat4::identity();
@@ -728,6 +745,7 @@ void display_FluidText(void)
 
 	Update_FluidText();
 }
+
 
 
 

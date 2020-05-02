@@ -6,7 +6,7 @@
 
 
 
-GLuint gVbo_Model_Position, gVbo_Model_Normal, gVbo_Model_Texture;
+GLuint gVbo_Model_Position, gVbo_Model_Normal, gVbo_Model_Texture, gVbo_Model_Tangents, gVbo_Model_BiTangents;
 
 struct Model_Obj
 {
@@ -14,6 +14,10 @@ struct Model_Obj
 	std::vector<float> model_vertices;
 	std::vector<float> model_textures;
 	std::vector<float> model_normals;
+	
+	std::vector<float> model_tangents;
+	std::vector<float> model_bitangents;
+
 	std::vector<material> model_material;
 	std::vector<Mesh_Data> model_mesh_data;
 	char model_materialFileName[256];
@@ -39,7 +43,8 @@ void LoadAllModels()
 	/*****************Load Mahal Model*****************/
 	std::string mahalModelFilePath = "Resources/MahalOBJVersion1WithTextures/Mahal_Version_5.3.obj";
 
-	LoadMeshData(mahalModelFilePath.c_str(), gModel_Mahal.model_vertices, gModel_Mahal.model_textures, gModel_Mahal.model_normals, gModel_Mahal.model_mesh_data, gModel_Mahal.model_materialFileName);
+	LoadMeshData(mahalModelFilePath.c_str(), gModel_Mahal.model_vertices, gModel_Mahal.model_textures, gModel_Mahal.model_normals, 
+		gModel_Mahal.model_tangents, gModel_Mahal.model_bitangents, gModel_Mahal.model_mesh_data, gModel_Mahal.model_materialFileName);
 
 	LoadMaterialData(gModel_Mahal.model_materialFileName, gModel_Mahal.model_material);
 
@@ -83,7 +88,8 @@ void LoadAllModels()
 	std::string krishnaModelFilePath = "Resources/SeatPositionOtherKing/Shishupal.obj";
 	//std::string krishnaModelFilePath = "11MarchKrishnaModel/krishna.obj";
 
-	LoadMeshData(krishnaModelFilePath.c_str(), gModel_Krishna.model_vertices, gModel_Krishna.model_textures, gModel_Krishna.model_normals, gModel_Krishna.model_mesh_data, gModel_Krishna.model_materialFileName);
+	LoadMeshData(krishnaModelFilePath.c_str(), gModel_Krishna.model_vertices, gModel_Krishna.model_textures, gModel_Krishna.model_normals, 
+		gModel_Krishna.model_tangents, gModel_Krishna.model_bitangents, gModel_Krishna.model_mesh_data, gModel_Krishna.model_materialFileName);
 
 	LoadMaterialData(gModel_Krishna.model_materialFileName, gModel_Krishna.model_material);
 
@@ -124,7 +130,8 @@ void LoadAllModels()
 	std::string krishnaSeatedModelFilePath = "Resources/SeatPositionOtherKing/SeatPosWithOrna.obj";
 	//std::string krishnaModelFilePath = "11MarchKrishnaModel/krishna.obj";
 
-	LoadMeshData(krishnaSeatedModelFilePath.c_str(), gModel_Krishna_Seated.model_vertices, gModel_Krishna_Seated.model_textures, gModel_Krishna_Seated.model_normals, gModel_Krishna_Seated.model_mesh_data, gModel_Krishna_Seated.model_materialFileName);
+	LoadMeshData(krishnaSeatedModelFilePath.c_str(), gModel_Krishna_Seated.model_vertices, gModel_Krishna_Seated.model_textures, gModel_Krishna_Seated.model_normals,
+		gModel_Krishna_Seated.model_tangents, gModel_Krishna_Seated.model_bitangents, gModel_Krishna_Seated.model_mesh_data, gModel_Krishna_Seated.model_materialFileName);
 
 	LoadMaterialData(gModel_Krishna_Seated.model_materialFileName, gModel_Krishna_Seated.model_material);
 
@@ -193,7 +200,8 @@ void LoadAllModels()
 	/*****************Load Krishna chair Model*****************/
 	std::string krishnaChairModelFilePath = "Resources/MahalOBJVersion1WithTextures/KrishnaThroneModelWithTexture_V3.obj";
 
-	LoadMeshData(krishnaChairModelFilePath.c_str(), gModel_KrishnaChair.model_vertices, gModel_KrishnaChair.model_textures, gModel_KrishnaChair.model_normals, gModel_KrishnaChair.model_mesh_data, gModel_KrishnaChair.model_materialFileName);
+	LoadMeshData(krishnaChairModelFilePath.c_str(), gModel_KrishnaChair.model_vertices, gModel_KrishnaChair.model_textures, gModel_KrishnaChair.model_normals, 
+		gModel_KrishnaChair.model_tangents, gModel_KrishnaChair.model_bitangents, gModel_KrishnaChair.model_mesh_data, gModel_KrishnaChair.model_materialFileName);
 
 	LoadMaterialData(gModel_KrishnaChair.model_materialFileName, gModel_KrishnaChair.model_material);
 
@@ -235,7 +243,8 @@ void LoadAllModels()
 	/*****************Load other chairs Model*****************/
 	std::string OtherChairModelFilePath = "Resources/MahalOBJVersion1WithTextures/ThroneModelWithTexture_CenterCircleEdited_V2.obj";
 
-	LoadMeshData(OtherChairModelFilePath.c_str(), gModel_OtherChair.model_vertices, gModel_OtherChair.model_textures, gModel_OtherChair.model_normals, gModel_OtherChair.model_mesh_data, gModel_OtherChair.model_materialFileName);
+	LoadMeshData(OtherChairModelFilePath.c_str(), gModel_OtherChair.model_vertices, gModel_OtherChair.model_textures, gModel_OtherChair.model_normals, 
+		gModel_OtherChair.model_tangents, gModel_OtherChair.model_bitangents,  gModel_OtherChair.model_mesh_data, gModel_OtherChair.model_materialFileName);
 
 	LoadMaterialData(gModel_OtherChair.model_materialFileName, gModel_OtherChair.model_material);
 
@@ -277,7 +286,8 @@ void LoadAllModels()
 	/*****************Mashal Model*****************/
 	std::string MashalModelFilePath = "Resources/Mashal/Mashal.obj";
 
-	LoadMeshData(MashalModelFilePath.c_str(), gModel_Mashal.model_vertices, gModel_Mashal.model_textures, gModel_Mashal.model_normals, gModel_Mashal.model_mesh_data, gModel_Mashal.model_materialFileName);
+	LoadMeshData(MashalModelFilePath.c_str(), gModel_Mashal.model_vertices, gModel_Mashal.model_textures, gModel_Mashal.model_normals, 
+		gModel_Mashal.model_tangents, gModel_Mashal.model_bitangents,  gModel_Mashal.model_mesh_data, gModel_Mashal.model_materialFileName);
 
 	LoadMaterialData(gModel_Mashal.model_materialFileName, gModel_Mashal.model_material);
 
@@ -318,7 +328,8 @@ void LoadAllModels()
 	/*****************Sudarshan Chakra Model*****************/
 	std::string SudarshanChakraModelFilePath = "Resources/SudarshanChakra/SudharshanChakra.obj";
 
-	LoadMeshData(SudarshanChakraModelFilePath.c_str(), gModel_SudarshanChakra.model_vertices, gModel_SudarshanChakra.model_textures, gModel_SudarshanChakra.model_normals, gModel_SudarshanChakra.model_mesh_data, gModel_SudarshanChakra.model_materialFileName);
+	LoadMeshData(SudarshanChakraModelFilePath.c_str(), gModel_SudarshanChakra.model_vertices, gModel_SudarshanChakra.model_textures, gModel_SudarshanChakra.model_normals, 
+		gModel_SudarshanChakra.model_tangents, gModel_SudarshanChakra.model_bitangents, gModel_SudarshanChakra.model_mesh_data, gModel_SudarshanChakra.model_materialFileName);
 
 	LoadMaterialData(gModel_SudarshanChakra.model_materialFileName, gModel_SudarshanChakra.model_material);
 
@@ -360,7 +371,8 @@ void LoadAllModels()
 	/*****************Candle Model*****************/
 	std::string CandleModelFilePath = "Resources/Candle/NormalPanati/panati.obj";
 
-	LoadMeshData(CandleModelFilePath.c_str(), gModel_Candle.model_vertices, gModel_Candle.model_textures, gModel_Candle.model_normals, gModel_Candle.model_mesh_data, gModel_Candle.model_materialFileName);
+	LoadMeshData(CandleModelFilePath.c_str(), gModel_Candle.model_vertices, gModel_Candle.model_textures, gModel_Candle.model_normals, 
+		gModel_Candle.model_tangents, gModel_Candle.model_bitangents, gModel_Candle.model_mesh_data, gModel_Candle.model_materialFileName);
 
 	LoadMaterialData(gModel_Candle.model_materialFileName, gModel_Candle.model_material);
 
@@ -386,6 +398,22 @@ void LoadAllModels()
 	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_NORMAL);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	/*****************Model Tangents****************/
+	glGenBuffers(1, &gVbo_Model_Tangents);
+	glBindBuffer(GL_ARRAY_BUFFER, gVbo_Model_Tangents);
+	glBufferData(GL_ARRAY_BUFFER, gModel_Candle.model_tangents.size() * sizeof(float), &gModel_Candle.model_tangents[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(MATRIX_ATTRIBUTE_TANGENT, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_TANGENT);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	/*****************Model BiTangents****************/
+	glGenBuffers(1, &gVbo_Model_BiTangents);
+	glBindBuffer(GL_ARRAY_BUFFER, gVbo_Model_BiTangents);
+	glBufferData(GL_ARRAY_BUFFER, gModel_Candle.model_bitangents.size() * sizeof(float), &gModel_Candle.model_bitangents[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(MATRIX_ATTRIBUTE_BITANGENT, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_BITANGENT);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 	/*******************Texture******************/
 	glGenBuffers(1, &gVbo_Model_Texture);
 	glBindBuffer(GL_ARRAY_BUFFER, gVbo_Model_Texture);
@@ -401,46 +429,46 @@ void uninitializeAllModelData()
 {
 	for (int i = 0; i < gModel_OtherChair.model_mesh_data.size(); i++)
 	{
-		if (gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].gTexture)
+		if (gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].gTexture_diffuse)
 		{
-			glDeleteTextures(1, &gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].gTexture);
-			gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].gTexture = 0;
+			glDeleteTextures(1, &gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].gTexture_diffuse);
+			gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].gTexture_diffuse = 0;
 		}
 	}
 	
 	for (int i = 0; i < gModel_KrishnaChair.model_mesh_data.size(); i++)
 	{
-		if (gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].gTexture)
+		if (gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].gTexture_diffuse)
 		{
-			glDeleteTextures(1, &gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].gTexture);
-			gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].gTexture = 0;
+			glDeleteTextures(1, &gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].gTexture_diffuse);
+			gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].gTexture_diffuse = 0;
 		}
 	}
 	
 	for (int i = 0; i < gModel_Krishna_Seated.model_mesh_data.size(); i++)
 	{
-		if (gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].gTexture)
+		if (gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].gTexture_diffuse)
 		{
-			glDeleteTextures(1, &gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].gTexture);
-			gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].gTexture = 0;
+			glDeleteTextures(1, &gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].gTexture_diffuse);
+			gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].gTexture_diffuse = 0;
 		}
 	}
 	
 	for (int i = 0; i < gModel_Krishna.model_mesh_data.size(); i++)
 	{
-		if (gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].gTexture)
+		if (gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].gTexture_diffuse)
 		{
-			glDeleteTextures(1, &gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].gTexture);
-			gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].gTexture = 0;
+			glDeleteTextures(1, &gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].gTexture_diffuse);
+			gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].gTexture_diffuse = 0;
 		}
 	}
 	
 	for (int i = 0; i < gModel_Mahal.model_mesh_data.size(); i++)
 	{
-		if (gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].gTexture)
+		if (gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].gTexture_diffuse)
 		{
-			glDeleteTextures(1, &gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].gTexture);
-			gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].gTexture = 0;
+			glDeleteTextures(1, &gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].gTexture_diffuse);
+			gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].gTexture_diffuse = 0;
 		}
 	}
 	
