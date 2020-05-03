@@ -214,8 +214,13 @@ void initPointLightShader()
 		"vec3 ambient = pointLight[index].u_La * u_Ka;" \
 		"float tn_dot_ld = max(dot(normalized_transformed_normals, normalized_light_direction), 0.0);" \
 		"vec3 diffuse = pointLight[index].u_Ld * u_Kd * tn_dot_ld;" \
-		"vec3 reflection_vector = reflect(-normalized_light_direction, normalized_transformed_normals);" \
-		"vec3 specular = pointLight[index].u_Ls * pow(max(dot(reflection_vector, normalized_viewer_vector), 0.0), u_material_shininess);" \
+
+		"vec3 specular = vec3(0.0, 0.0, 0.0);" \
+		"if(u_is_texture == 1)" \
+		"{" \
+			"vec3 reflection_vector = reflect(-normalized_light_direction, normalized_transformed_normals);" \
+			"specular = pointLight[index].u_Ls * pow(max(dot(reflection_vector, normalized_viewer_vector), 0.0), u_material_shininess);" \
+		"}" \
 		
 		"float distance = length(pointLight[index].position - fragment_position);" \
 		"float attenuation = 1.0 / (pointLight[index].u_constant + pointLight[index].u_linear * distance + "\
@@ -234,15 +239,6 @@ void initPointLightShader()
 			"vec4 Final_Texture;" \
 			"if(u_LKeyPressed==1)" \
 			"{" \
-				"vec3 normalized_transformed_normals=normalize(transformed_normals);" \
-				"vec3 normalized_light_direction=normalize(light_direction);" \
-				"vec3 normalized_viewer_vector=normalize(viewer_vector);" \
-				"vec3 ambient = u_La * u_Ka;" \
-				"float tn_dot_ld = max(dot(normalized_transformed_normals, normalized_light_direction),0.0);" \
-				"vec3 diffuse = u_Ld * u_Kd * tn_dot_ld;" \
-				"vec3 reflection_vector = reflect(-normalized_light_direction, normalized_transformed_normals);" \
-				"vec3 specular = u_Ls * u_Ks * pow(max(dot(reflection_vector, normalized_viewer_vector), 0.0), u_material_shininess);" \
-				"phong_ads_color=ambient + diffuse + specular;" \
 				
 				"vec3 pointLightColor = vec3(0.0, 0.0, 0.0);" \
 				"for(int i = 0; i < gNumPointLights; i++)" \
@@ -389,6 +385,433 @@ vec3 positionLamp[] = { vec3(-720.0f, 600.0f, 440.0f), vec3(-720.0f, 600.0f, 750
 						vec3(3105.0f, 400.0f, 750.0f) , vec3(3650.0f,400.0f, 750.0f) ,  
 						vec3(-750.0f, 600.0f, -510.0f), vec3(-750.0f, 600.0f, -810.0f), vec3(-250.0f, 400.0f, -810.0f), vec3(320.0f, 400.0f, -810.0f), vec3(850.0f, 400.0f, -810.0f),vec3(1420.0f, 400.0f, -810.0f) , vec3(2000.0f, 400.0f, -810.0f) , vec3(2570.0f, 400.0f, -810.0f) ,
 						vec3(3100.0f, 400.0f, -810.0f) , vec3(3700.0f, 400.0f, -810.0f) , };
+
+float TranslateMeasure[] = { 200.0f, 700.0f, 1200.0f, 1800.0f, 2300.0f, 2900.0f, 3500.0f };
+
+void renderAllModelsInMahal(GLuint& ModelMatrixUniform)
+{
+
+	mat4 modelMatrix = mat4::identity();
+	mat4 scaleMatrix = mat4::identity();
+	mat4 rotateMatrix = mat4::identity();
+
+	
+	//Object Drawing
+	
+	//1. Draw Mahal Model
+	modelMatrix = mat4::identity();
+	//modelMatrix = vmath::translate(0.0f, 0.0f, -6.0f);
+	modelMatrix = vmath::translate(0.0f, -2.0f, -6.0f);
+	scaleMatrix = scale(10.0f, 10.0f, 10.0f);
+	//modelMatrix = modelMatrix * scaleMatrix;
+
+	glUniformMatrix4fv(ModelMatrixUniform, 1, GL_FALSE, modelMatrix);
+	glBindVertexArray(gModel_Mahal.Vao);
+
+	for (int i = 0; i < gModel_Mahal.model_mesh_data.size(); i++)
+	{
+		if (gbLight == true)
+		{
+			glUniform3fv(gKaUniform_pointLight, 1, gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].Ka);
+			glUniform3fv(gKdUniform_pointLight, 1, gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].Kd);
+			glUniform3fv(gKsUniform_pointLight, 1, gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].Ks);
+			glUniform1f(gMaterialShininessUniform_pointLight, material_shininess);
+			glUniform1f(gAlphaUniform_pointLight, gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].d);
+
+			if (gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].ismap_Kd == true)
+			{
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].gTexture_diffuse);
+				glUniform1i(gTextureSamplerUniform_pointLight, 0);
+				glUniform1i(gTextureActiveUniform_pointLight, 1);
+				/*fprintf(gpFile, "pointLight Mahal ismapKd true \n");
+				fflush(gpFile);*/
+			}
+			else
+				glUniform1i(gTextureActiveUniform_pointLight, 0);
+		}
+		glDrawArrays(GL_TRIANGLES, gModel_Mahal.model_mesh_data[i].vertex_Index, gModel_Mahal.model_mesh_data[i].vertex_Count);
+	}
+	glBindVertexArray(0);
+
+	//2. mashal Model
+	glUniform1i(applyBloomUniform_pointLight, 0);
+	for (int i = 0; i < gNumPointLights_pointLight; i++)
+	{
+		modelMatrix = mat4::identity();
+		scaleMatrix = mat4::identity();
+		rotateMatrix = mat4::identity();
+
+		scaleMatrix = scale(2.0f, 2.0f, 2.0f);
+		if (i < 10)
+		{
+			modelMatrix = vmath::translate(positionLamp[i][0], positionLamp[i][1] - 65.0f, positionLamp[i][2] + 20.0f);
+			rotateMatrix = rotate(-20.0f, 1.0f, 0.0f, 0.0f);
+		}
+		else
+		{
+			modelMatrix = vmath::translate(positionLamp[i][0], positionLamp[i][1] - 65.0f, positionLamp[i][2] - 20.0f);
+			rotateMatrix = rotate(20.0f, 1.0f, 0.0f, 0.0f);
+		}
+		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
+
+		glUniformMatrix4fv(ModelMatrixUniform, 1, GL_FALSE, modelMatrix);
+		glBindVertexArray(gModel_Mashal.Vao);
+		for (int i = 0; i < gModel_Mashal.model_mesh_data.size(); i++)
+		{
+			if (gbLight == true)
+			{
+				glUniform3fv(gKaUniform_pointLight, 1, gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].Ka);
+				glUniform3fv(gKdUniform_pointLight, 1, gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].Kd);
+				glUniform3fv(gKsUniform_pointLight, 1, gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].Ks);
+				glUniform1f(gMaterialShininessUniform_pointLight, material_shininess);
+				glUniform1f(gAlphaUniform_pointLight, gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].d);
+				if (gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].ismap_Kd == true)
+				{
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].gTexture_diffuse);
+					glUniform1i(gTextureSamplerUniform_pointLight, 0);
+					glUniform1i(gTextureActiveUniform_pointLight, 1);
+
+				}
+				else
+					glUniform1i(gTextureActiveUniform_pointLight, 0);
+			}
+			glDrawArrays(GL_TRIANGLES, gModel_Mashal.model_mesh_data[i].vertex_Index, gModel_Mashal.model_mesh_data[i].vertex_Count);
+		}
+		glBindVertexArray(0);
+	}
+
+	glUniform1i(applyBloomUniform_pointLight, 1);
+	for (int i = 0; i < gNumPointLights_pointLight; i++)
+	{
+		modelMatrix = mat4::identity();
+		scaleMatrix = mat4::identity();
+		rotateMatrix = mat4::identity();
+
+		modelMatrix = vmath::translate(positionLamp[i]);
+		scaleMatrix = scale(5.0f, 5.0f, 5.0f);
+		//if(i < 8)
+		//rotateMatrix = rotate(180.0f, 0.0f, 0.0f, 1.0f);
+
+		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
+
+		glUniformMatrix4fv(ModelMatrixUniform, 1, GL_FALSE, modelMatrix);
+
+		drawCubeShape();
+	}
+
+	//3. Other raje
+	glUniform1i(applyBloomUniform_pointLight, 0);
+
+	if (isRajeInSabha == true)
+	{
+		//other raje
+		for (int i = 0; i < 14; i++)
+		{
+			modelMatrix = mat4::identity();
+			scaleMatrix = mat4::identity();
+			rotateMatrix = mat4::identity();
+			if (i < 7)
+			{
+				modelMatrix = vmath::translate(TranslateMeasure[i], -10.0f, 650.0f);
+				if (isFirstScene == false)
+				{
+					if (i == 4)
+						goto NEXT;
+				}
+			}
+			else {
+				modelMatrix = vmath::translate(TranslateMeasure[i - 7], -10.0f, -650.0f);
+			}
+			scaleMatrix = scale(170.0f, 170.0f, 170.0f);
+			if (i < 7)
+			{
+				rotateMatrix = rotate(180.0f, 0.0f, 1.0f, 0.0f);
+			}
+
+			modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
+
+			glUniformMatrix4fv(ModelMatrixUniform, 1, GL_FALSE, modelMatrix);
+
+			if (i % 2 == 0)
+			{
+				glBindVertexArray(gModel_Krishna_Seated.Vao);
+				for (int i = 0; i < gModel_Krishna_Seated.model_mesh_data.size(); i++)
+				{
+					if (gbLight == true)
+					{
+						glUniform3fv(gKaUniform_pointLight, 1, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].Ka);
+						glUniform3fv(gKdUniform_pointLight, 1, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].Kd);
+						glUniform3fv(gKsUniform_pointLight, 1, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].Ks);
+						glUniform1f(gMaterialShininessUniform_pointLight, material_shininess);
+						glUniform1f(gAlphaUniform_pointLight, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].d);
+						if (gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].ismap_Kd == true)
+						{
+							glActiveTexture(GL_TEXTURE0);
+							glBindTexture(GL_TEXTURE_2D, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].gTexture_diffuse);
+							glUniform1i(gTextureSamplerUniform_pointLight, 0);
+							glUniform1i(gTextureActiveUniform_pointLight, 1);
+
+						}
+						else
+							glUniform1i(gTextureActiveUniform_pointLight, 0);
+					}
+					glDrawArrays(GL_TRIANGLES, gModel_Krishna_Seated.model_mesh_data[i].vertex_Index, gModel_Krishna_Seated.model_mesh_data[i].vertex_Count);
+				}
+
+			}
+			else
+			{
+				glBindVertexArray(gModel_Krishna_Seated2.Vao);
+				for (int i = 0; i < gModel_Krishna_Seated2.model_mesh_data.size(); i++)
+				{
+					if (gbLight == true)
+					{
+						glUniform3fv(gKaUniform_pointLight, 1, gModel_Krishna_Seated2.model_material[gModel_Krishna_Seated2.model_mesh_data[i].material_index].Ka);
+						glUniform3fv(gKdUniform_pointLight, 1, gModel_Krishna_Seated2.model_material[gModel_Krishna_Seated2.model_mesh_data[i].material_index].Kd);
+						glUniform3fv(gKsUniform_pointLight, 1, gModel_Krishna_Seated2.model_material[gModel_Krishna_Seated2.model_mesh_data[i].material_index].Ks);
+						glUniform1f(gMaterialShininessUniform_pointLight, material_shininess);
+						glUniform1f(gAlphaUniform_pointLight, gModel_Krishna_Seated2.model_material[gModel_Krishna_Seated2.model_mesh_data[i].material_index].d);
+						if (gModel_Krishna_Seated2.model_material[gModel_Krishna_Seated2.model_mesh_data[i].material_index].ismap_Kd == true)
+						{
+							glActiveTexture(GL_TEXTURE0);
+							glBindTexture(GL_TEXTURE_2D, gModel_Krishna_Seated2.model_material[gModel_Krishna_Seated2.model_mesh_data[i].material_index].gTexture_diffuse);
+							glUniform1i(gTextureSamplerUniform_pointLight, 0);
+							glUniform1i(gTextureActiveUniform_pointLight, 1);
+
+						}
+						else
+							glUniform1i(gTextureActiveUniform_pointLight, 0);
+					}
+					glDrawArrays(GL_TRIANGLES, gModel_Krishna_Seated2.model_mesh_data[i].vertex_Index, gModel_Krishna_Seated2.model_mesh_data[i].vertex_Count);
+				}
+
+
+			}
+		NEXT:
+			glBindVertexArray(0);
+
+		}
+
+		//sadhu
+
+		modelMatrix = mat4::identity();
+		scaleMatrix = mat4::identity();
+		rotateMatrix = mat4::identity();
+
+		modelMatrix = vmath::translate(1455.0f, -45.0f, -30.0f);
+		scaleMatrix = scale(300.0f, 300.0f, 300.0f);
+		rotateMatrix = rotate(-90.0f, 0.0f, 1.0f, 0.0f);
+
+		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
+
+		glUniformMatrix4fv(ModelMatrixUniform, 1, GL_FALSE, modelMatrix);
+		glBindVertexArray(gModel_Krishna_Seated.Vao);
+		for (int i = 0; i < gModel_Krishna_Seated.model_mesh_data.size(); i++)
+		{
+			if (gbLight == true)
+			{
+				glUniform3fv(gKaUniform_pointLight, 1, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].Ka);
+				glUniform3fv(gKdUniform_pointLight, 1, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].Kd);
+				glUniform3fv(gKsUniform_pointLight, 1, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].Ks);
+				glUniform1f(gMaterialShininessUniform_pointLight, material_shininess);
+				glUniform1f(gAlphaUniform_pointLight, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].d);
+				if (gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].ismap_Kd == true)
+				{
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].gTexture_diffuse);
+					glUniform1i(gTextureSamplerUniform_pointLight, 0);
+					glUniform1i(gTextureActiveUniform_pointLight, 1);
+
+				}
+				else
+					glUniform1i(gTextureActiveUniform_pointLight, 0);
+			}
+			glDrawArrays(GL_TRIANGLES, gModel_Krishna_Seated.model_mesh_data[i].vertex_Index, gModel_Krishna_Seated.model_mesh_data[i].vertex_Count);
+		}
+		glBindVertexArray(0);
+	}
+
+	//other chair
+	glUniform1i(applyBloomUniform_pointLight, 0);
+	for (int i = 0; i < 14; i++)
+	{
+
+		modelMatrix = mat4::identity();
+		scaleMatrix = mat4::identity();
+		rotateMatrix = mat4::identity();
+		if (i < 7)
+		{
+			modelMatrix = vmath::translate(TranslateMeasure[i], 40.0f, 700.0f);
+		}
+		else {
+			modelMatrix = vmath::translate(TranslateMeasure[i - 7], 40.0f, -700.0f);
+		}
+		scaleMatrix = scale(30.0f, 30.0f, 30.0f);
+		if (i < 7)
+		{
+			rotateMatrix = rotate(180.0f, 0.0f, 1.0f, 0.0f);
+		}
+
+		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
+
+		glUniformMatrix4fv(ModelMatrixUniform, 1, GL_FALSE, modelMatrix);
+		glBindVertexArray(gModel_OtherChair.Vao);
+		for (int i = 0; i < gModel_OtherChair.model_mesh_data.size(); i++)
+		{
+			if (gbLight == true)
+			{
+				glUniform3fv(gKaUniform_pointLight, 1, gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].Ka);
+				glUniform3fv(gKdUniform_pointLight, 1, gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].Kd);
+				glUniform3fv(gKsUniform_pointLight, 1, gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].Ks);
+				glUniform1f(gMaterialShininessUniform_pointLight, material_shininess);
+				glUniform1f(gAlphaUniform_pointLight, gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].d);
+				if (gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].ismap_Kd == true)
+				{
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].gTexture_diffuse);
+					glUniform1i(gTextureSamplerUniform_pointLight, 0);
+					glUniform1i(gTextureActiveUniform_pointLight, 1);
+
+				}
+				else
+					glUniform1i(gTextureActiveUniform_pointLight, 0);
+			}
+			glDrawArrays(GL_TRIANGLES, gModel_OtherChair.model_mesh_data[i].vertex_Index, gModel_OtherChair.model_mesh_data[i].vertex_Count);
+		}
+
+		glBindVertexArray(0);
+
+
+	}
+
+
+	//krishna chair
+	modelMatrix = mat4::identity();
+	scaleMatrix = mat4::identity();
+	rotateMatrix = mat4::identity();
+	modelMatrix = vmath::translate(-380.0f, 135.0f, 1.0f);
+	scaleMatrix = scale(45.0f, 45.0f, 45.0f);
+	rotateMatrix = rotate(90.0f, 0.0f, 1.0f, 0.0f);
+
+	modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
+
+	glUniformMatrix4fv(ModelMatrixUniform, 1, GL_FALSE, modelMatrix);
+	glBindVertexArray(gModel_KrishnaChair.Vao);
+	for (int i = 0; i < gModel_KrishnaChair.model_mesh_data.size(); i++)
+	{
+		if (gbLight == true)
+		{
+			glUniform3fv(gKaUniform_pointLight, 1, gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].Ka);
+			glUniform3fv(gKdUniform_pointLight, 1, gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].Kd);
+			glUniform3fv(gKsUniform_pointLight, 1, gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].Ks);
+			glUniform1f(gMaterialShininessUniform_pointLight, material_shininess);
+			glUniform1f(gAlphaUniform_pointLight, gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].d);
+			if (gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].ismap_Kd == true)
+			{
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].gTexture_diffuse);
+				glUniform1i(gTextureSamplerUniform_pointLight, 0);
+				glUniform1i(gTextureActiveUniform_pointLight, 1);
+				/*fprintf(gpFile, "pointLight Krishna ismapKd true \n");
+				fflush(gpFile);*/
+			}
+			else
+				glUniform1i(gTextureActiveUniform_pointLight, 0);
+		}
+		glDrawArrays(GL_TRIANGLES, gModel_KrishnaChair.model_mesh_data[i].vertex_Index, gModel_KrishnaChair.model_mesh_data[i].vertex_Count);
+	}
+	glBindVertexArray(0);
+
+	if (isFirstScene == false)
+	{
+
+		// shishupal model
+		glUniform1i(applyBloomUniform_pointLight, 0);
+		modelMatrix = mat4::identity();
+		scaleMatrix = mat4::identity();
+		rotateMatrix = mat4::identity();
+
+		modelMatrix = vmath::translate(2300.0f, -15.0f, 600.0f);
+		scaleMatrix = scale(200.0f, 200.0f, 200.0f);
+		rotateMatrix = rotate(230.0f, 0.0f, 1.0f, 0.0f);
+
+		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
+
+		glUniformMatrix4fv(ModelMatrixUniform, 1, GL_FALSE, modelMatrix);
+		glBindVertexArray(gModel_Krishna.Vao);
+		for (int i = 0; i < gModel_Krishna.model_mesh_data.size(); i++)
+		{
+			if (gbLight == true)
+			{
+				glUniform3fv(gKaUniform_pointLight, 1, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].Ka);
+				glUniform3fv(gKdUniform_pointLight, 1, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].Kd);
+				glUniform3fv(gKsUniform_pointLight, 1, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].Ks);
+				glUniform1f(gMaterialShininessUniform_pointLight, material_shininess);
+				glUniform1f(gAlphaUniform_pointLight, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].d);
+				if (gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].ismap_Kd == true)
+				{
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].gTexture_diffuse);
+					glUniform1i(gTextureSamplerUniform_pointLight, 0);
+					glUniform1i(gTextureActiveUniform_pointLight, 1);
+					/*fprintf(gpFile, "pointLight Krishna ismapKd true \n");
+					fflush(gpFile);*/
+				}
+				else
+					glUniform1i(gTextureActiveUniform_pointLight, 0);
+			}
+			glDrawArrays(GL_TRIANGLES, gModel_Krishna.model_mesh_data[i].vertex_Index, gModel_Krishna.model_mesh_data[i].vertex_Count);
+		}
+		glBindVertexArray(0);
+
+		static float gAngle_rotateY = 0.0f;
+		if (isHandsUpDone == true)
+		{
+			if (gAngle_rotateY >= 360.0f)
+				gAngle_rotateY = 0.0f;
+			gAngle_rotateY += 0.1f;
+
+			//sudarshan chakra
+			glUniform1i(applyBloomUniform_pointLight, 1);
+			modelMatrix = mat4::identity();
+			scaleMatrix = mat4::identity();
+			rotateMatrix = mat4::identity();
+
+			modelMatrix = vmath::translate(XForSudarshan, YForSudarshan, ZForSudarshan);
+			scaleMatrix = scale(50.0f, 50.0f, 50.0f);
+			rotateMatrix = rotate(-25.0f, 0.0f, 0.0f, 1.0f);
+			//rotateMatrix = rotate(gAngle_rotateY, 0.0f, 1.0f, 0.0f);
+			modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
+
+			glUniformMatrix4fv(ModelMatrixUniform, 1, GL_FALSE, modelMatrix);
+			glBindVertexArray(gModel_SudarshanChakra.Vao);
+			for (int i = 0; i < gModel_SudarshanChakra.model_mesh_data.size(); i++)
+			{
+				if (gbLight == true)
+				{
+					glUniform3fv(gKaUniform_pointLight, 1, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].Ka);
+					glUniform3fv(gKdUniform_pointLight, 1, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].Kd);
+					glUniform3fv(gKsUniform_pointLight, 1, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].Ks);
+					glUniform1f(gMaterialShininessUniform_pointLight, material_shininess);
+					glUniform1f(gAlphaUniform_pointLight, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].d);
+					if (gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].ismap_Kd == true)
+					{
+						glActiveTexture(GL_TEXTURE0);
+						glBindTexture(GL_TEXTURE_2D, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].gTexture_diffuse);
+						glUniform1i(gTextureSamplerUniform_pointLight, 0);
+						glUniform1i(gTextureActiveUniform_pointLight, 1);
+					}
+					else
+						glUniform1i(gTextureActiveUniform_pointLight, 0);
+				}
+				glDrawArrays(GL_TRIANGLES, gModel_SudarshanChakra.model_mesh_data[i].vertex_Index, gModel_SudarshanChakra.model_mesh_data[i].vertex_Count);
+			}
+			glBindVertexArray(0);
+		}
+	}
+}
 void display_pointLight()
 {
 	float PI = 3.14;
@@ -397,20 +820,6 @@ void display_pointLight()
 		gAngle = 0.0f;
 	gAngle += 0.001f;
 	PointLight pointLight[gNumPointLights_pointLight];
-	/*pointLight[0].u_La = vec3(0.00f, 0.00f, 0.00f);
-	pointLight[0].u_Ld = vec3(1.0f, 0.0f, 0.0f);
-	pointLight[0].u_Ls = vec3(1.0f, 0.0f, 0.0f);
-	pointLight[0].u_linear = 0.01;
-	pointLight[0].u_constant = 0.01;
-	pointLight[0].u_quadratic = 0.0;
-	pointLight[0].DiffuseIntensity = 1.0f;
-	
-	//pointLight[0].position = vec3(0.0, 5.0f * cos(2 * PI * gAngle), 5.0f * sin(2 * PI * gAngle));
-	
-	pointLight[0].position = positionLamp[0];
-	*/
-
-	
 
 	for (int i = 0; i < gNumPointLights_pointLight; i++)
 	{
@@ -428,16 +837,19 @@ void display_pointLight()
 	
 	glUseProgram(gShaderProgramObject_pointLight);
 
-	//if (isShowStartingScene == false)
-	//{
-		if (FadeInFactor_pointLight <= 1.0f)
+	if (FadeInFactor_pointLight <= 1.0f)
 			FadeInFactor_pointLight += 0.001f;
-	/*}*/
+
 
 	if (bStartFadeOutSecondScene == true)
 	{
 		if (FadeOutFactor_pointLight >= 0.0f)
 			FadeOutFactor_pointLight -= 0.001f;
+		else
+		{
+			bFadeOutSecondSceneDone = true;
+			iShowEndScene = true;
+		}
 	}
 	glUniform1f(fadeoutFactorUniform_pointLight, FadeOutFactor_pointLight);
 	glUniform1f(fadeinFactorUniform_pointLight, FadeInFactor_pointLight);
@@ -470,10 +882,10 @@ void display_pointLight()
 		glUniform1f(m_pointLightsLocation[i].u_quadratic, pointLight[i].u_quadratic);
 		}
 
-		/*glUniform3fv(gKdUniform_perFragmentLight, 1, material_diffuse);
-		glUniform3fv(gKaUniform_perFragmentLight, 1, material_ambient);
-		glUniform3fv(gKsUniform_perFragmentLight, 1, material_specular);
-		glUniform1f(gMaterialShininessUniform_perFragmentLight, material_shininess);*/
+		/*glUniform3fv(gKdUniform_pointLight, 1, material_diffuse);
+		glUniform3fv(gKaUniform_pointLight, 1, material_ambient);
+		glUniform3fv(gKsUniform_pointLight, 1, material_specular);
+		glUniform1f(gMaterialShininessUniform_pointLight, material_shininess);*/
 
 	}
 	else
@@ -481,206 +893,16 @@ void display_pointLight()
 		glUniform1i(gLKeyPressedUniform_pointLight, 0);
 	}
 
-	mat4 modelMatrix = mat4::identity();
-	//glm::mat4 viewMatrix = glm::mat4();
-	mat4 viewMatrix = mat4::identity();
-	mat4 scaleMatrix = mat4::identity();
-	mat4 rotateMatrix = mat4::identity();
-
-	//viewMatrix = Scene_camera.GetViewMatrix();
-	//glUniformMatrix4fv(gViewMatrixUniform_perFragmentLight, 1, GL_FALSE, &viewMatrix[0][0]);
-
-	//viewMatrix = lookat(vmath_camera_eye_coord, vmath_camera_center_coord, vmath_camera_up_coord);
 	gViewMatrix = lookat(vmath_camera_eye_coord, vmath_camera_center_coord, vmath_camera_up_coord);
-	//glUniformMatrix4fv(gViewMatrixUniform_perFragmentLight, 1, GL_FALSE, viewMatrix);
-	glUniformMatrix4fv(gViewMatrixUniform_pointLight, 1, GL_FALSE, gViewMatrix);
 	
+	glUniformMatrix4fv(gViewMatrixUniform_pointLight, 1, GL_FALSE, gViewMatrix);
+
 	glUniform3fv(gViewPosUniform_pointLight, 1, vmath_camera_eye_coord);
-	modelMatrix = vmath::translate(0.0f, 0.0f, -2.0f);
 
 	glUniformMatrix4fv(gProjectionMatrixUniform_pointLight, 1, GL_FALSE, gPerspectiveProjectionMatrix);
 
-	
-	//object
-	//Draw Mahal Model
-	modelMatrix = mat4::identity();
-	//modelMatrix = vmath::translate(0.0f, 0.0f, -6.0f);
-	modelMatrix = vmath::translate(0.0f, -2.0f, -6.0f);
-	scaleMatrix = scale(10.0f, 10.0f, 10.0f);
-	//modelMatrix = modelMatrix * scaleMatrix;
 
-	glUniformMatrix4fv(gModelMatrixUniform_pointLight, 1, GL_FALSE, modelMatrix);
-	glBindVertexArray(gModel_Mahal.Vao);
-
-	for (int i = 0; i < gModel_Mahal.model_mesh_data.size(); i++)
-	{
-		if (gbLight == true)
-		{
-			glUniform3fv(gKaUniform_pointLight, 1, gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].Ka);
-			glUniform3fv(gKdUniform_pointLight, 1, gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].Kd);
-			glUniform3fv(gKsUniform_pointLight, 1, gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].Ks);
-			glUniform1f(gMaterialShininessUniform_pointLight, material_shininess);
-			glUniform1f(gAlphaUniform_pointLight, gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].d);
-
-			if (gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].ismap_Kd == true)
-			{
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].gTexture_diffuse);
-				glUniform1i(gTextureSamplerUniform_pointLight, 0);
-				glUniform1i(gTextureActiveUniform_pointLight, 1);
-				/*fprintf(gpFile, "perFragmentLight Mahal ismapKd true \n");
-				fflush(gpFile);*/
-			}
-			else
-				glUniform1i(gTextureActiveUniform_pointLight, 0);
-		}
-		glDrawArrays(GL_TRIANGLES, gModel_Mahal.model_mesh_data[i].vertex_Index, gModel_Mahal.model_mesh_data[i].vertex_Count);
-	}
-	glBindVertexArray(0);
-	
-	/*
-	// KRISHNA MODEL
-	modelMatrix		= mat4::identity();
-	scaleMatrix		= mat4::identity();
-	//modelMatrix = vmath::translate(50.0f, 0.0f, 5.0f);
-	modelMatrix		= vmath::translate(-300.0f, 55.0f, 1.0f);
-	scaleMatrix		= scale(gfKrishnaModelScale, gfKrishnaModelScale, gfKrishnaModelScale);
-	rotateMatrix	= rotate(90.0f, 0.0f, 1.0f, 0.0f);
-	
-	modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
-	
-	glUniformMatrix4fv(gModelMatrixUniform_perFragmentLight, 1, GL_FALSE, modelMatrix);
-	//Draw Krishna Model
-	glBindVertexArray(gModel_Krishna.Vao);
-	for (int i = 0; i < gModel_Krishna.model_mesh_data.size(); i++)
-	{
-		if (gbLight == true)
-		{
-			glUniform3fv(gKaUniform_perFragmentLight, 1, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].Ka);
-			glUniform3fv(gKdUniform_perFragmentLight, 1, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].Kd);
-			glUniform3fv(gKsUniform_perFragmentLight, 1, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].Ks);
-			glUniform1f(gMaterialShininessUniform_perFragmentLight, material_shininess);
-			glUniform1f(gAlphaUniform_perFragmentLight, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].d);
-			if (gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].ismap_Kd == true)
-			{
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].gTexture);
-				glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
-				glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
-			}
-			else
-				glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
-		}
-		glDrawArrays(GL_TRIANGLES, gModel_Krishna.model_mesh_data[i].vertex_Index, gModel_Krishna.model_mesh_data[i].vertex_Count);
-	}
-	glBindVertexArray(0);
-
-	*/
-
-	// shishupal model
-
-	/*modelMatrix = mat4::identity();
-	scaleMatrix = mat4::identity();
-	
-	modelMatrix = vmath::translate(2500.0f, 0.0f, 600.0f);
-	scaleMatrix = scale(50.0f, 50.0f, 50.0f);
-	rotateMatrix = rotate(230.0f, 0.0f, 1.0f, 0.0f);
-
-	modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
-
-	glUniformMatrix4fv(gModelMatrixUniform_pointLight, 1, GL_FALSE, modelMatrix);
-	glBindVertexArray(gModel_Krishna.Vao);
-	for (int i = 0; i < gModel_Krishna.model_mesh_data.size(); i++)
-	{
-		if (gbLight == true)
-		{
-			glUniform3fv(gKaUniform_pointLight, 1, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].Ka);
-			glUniform3fv(gKdUniform_pointLight, 1, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].Kd);
-			glUniform3fv(gKsUniform_pointLight, 1, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].Ks);
-			glUniform1f(gMaterialShininessUniform_pointLight, material_shininess);
-			glUniform1f(gAlphaUniform_pointLight, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].d);
-			if (gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].ismap_Kd == true)
-			{
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].gTexture);
-				glUniform1i(gTextureSamplerUniform_pointLight, 0);
-				glUniform1i(gTextureActiveUniform_pointLight, 1);
-				
-			}
-			else
-				glUniform1i(gTextureActiveUniform_pointLight, 0);
-		}
-		glDrawArrays(GL_TRIANGLES, gModel_Krishna.model_mesh_data[i].vertex_Index, gModel_Krishna.model_mesh_data[i].vertex_Count);
-	}
-	glBindVertexArray(0);*/
-
-	//mashal
-	glUniform1i(applyBloomUniform_pointLight, 0);
-	for (int i = 0; i < gNumPointLights_pointLight; i++)
-	{
-		modelMatrix = mat4::identity();
-		scaleMatrix = mat4::identity();
-		rotateMatrix = mat4::identity();
-		
-		scaleMatrix = scale(2.0f, 2.0f, 2.0f);
-		if (i < 10)
-		{
-			modelMatrix = vmath::translate(positionLamp[i][0], positionLamp[i][1] - 65.0f, positionLamp[i][2] + 20.0f);
-			rotateMatrix = rotate(-20.0f, 1.0f, 0.0f, 0.0f);
-		}
-		else
-		{
-			modelMatrix = vmath::translate(positionLamp[i][0], positionLamp[i][1] -65.0f, positionLamp[i][2] - 20.0f);
-			rotateMatrix = rotate(20.0f, 1.0f, 0.0f, 0.0f);
-		}
-		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
-
-		glUniformMatrix4fv(gModelMatrixUniform_pointLight, 1, GL_FALSE, modelMatrix);
-		glBindVertexArray(gModel_Mashal.Vao);
-		for (int i = 0; i < gModel_Mashal.model_mesh_data.size(); i++)
-		{
-			if (gbLight == true)
-			{
-				glUniform3fv(gKaUniform_pointLight, 1, gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].Ka);
-				glUniform3fv(gKdUniform_pointLight, 1, gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].Kd);
-				glUniform3fv(gKsUniform_pointLight, 1, gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].Ks);
-				glUniform1f(gMaterialShininessUniform_pointLight, material_shininess);
-				glUniform1f(gAlphaUniform_pointLight, gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].d);
-				if (gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].ismap_Kd == true)
-				{
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].gTexture_diffuse);
-					glUniform1i(gTextureSamplerUniform_pointLight, 0);
-					glUniform1i(gTextureActiveUniform_pointLight, 1);
-					
-				}
-				else
-					glUniform1i(gTextureActiveUniform_pointLight, 0);
-			}
-			glDrawArrays(GL_TRIANGLES, gModel_Mashal.model_mesh_data[i].vertex_Index, gModel_Mashal.model_mesh_data[i].vertex_Count);
-		}
-		glBindVertexArray(0);
-	}
-	//*/
-	glUniform1i(applyBloomUniform_pointLight, 1);
-	for (int i = 0; i < gNumPointLights_pointLight; i++)
-	{
-		modelMatrix = mat4::identity();
-		scaleMatrix = mat4::identity();
-		rotateMatrix = mat4::identity();
-
-		modelMatrix = vmath::translate(positionLamp[i]);
-		scaleMatrix = scale(5.0f, 5.0f, 5.0f);
-		//if(i < 8)
-		//rotateMatrix = rotate(180.0f, 0.0f, 0.0f, 1.0f);
-
-		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
-
-		glUniformMatrix4fv(gModelMatrixUniform_pointLight, 1, GL_FALSE, modelMatrix);
-
-		drawCubeShape();
-	}
-	
+	renderAllModelsInMahal(gModelMatrixUniform_pointLight);
 
 	glUseProgram(0);
 }
