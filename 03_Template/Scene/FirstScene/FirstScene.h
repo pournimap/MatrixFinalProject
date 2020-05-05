@@ -101,7 +101,7 @@ MaterialUniform_FirstScene m_material_FirstScene;
 /**********************************************************/
 
 float near_plane = 0.1f;
-float far_plane = 200.0f;
+float far_plane = 150.0f;
 vec3 lightPos;
 
 
@@ -145,10 +145,10 @@ BOOL loadTexture_firstScene(GLuint* texture, TCHAR imageResourceID[])
 void initFirstScene()
 {
 	void initPointLightShader_FirstScene();
-	void initShadowDepthShader_FirstScene();
+	void initShadowDepthShader();
 
 	initPointLightShader_FirstScene();
-	initShadowDepthShader_FirstScene();
+	initShadowDepthShader();
 	/*//VERTEX SHADER
 	gVertexShaderObject_book = glCreateShader(GL_VERTEX_SHADER);
 	const GLchar* vertextShaderSourceCode_book =
@@ -317,7 +317,7 @@ void initFirstScene()
 float t_fire_FirstScene = 0.0f;
 
 //vec3 positionLamp_FirstScene[] = { vec3(0.0f, 50.0f, 20.0f), vec3(0.0f, -0.5f, 0.0f) };
-vec3 positionLamp_FirstScene[] = { vec3(-0.2f, 50.0f, -20.0f), vec3(0.0f, -0.5f, 0.0f) };
+vec3 positionLamp_FirstScene[] = { vec3(-0.2f, -5.5f, -20.0f) };
 //0.0f, -20.0f, -30.0f
 
 void draw_image(int isBloom, GLfloat TranslateX, GLfloat TranslateY, GLfloat TranslateZ, GLfloat RotateAngleZ, GLfloat RotateZDir, GLuint texture_id)
@@ -361,7 +361,8 @@ void renderModels_FirstScene(GLuint& NewModel)
 	scaleMatrix = vmath::scale(100.0f, 2.0f, 40.0f);
 	modelMatrix = modelMatrix * scaleMatrix;
 	
-	glUniformMatrix4fv(NewModel, 1, GL_FALSE, modelMatrix);
+	//glUniformMatrix4fv(NewModel, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(gModelMatrixUniform_pointLight_FirstScene, 1, GL_FALSE, modelMatrix);
 
 	glUniform1i(isBumpTexturePresentUniform_pointLight_FirstScene, 0);
 
@@ -1019,11 +1020,11 @@ void initPointLightShader_FirstScene()
 		"vec3 fragToLight = fragPos - pointLight[0].position;" \
 		"float currentDepth = length(fragToLight);" \
 		"float shadow = 0.0;" \
-		"float bias = 0.05;" \
+		"float bias = 0.15;" \
 		"int samples = 20;" \
 
-		/*"float viewDistance = length(viewPos - fragPos);" \
-		"float diskRadius = (1.0 + (viewDistance / far_plane)) / 200.0;" \
+		"float viewDistance = length(viewPos - fragPos);" \
+		"float diskRadius = (1.0 + (viewDistance / far_plane)) / 25.0;" \
 
 		"for(int i = 0; i < samples; ++i)" \
 		"{" \
@@ -1032,13 +1033,13 @@ void initPointLightShader_FirstScene()
 		"if(currentDepth - bias > closestDepth)" \
 		"shadow += 1.0;" \
 		"}" \
-		"shadow /= float(samples);" \*/
+		"shadow /= float(samples);" \
 
 
-		"float closestDepth = texture(depthMap, fragToLight).r;" \
+		/*"float closestDepth = texture(depthMap, fragToLight).r;" \
 		"closestDepth *= far_plane;" \
 
-		"shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;" \
+		"shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;" \*/
 		"return shadow;" \
 		"}" \
 
@@ -1277,170 +1278,31 @@ void initPointLightShader_FirstScene()
 }
 
 
-GLuint gVertexShaderObject_ShadowDepthMap_FirstScene, gGeometryShaderObject_ShadowDepthMap_FirstScene, gFragmentShaderObject_ShadowDepthMap_FirstScene;
-GLuint gShaderProgramObject_ShadowDepthMap_FirstScene;
-GLuint gModelMatrixUniform_ShadowDepthMap_FirstScene, gLightPosUniform_ShadowDepthMap_FirstScene, gFarPlaneUniform_ShadowDepthMap_FirstScene;
-GLuint gShadowMatricesUniform_ShadowDepthMap_FirstScene[6];
 std::vector<mat4> shadowTransforms;
-
-void initShadowDepthShader_FirstScene()
-{
-	//VERTEX SHADER
-	gVertexShaderObject_ShadowDepthMap_FirstScene = glCreateShader(GL_VERTEX_SHADER);
-
-	const GLchar* vertexShaderSourceCode_ShadowDepthMap_FirstScene =
-		"#version 400" \
-		"\n" \
-
-		"in vec3 vPosition;" \
-		
-		"uniform mat4 u_model_matrix;" \
-		
-		"void main(void)" \
-		"{" \
-		"gl_Position = u_model_matrix * vec4(vPosition, 1.0);" \
-		"}";
-
-	glShaderSource(gVertexShaderObject_ShadowDepthMap_FirstScene, 1, (const GLchar**)&vertexShaderSourceCode_ShadowDepthMap_FirstScene, NULL);
-
-	//compile shader
-	glCompileShader(gVertexShaderObject_ShadowDepthMap_FirstScene);
-
-	// Error checking
-	checkCompilationLog((char*)"gVertexShaderObject_ShadowDepthMap_FirstScene", gVertexShaderObject_ShadowDepthMap_FirstScene);
-
-
-	//GEOMETRY SHADER
-	gGeometryShaderObject_ShadowDepthMap_FirstScene = glCreateShader(GL_GEOMETRY_SHADER);
-
-	const GLchar* geometryShaderSourceCode_ShadowDepthMap_FirstScene =
-		"#version 400" \
-		"\n" \
-
-		"layout (triangles) in;" \
-		"layout (triangle_strip, max_vertices = 18) out;" \
-
-		"uniform mat4 shadowMatrices[6];" \
-
-		"out vec4 FragPos;" \
-
-		"void main(void)" \
-		"{" \
-		"for(int face = 0; face < 6; ++face)" \
-		"{" \
-			// built-in variable that specifies to which face we render.
-			"gl_Layer = face;" \
-			"for(int i = 0; i < 3; ++i)" \
-			"{" \
-				"FragPos = gl_in[i].gl_Position;" \
-				"gl_Position = shadowMatrices[face] * FragPos;" \
-				"EmitVertex();" \
-			"}" \
-			"EndPrimitive();" \
-		"}" \
-
-		"}";
-
-	glShaderSource(gGeometryShaderObject_ShadowDepthMap_FirstScene, 1, (const GLchar**)&geometryShaderSourceCode_ShadowDepthMap_FirstScene, NULL);
-
-	//compile shader
-	glCompileShader(gGeometryShaderObject_ShadowDepthMap_FirstScene);
-
-	// Error checking
-	checkCompilationLog((char*)"gGeometryShaderObject_ShadowDepthMap_FirstScene", gGeometryShaderObject_ShadowDepthMap_FirstScene);
-
-	//FRAGMENT SHADER
-
-	gFragmentShaderObject_ShadowDepthMap_FirstScene = glCreateShader(GL_FRAGMENT_SHADER);
-
-	const GLchar* fragmentShaderSourceCode_ShadowDepthMap_FirstScene =
-		"#version 400" \
-		"\n" \
-		"in vec4 FragPos;" \
-
-		"uniform vec3 lightPos;" \
-		"uniform float far_plane;" \
-
-		"void main(void)" \
-		"{" \
-		"float lightDistance = length(FragPos.xyz - lightPos);" \
-
-		//map to [0;1] range by dividing by far_plane
-		"lightDistance = lightDistance / far_plane;" \
-
-		//write this as modified depth
-		"gl_FragDepth  = lightDistance;" \
-		"}";
-
-	glShaderSource(gFragmentShaderObject_ShadowDepthMap_FirstScene, 1, (const GLchar**)&fragmentShaderSourceCode_ShadowDepthMap_FirstScene, NULL);
-
-	glCompileShader(gFragmentShaderObject_ShadowDepthMap_FirstScene);
-
-	// Error checking
-	checkCompilationLog((char*)"gFragmentShaderObject_ShadowDepthMap_FirstScene", gFragmentShaderObject_ShadowDepthMap_FirstScene);
-
-
-	//Shader Program
-
-	gShaderProgramObject_ShadowDepthMap_FirstScene = glCreateProgram();
-
-	glAttachShader(gShaderProgramObject_ShadowDepthMap_FirstScene, gVertexShaderObject_pointLight_FirstScene);
-	glAttachShader(gShaderProgramObject_ShadowDepthMap_FirstScene, gGeometryShaderObject_ShadowDepthMap_FirstScene);
-	glAttachShader(gShaderProgramObject_ShadowDepthMap_FirstScene, gFragmentShaderObject_pointLight_FirstScene);
-
-	glBindAttribLocation(gShaderProgramObject_ShadowDepthMap_FirstScene, MATRIX_ATTRIBUTE_POSITION, "vPosition");
-	//glBindAttribLocation(gShaderProgramObject_pointLight_FirstScene, MATRIX_ATTRIBUTE_NORMAL, "vNormal");
-	//glBindAttribLocation(gShaderProgramObject_pointLight_FirstScene, MATRIX_ATTRIBUTE_TEXTURE0, "vTexcoord");
-
-	glLinkProgram(gShaderProgramObject_ShadowDepthMap_FirstScene);
-
-	// Error checking
-	checkLinkLog((char*)"gShaderProgramObject_ShadowDepthMap_FirstScene", gShaderProgramObject_ShadowDepthMap_FirstScene);
-
-
-	gModelMatrixUniform_ShadowDepthMap_FirstScene = glGetUniformLocation(gShaderProgramObject_ShadowDepthMap_FirstScene, "u_model_matrix");
-	gLightPosUniform_ShadowDepthMap_FirstScene = glGetUniformLocation(gShaderProgramObject_ShadowDepthMap_FirstScene, "lightPos");
-	gFarPlaneUniform_ShadowDepthMap_FirstScene = glGetUniformLocation(gShaderProgramObject_ShadowDepthMap_FirstScene, "far_plane");
-
-	char Name[128];
-	for (int i = 0; i < 6; i++)
-	{
-		memset(Name, 0, sizeof(Name));
-
-		snprintf(Name, sizeof(Name), "shadowMatrices[%d]", i);
-		gShadowMatricesUniform_ShadowDepthMap_FirstScene[i] = glGetUniformLocation(gShaderProgramObject_ShadowDepthMap_FirstScene, Name);
-	}
-
-
-	
-
-	mat4 shadowProj = perspective(90.0f, (GLfloat)(MAX_SCENE_WIDTH / 2) / (GLfloat)(MAX_SCENE_HEIGHT / 2), near_plane, far_plane);
-	
-	lightPos = positionLamp_FirstScene[0];
-	shadowTransforms.push_back(shadowProj* lookat(lightPos, lightPos + vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f)));
-	shadowTransforms.push_back(shadowProj* lookat(lightPos, lightPos + vec3(-1.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f)));
-	shadowTransforms.push_back(shadowProj* lookat(lightPos, lightPos + vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f)));
-	shadowTransforms.push_back(shadowProj* lookat(lightPos, lightPos + vec3(0.0f, -1.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f)));
-	shadowTransforms.push_back(shadowProj* lookat(lightPos, lightPos + vec3(0.0f, 0.0f, 1.0f), vec3(0.0f, -1.0f, 0.0f)));
-	shadowTransforms.push_back(shadowProj* lookat(lightPos, lightPos + vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, -1.0f, 0.0f)));
-	
-	
-
-}
-
 
 void renderShadowDepthShader_FirstScene()
 {
+	mat4 shadowProj = perspective(90.0f, (GLfloat)(MAX_SCENE_WIDTH / 2) / (GLfloat)(MAX_SCENE_HEIGHT / 2), near_plane, far_plane);
+
+	lightPos = positionLamp_FirstScene[0];
+	shadowTransforms.push_back(shadowProj * lookat(lightPos, lightPos + vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f)));
+	shadowTransforms.push_back(shadowProj * lookat(lightPos, lightPos + vec3(-1.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f)));
+	shadowTransforms.push_back(shadowProj * lookat(lightPos, lightPos + vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f)));
+	shadowTransforms.push_back(shadowProj * lookat(lightPos, lightPos + vec3(0.0f, -1.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f)));
+	shadowTransforms.push_back(shadowProj * lookat(lightPos, lightPos + vec3(0.0f, 0.0f, 1.0f), vec3(0.0f, -1.0f, 0.0f)));
+	shadowTransforms.push_back(shadowProj * lookat(lightPos, lightPos + vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, -1.0f, 0.0f)));
+
 	glViewport(0, 0, MAX_SCENE_WIDTH / 2, MAX_SCENE_HEIGHT / 2);
 	glBindFramebuffer(GL_FRAMEBUFFER, shaodowMap_fbo);
 	glClear(GL_DEPTH_BUFFER_BIT);
-	glUseProgram(gShaderProgramObject_ShadowDepthMap_FirstScene);
+	glUseProgram(gShaderProgramObject_ShadowDepthMap);
 	for (unsigned int i = 0; i < 6; i++)
-		glUniformMatrix4fv(gShadowMatricesUniform_ShadowDepthMap_FirstScene[i], 1, GL_FALSE, shadowTransforms[i]);
+		glUniformMatrix4fv(gShadowMatricesUniform_ShadowDepthMap[i], 1, GL_FALSE, shadowTransforms[i]);
 
-	glUniform1f(gFarPlaneUniform_ShadowDepthMap_FirstScene, far_plane);
-	glUniform3fv(gLightPosUniform_ShadowDepthMap_FirstScene, 1, lightPos);
+	glUniform1f(gFarPlaneUniform_ShadowDepthMap, far_plane);
+	glUniform3fv(gLightPosUniform_ShadowDepthMap, 1, lightPos);
 
-	renderModels_FirstScene(gModelMatrixUniform_ShadowDepthMap_FirstScene);
+	renderModels_FirstScene(gModelMatrixUniform_ShadowDepthMap);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 }

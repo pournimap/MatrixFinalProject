@@ -663,3 +663,139 @@ void uninitialize_perFragmentLight()
 	programObjectSafeRelease(gShaderProgramObject_perFragmentLight);
 
 }
+
+GLuint gVertexShaderObject_ShadowDepthMap, gGeometryShaderObject_ShadowDepthMap, gFragmentShaderObject_ShadowDepthMap;
+GLuint gShaderProgramObject_ShadowDepthMap;
+GLuint gModelMatrixUniform_ShadowDepthMap, gLightPosUniform_ShadowDepthMap, gFarPlaneUniform_ShadowDepthMap;
+GLuint gShadowMatricesUniform_ShadowDepthMap[6];
+
+void initShadowDepthShader()
+{
+	//VERTEX SHADER
+	gVertexShaderObject_ShadowDepthMap = glCreateShader(GL_VERTEX_SHADER);
+
+	const GLchar* vertexShaderSourceCode_ShadowDepthMap =
+		"#version 400" \
+		"\n" \
+
+		"in vec3 vPosition;" \
+
+		"uniform mat4 u_model_matrix;" \
+
+		"void main(void)" \
+		"{" \
+		"gl_Position = u_model_matrix * vec4(vPosition, 1.0);" \
+		"}";
+
+	glShaderSource(gVertexShaderObject_ShadowDepthMap, 1, (const GLchar**)&vertexShaderSourceCode_ShadowDepthMap, NULL);
+
+	//compile shader
+	glCompileShader(gVertexShaderObject_ShadowDepthMap);
+
+	// Error checking
+	checkCompilationLog((char*)"gVertexShaderObject_ShadowDepthMap", gVertexShaderObject_ShadowDepthMap);
+
+
+	//GEOMETRY SHADER
+	gGeometryShaderObject_ShadowDepthMap = glCreateShader(GL_GEOMETRY_SHADER);
+
+	const GLchar* geometryShaderSourceCode_ShadowDepthMap =
+		"#version 400" \
+		"\n" \
+
+		"layout (triangles) in;" \
+		"layout (triangle_strip, max_vertices = 18) out;" \
+
+		"uniform mat4 shadowMatrices[6];" \
+
+		"out vec4 FragPos;" \
+
+		"void main(void)" \
+		"{" \
+		"for(int face = 0; face < 6; ++face)" \
+		"{" \
+		// built-in variable that specifies to which face we render.
+		"gl_Layer = face;" \
+		"for(int i = 0; i < 3; ++i)" \
+		"{" \
+		"FragPos = gl_in[i].gl_Position;" \
+		"gl_Position = shadowMatrices[face] * FragPos;" \
+		"EmitVertex();" \
+		"}" \
+		"EndPrimitive();" \
+		"}" \
+
+		"}";
+
+	glShaderSource(gGeometryShaderObject_ShadowDepthMap, 1, (const GLchar**)&geometryShaderSourceCode_ShadowDepthMap, NULL);
+
+	//compile shader
+	glCompileShader(gGeometryShaderObject_ShadowDepthMap);
+
+	// Error checking
+	checkCompilationLog((char*)"gGeometryShaderObject_ShadowDepthMap", gGeometryShaderObject_ShadowDepthMap);
+
+	//FRAGMENT SHADER
+
+	gFragmentShaderObject_ShadowDepthMap = glCreateShader(GL_FRAGMENT_SHADER);
+
+	const GLchar* fragmentShaderSourceCode_ShadowDepthMap =
+		"#version 400" \
+		"\n" \
+		"in vec4 FragPos;" \
+
+		"uniform vec3 lightPos;" \
+		"uniform float far_plane;" \
+
+		"void main(void)" \
+		"{" \
+		"float lightDistance = length(FragPos.xyz - lightPos);" \
+
+		//map to [0;1] range by dividing by far_plane
+		"lightDistance = lightDistance / far_plane;" \
+
+		//write this as modified depth
+		"gl_FragDepth  = lightDistance;" \
+		"}";
+
+	glShaderSource(gFragmentShaderObject_ShadowDepthMap, 1, (const GLchar**)&fragmentShaderSourceCode_ShadowDepthMap, NULL);
+
+	glCompileShader(gFragmentShaderObject_ShadowDepthMap);
+
+	// Error checking
+	checkCompilationLog((char*)"gFragmentShaderObject_ShadowDepthMap", gFragmentShaderObject_ShadowDepthMap);
+
+
+	//Shader Program
+
+	gShaderProgramObject_ShadowDepthMap = glCreateProgram();
+
+	glAttachShader(gShaderProgramObject_ShadowDepthMap, gVertexShaderObject_ShadowDepthMap);
+	glAttachShader(gShaderProgramObject_ShadowDepthMap, gGeometryShaderObject_ShadowDepthMap);
+	glAttachShader(gShaderProgramObject_ShadowDepthMap, gFragmentShaderObject_ShadowDepthMap);
+
+	glBindAttribLocation(gShaderProgramObject_ShadowDepthMap, MATRIX_ATTRIBUTE_POSITION, "vPosition");
+	//glBindAttribLocation(gShaderProgramObject_pointLight, MATRIX_ATTRIBUTE_NORMAL, "vNormal");
+	//glBindAttribLocation(gShaderProgramObject_pointLight, MATRIX_ATTRIBUTE_TEXTURE0, "vTexcoord");
+
+	glLinkProgram(gShaderProgramObject_ShadowDepthMap);
+
+	// Error checking
+	checkLinkLog((char*)"gShaderProgramObject_ShadowDepthMap", gShaderProgramObject_ShadowDepthMap);
+
+
+	gModelMatrixUniform_ShadowDepthMap = glGetUniformLocation(gShaderProgramObject_ShadowDepthMap, "u_model_matrix");
+	gLightPosUniform_ShadowDepthMap = glGetUniformLocation(gShaderProgramObject_ShadowDepthMap, "lightPos");
+	gFarPlaneUniform_ShadowDepthMap = glGetUniformLocation(gShaderProgramObject_ShadowDepthMap, "far_plane");
+
+	char Name[128];
+	for (int i = 0; i < 6; i++)
+	{
+		memset(Name, 0, sizeof(Name));
+
+		snprintf(Name, sizeof(Name), "shadowMatrices[%d]", i);
+		gShadowMatricesUniform_ShadowDepthMap[i] = glGetUniformLocation(gShaderProgramObject_ShadowDepthMap, Name);
+	}
+
+
+}

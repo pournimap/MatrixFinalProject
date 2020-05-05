@@ -729,7 +729,7 @@ int initialize(void)
 	
 	initFirstScene();
 
-
+	renderShadowDepthShader_FirstScene();
 	// ................................................................................................
 	//
 	// Initialize your specific scene here above
@@ -772,10 +772,10 @@ void display(void)
 		static const GLfloat one = { 1.0f };
 		static const GLfloat black[] = { 0.0f, 0.0f, 0.0, 1.0f };
 
-		if (bDoneFadeOutFirstScene == false)
-		{
-			renderShadowDepthShader_FirstScene();
-		}
+		//if (bDoneFadeOutFirstScene == false)
+		//{
+			//renderShadowDepthShader_FirstScene();
+		//}
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, gWidth, gHeight);
 		//call your scene Display here
