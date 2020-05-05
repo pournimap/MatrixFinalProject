@@ -152,8 +152,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 		else
 		{
 			QueryPerformanceCounter((LARGE_INTEGER*)&iCurrentTime);
-			if ((((double)iCurrentTime - (double)iPreviousTime) / (double)iSysFrequency) >= (1.0 / 60.0))
-			{
+			/*if ((((double)iCurrentTime - (double)iPreviousTime) / (double)iSysFrequency) >= (1.0 / 60.0))
+			{*/
 				if (gbActiveWindow == true)
 				{
 					update();
@@ -161,7 +161,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 				display();
 				
 				iPreviousTime = iCurrentTime;
-			}
+			//}
 			
 		}
 	}
@@ -797,7 +797,7 @@ void display(void)
 				renderBrightChakraSource();
 			}
 
-			display_perFragmentLight();
+			//display_perFragmentLight();
 
 			display_pointLight();
 

@@ -386,7 +386,7 @@ vec3 positionLamp[] = { vec3(-720.0f, 600.0f, 440.0f), vec3(-720.0f, 600.0f, 750
 						vec3(-750.0f, 600.0f, -510.0f), vec3(-750.0f, 600.0f, -810.0f), vec3(-250.0f, 400.0f, -810.0f), vec3(320.0f, 400.0f, -810.0f), vec3(850.0f, 400.0f, -810.0f),vec3(1420.0f, 400.0f, -810.0f) , vec3(2000.0f, 400.0f, -810.0f) , vec3(2570.0f, 400.0f, -810.0f) ,
 						vec3(3100.0f, 400.0f, -810.0f) , vec3(3700.0f, 400.0f, -810.0f) , };
 
-float TranslateMeasure[] = { 200.0f, 700.0f, 1200.0f, 1800.0f, 2300.0f, 2900.0f, 3500.0f };
+float TranslateMeasure_pointLight[] = { 200.0f, 700.0f, 1200.0f, 1800.0f, 2300.0f, 2900.0f, 3500.0f };
 
 void renderAllModelsInMahal(GLuint& ModelMatrixUniform)
 {
@@ -514,7 +514,7 @@ void renderAllModelsInMahal(GLuint& ModelMatrixUniform)
 			rotateMatrix = mat4::identity();
 			if (i < 7)
 			{
-				modelMatrix = vmath::translate(TranslateMeasure[i], -10.0f, 650.0f);
+				modelMatrix = vmath::translate(TranslateMeasure_pointLight[i], -10.0f, 650.0f);
 				if (isFirstScene == false)
 				{
 					if (i == 4)
@@ -522,7 +522,7 @@ void renderAllModelsInMahal(GLuint& ModelMatrixUniform)
 				}
 			}
 			else {
-				modelMatrix = vmath::translate(TranslateMeasure[i - 7], -10.0f, -650.0f);
+				modelMatrix = vmath::translate(TranslateMeasure_pointLight[i - 7], -10.0f, -650.0f);
 			}
 			scaleMatrix = scale(170.0f, 170.0f, 170.0f);
 			if (i < 7)
@@ -643,10 +643,10 @@ void renderAllModelsInMahal(GLuint& ModelMatrixUniform)
 		rotateMatrix = mat4::identity();
 		if (i < 7)
 		{
-			modelMatrix = vmath::translate(TranslateMeasure[i], 40.0f, 700.0f);
+			modelMatrix = vmath::translate(TranslateMeasure_pointLight[i], 40.0f, 700.0f);
 		}
 		else {
-			modelMatrix = vmath::translate(TranslateMeasure[i - 7], 40.0f, -700.0f);
+			modelMatrix = vmath::translate(TranslateMeasure_pointLight[i - 7], 40.0f, -700.0f);
 		}
 		scaleMatrix = scale(30.0f, 30.0f, 30.0f);
 		if (i < 7)

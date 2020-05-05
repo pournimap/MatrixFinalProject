@@ -280,7 +280,7 @@ void initKrishnaAnimate()
 
 		"GodRaysColor = vec4(0.0, 0.0, 0.0, 0.0);" \
 		//"if(virat_roop_start == 1)" \
-				"FragColor		= vec4(0.2,0.1,1.0,1.0f);" 
+		//		"FragColor		= vec4(0.2,0.1,1.0,1.0f);" \
 
 		"if(virat_roop_start == 1 && out_gl_pos.y > time)" \
 		"{" \

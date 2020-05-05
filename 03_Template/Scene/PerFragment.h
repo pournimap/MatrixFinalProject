@@ -269,15 +269,14 @@ void initialize_perFragmentLight()
 
 }
 
-float TranslateMeasure[] = {200.0f, 700.0f, 1200.0f, 1800.0f, 2300.0f, 2900.0f, 3500.0f};
+/*float TranslateMeasure[] = {200.0f, 700.0f, 1200.0f, 1800.0f, 2300.0f, 2900.0f, 3500.0f};
 void display_perFragmentLight()
 {
 	static const GLfloat one = { 1.0f };
 
 	glUseProgram(gShaderProgramObject_perFragmentLight);
 
-	/*if (isShowStartingScene == false)
-	{*/
+	
 		if (FadeInFactor_perFragmentLight <= 1.0f)
 			FadeInFactor_perFragmentLight += 0.001f;
 		
@@ -313,7 +312,7 @@ void display_perFragmentLight()
 		/*glUniform3fv(gKdUniform_perFragmentLight, 1, material_diffuse);
 		glUniform3fv(gKaUniform_perFragmentLight, 1, material_ambient);
 		glUniform3fv(gKsUniform_perFragmentLight, 1, material_specular);
-		glUniform1f(gMaterialShininessUniform_perFragmentLight, material_shininess);*/
+		glUniform1f(gMaterialShininessUniform_perFragmentLight, material_shininess);
 
 	}
 	else
@@ -388,8 +387,7 @@ void display_perFragmentLight()
 							glBindTexture(GL_TEXTURE_2D, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].gTexture_diffuse);
 							glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
 							glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
-							/*fprintf(gpFile, "perFragmentLight Krishna ismapKd true \n");
-							fflush(gpFile);*/
+							
 						}
 						else
 							glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
@@ -416,8 +414,7 @@ void display_perFragmentLight()
 							glBindTexture(GL_TEXTURE_2D, gModel_Krishna_Seated2.model_material[gModel_Krishna_Seated2.model_mesh_data[i].material_index].gTexture_diffuse);
 							glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
 							glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
-							/*fprintf(gpFile, "perFragmentLight Krishna ismapKd true \n");
-							fflush(gpFile);*/
+							
 						}
 						else
 							glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
@@ -461,8 +458,7 @@ void display_perFragmentLight()
 					glBindTexture(GL_TEXTURE_2D, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].gTexture_diffuse);
 					glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
 					glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
-					/*fprintf(gpFile, "perFragmentLight Krishna ismapKd true \n");
-					fflush(gpFile);*/
+					
 				}
 				else
 					glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
@@ -512,8 +508,7 @@ void display_perFragmentLight()
 				glBindTexture(GL_TEXTURE_2D, gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].gTexture_diffuse);
 				glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
 				glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
-				/*fprintf(gpFile, "perFragmentLight Krishna ismapKd true \n");
-				fflush(gpFile);*/
+				
 			}
 			else
 				glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
@@ -554,8 +549,7 @@ void display_perFragmentLight()
 				glBindTexture(GL_TEXTURE_2D, gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].gTexture_diffuse);
 				glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
 				glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
-				/*fprintf(gpFile, "perFragmentLight Krishna ismapKd true \n");
-				fflush(gpFile);*/
+			
 			}
 			else
 				glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
@@ -596,8 +590,7 @@ void display_perFragmentLight()
 					glBindTexture(GL_TEXTURE_2D, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].gTexture_diffuse);
 					glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
 					glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
-					/*fprintf(gpFile, "perFragmentLight Krishna ismapKd true \n");
-					fflush(gpFile);*/
+					
 				}
 				else
 					glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
@@ -653,7 +646,7 @@ void display_perFragmentLight()
 	}
 
 	glUseProgram(0);
-}
+}*/
 
 void update_perFragmentLight()
 {
