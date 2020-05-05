@@ -198,7 +198,7 @@ void LoadAllModels()
 	glBindVertexArray(0);
 	
 	/*****************Load Krishna chair Model*****************/
-	std::string krishnaChairModelFilePath = "Resources/MahalOBJVersion1WithTextures/KrishnaThroneModelWithTexture_V3.obj";
+	std::string krishnaChairModelFilePath = "Resources/MahalOBJVersion1WithTextures/krishnaChair.obj";
 
 	LoadMeshData(krishnaChairModelFilePath.c_str(), gModel_KrishnaChair.model_vertices, gModel_KrishnaChair.model_textures, gModel_KrishnaChair.model_normals, 
 		gModel_KrishnaChair.model_tangents, gModel_KrishnaChair.model_bitangents, gModel_KrishnaChair.model_mesh_data, gModel_KrishnaChair.model_materialFileName);
