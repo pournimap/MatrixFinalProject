@@ -241,7 +241,7 @@ void LoadAllModels()
 	
 	
 	/*****************Load other chairs Model*****************/
-	std::string OtherChairModelFilePath = "Resources/MahalOBJVersion1WithTextures/ThroneModelWithTexture_CenterCircleEdited_V2.obj";
+	std::string OtherChairModelFilePath = "Resources/MahalOBJVersion1WithTextures/SideRajeChair.obj";
 
 	LoadMeshData(OtherChairModelFilePath.c_str(), gModel_OtherChair.model_vertices, gModel_OtherChair.model_textures, gModel_OtherChair.model_normals, 
 		gModel_OtherChair.model_tangents, gModel_OtherChair.model_bitangents,  gModel_OtherChair.model_mesh_data, gModel_OtherChair.model_materialFileName);
