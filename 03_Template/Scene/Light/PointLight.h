@@ -714,8 +714,7 @@ void renderAllModelsInMahal(GLuint& ModelMatrixUniform)
 				glBindTexture(GL_TEXTURE_2D, gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].gTexture_diffuse);
 				glUniform1i(gTextureSamplerUniform_pointLight, 0);
 				glUniform1i(gTextureActiveUniform_pointLight, 1);
-				/*fprintf(gpFile, "pointLight Krishna ismapKd true \n");
-				fflush(gpFile);*/
+				
 			}
 			else
 				glUniform1i(gTextureActiveUniform_pointLight, 0);
@@ -756,8 +755,7 @@ void renderAllModelsInMahal(GLuint& ModelMatrixUniform)
 					glBindTexture(GL_TEXTURE_2D, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].gTexture_diffuse);
 					glUniform1i(gTextureSamplerUniform_pointLight, 0);
 					glUniform1i(gTextureActiveUniform_pointLight, 1);
-					/*fprintf(gpFile, "pointLight Krishna ismapKd true \n");
-					fflush(gpFile);*/
+					
 				}
 				else
 					glUniform1i(gTextureActiveUniform_pointLight, 0);
@@ -766,50 +764,6 @@ void renderAllModelsInMahal(GLuint& ModelMatrixUniform)
 		}
 		glBindVertexArray(0);
 
-		static float gAngle_rotateY = 0.0f;
-		if (isHandsUpDone == true)
-		{
-			if (gAngle_rotateY >= 360.0f)
-				gAngle_rotateY = 0.0f;
-			gAngle_rotateY += 0.1f;
-
-			//sudarshan chakra
-			glUniform1i(applyBloomUniform_pointLight, 1);
-			modelMatrix = mat4::identity();
-			scaleMatrix = mat4::identity();
-			rotateMatrix = mat4::identity();
-
-			modelMatrix = vmath::translate(XForSudarshan, YForSudarshan, ZForSudarshan);
-			scaleMatrix = scale(50.0f, 50.0f, 50.0f);
-			rotateMatrix = rotate(-25.0f, 0.0f, 0.0f, 1.0f);
-			//rotateMatrix = rotate(gAngle_rotateY, 0.0f, 1.0f, 0.0f);
-			modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
-
-			glUniformMatrix4fv(ModelMatrixUniform, 1, GL_FALSE, modelMatrix);
-			glBindVertexArray(gModel_SudarshanChakra.Vao);
-			for (int i = 0; i < gModel_SudarshanChakra.model_mesh_data.size(); i++)
-			{
-				if (gbLight == true)
-				{
-					glUniform3fv(gKaUniform_pointLight, 1, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].Ka);
-					glUniform3fv(gKdUniform_pointLight, 1, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].Kd);
-					glUniform3fv(gKsUniform_pointLight, 1, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].Ks);
-					glUniform1f(gMaterialShininessUniform_pointLight, material_shininess);
-					glUniform1f(gAlphaUniform_pointLight, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].d);
-					if (gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].ismap_Kd == true)
-					{
-						glActiveTexture(GL_TEXTURE0);
-						glBindTexture(GL_TEXTURE_2D, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].gTexture_diffuse);
-						glUniform1i(gTextureSamplerUniform_pointLight, 0);
-						glUniform1i(gTextureActiveUniform_pointLight, 1);
-					}
-					else
-						glUniform1i(gTextureActiveUniform_pointLight, 0);
-				}
-				glDrawArrays(GL_TRIANGLES, gModel_SudarshanChakra.model_mesh_data[i].vertex_Index, gModel_SudarshanChakra.model_mesh_data[i].vertex_Count);
-			}
-			glBindVertexArray(0);
-		}
 	}
 }
 void display_pointLight()

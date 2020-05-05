@@ -269,7 +269,6 @@ void initialize_perFragmentLight()
 
 }
 
-/*float TranslateMeasure[] = {200.0f, 700.0f, 1200.0f, 1800.0f, 2300.0f, 2900.0f, 3500.0f};
 void display_perFragmentLight()
 {
 	static const GLfloat one = { 1.0f };
@@ -312,7 +311,7 @@ void display_perFragmentLight()
 		/*glUniform3fv(gKdUniform_perFragmentLight, 1, material_diffuse);
 		glUniform3fv(gKaUniform_perFragmentLight, 1, material_ambient);
 		glUniform3fv(gKsUniform_perFragmentLight, 1, material_specular);
-		glUniform1f(gMaterialShininessUniform_perFragmentLight, material_shininess);
+		glUniform1f(gMaterialShininessUniform_perFragmentLight, material_shininess);*/
 
 	}
 	else
@@ -333,272 +332,14 @@ void display_perFragmentLight()
 	gViewMatrix = lookat(vmath_camera_eye_coord, vmath_camera_center_coord, vmath_camera_up_coord);
 	//glUniformMatrix4fv(gViewMatrixUniform_perFragmentLight, 1, GL_FALSE, viewMatrix);
 	glUniformMatrix4fv(gViewMatrixUniform_perFragmentLight, 1, GL_FALSE, gViewMatrix);
-	modelMatrix = vmath::translate(0.0f, 0.0f, -2.0f);
+	//modelMatrix = vmath::translate(0.0f, 0.0f, -2.0f);
 
 	glUniformMatrix4fv(gProjectionMatrixUniform_perFragmentLight, 1, GL_FALSE, gPerspectiveProjectionMatrix);
 	
 	glUniform1i(applyBloomUniform_perFragmentLight, 0);
 
-	if (isRajeInSabha == true)
-	{
-		//other raje
-		for (int i = 0; i < 14; i++)
-		{
-			modelMatrix = mat4::identity();
-			scaleMatrix = mat4::identity();
-			rotateMatrix = mat4::identity();
-				if (i < 7)
-				{
-					modelMatrix = vmath::translate(TranslateMeasure[i], -10.0f, 650.0f);
-					if (isFirstScene == false)
-					{
-						if (i == 4)
-							goto NEXT;
-					}
-				}
-				else {
-					modelMatrix = vmath::translate(TranslateMeasure[i - 7], -10.0f, -650.0f);
-				}
-			scaleMatrix = scale(170.0f, 170.0f, 170.0f);
-			if (i < 7)
-			{
-				rotateMatrix = rotate(180.0f, 0.0f, 1.0f, 0.0f);
-			}
-
-			modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
-			
-			glUniformMatrix4fv(gModelMatrixUniform_perFragmentLight, 1, GL_FALSE, modelMatrix);
-
-			if (i % 2 == 0)
-			{
-				glBindVertexArray(gModel_Krishna_Seated.Vao);
-				for (int i = 0; i < gModel_Krishna_Seated.model_mesh_data.size(); i++)
-				{
-					if (gbLight == true)
-					{
-						glUniform3fv(gKaUniform_perFragmentLight, 1, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].Ka);
-						glUniform3fv(gKdUniform_perFragmentLight, 1, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].Kd);
-						glUniform3fv(gKsUniform_perFragmentLight, 1, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].Ks);
-						glUniform1f(gMaterialShininessUniform_perFragmentLight, material_shininess);
-						glUniform1f(gAlphaUniform_perFragmentLight, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].d);
-						if (gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].ismap_Kd == true)
-						{
-							glActiveTexture(GL_TEXTURE0);
-							glBindTexture(GL_TEXTURE_2D, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].gTexture_diffuse);
-							glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
-							glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
-							
-						}
-						else
-							glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
-					}
-					glDrawArrays(GL_TRIANGLES, gModel_Krishna_Seated.model_mesh_data[i].vertex_Index, gModel_Krishna_Seated.model_mesh_data[i].vertex_Count);
-				}
-			
-			}
-			else
-			{
-				glBindVertexArray(gModel_Krishna_Seated2.Vao);
-				for (int i = 0; i < gModel_Krishna_Seated2.model_mesh_data.size(); i++)
-				{
-					if (gbLight == true)
-					{
-						glUniform3fv(gKaUniform_perFragmentLight, 1, gModel_Krishna_Seated2.model_material[gModel_Krishna_Seated2.model_mesh_data[i].material_index].Ka);
-						glUniform3fv(gKdUniform_perFragmentLight, 1, gModel_Krishna_Seated2.model_material[gModel_Krishna_Seated2.model_mesh_data[i].material_index].Kd);
-						glUniform3fv(gKsUniform_perFragmentLight, 1, gModel_Krishna_Seated2.model_material[gModel_Krishna_Seated2.model_mesh_data[i].material_index].Ks);
-						glUniform1f(gMaterialShininessUniform_perFragmentLight, material_shininess);
-						glUniform1f(gAlphaUniform_perFragmentLight, gModel_Krishna_Seated2.model_material[gModel_Krishna_Seated2.model_mesh_data[i].material_index].d);
-						if (gModel_Krishna_Seated2.model_material[gModel_Krishna_Seated2.model_mesh_data[i].material_index].ismap_Kd == true)
-						{
-							glActiveTexture(GL_TEXTURE0);
-							glBindTexture(GL_TEXTURE_2D, gModel_Krishna_Seated2.model_material[gModel_Krishna_Seated2.model_mesh_data[i].material_index].gTexture_diffuse);
-							glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
-							glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
-							
-						}
-						else
-							glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
-					}
-					glDrawArrays(GL_TRIANGLES, gModel_Krishna_Seated2.model_mesh_data[i].vertex_Index, gModel_Krishna_Seated2.model_mesh_data[i].vertex_Count);
-				}
-			
-				
-			}
-		NEXT:
-			glBindVertexArray(0);
-
-		}
-
-		//sadhu
-
-		modelMatrix = mat4::identity();
-		scaleMatrix = mat4::identity();
-		rotateMatrix = mat4::identity();
-
-		modelMatrix = vmath::translate(1455.0f, -45.0f, -30.0f);
-		scaleMatrix = scale(300.0f, 300.0f, 300.0f);
-		rotateMatrix = rotate(-90.0f, 0.0f, 1.0f, 0.0f);
-
-		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
-
-		glUniformMatrix4fv(gModelMatrixUniform_perFragmentLight, 1, GL_FALSE, modelMatrix);
-		glBindVertexArray(gModel_Krishna_Seated.Vao);
-		for (int i = 0; i < gModel_Krishna_Seated.model_mesh_data.size(); i++)
-		{
-			if (gbLight == true)
-			{
-				glUniform3fv(gKaUniform_perFragmentLight, 1, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].Ka);
-				glUniform3fv(gKdUniform_perFragmentLight, 1, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].Kd);
-				glUniform3fv(gKsUniform_perFragmentLight, 1, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].Ks);
-				glUniform1f(gMaterialShininessUniform_perFragmentLight, material_shininess);
-				glUniform1f(gAlphaUniform_perFragmentLight, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].d);
-				if (gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].ismap_Kd == true)
-				{
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].gTexture_diffuse);
-					glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
-					glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
-					
-				}
-				else
-					glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
-			}
-			glDrawArrays(GL_TRIANGLES, gModel_Krishna_Seated.model_mesh_data[i].vertex_Index, gModel_Krishna_Seated.model_mesh_data[i].vertex_Count);
-		}
-		glBindVertexArray(0);
-	}
-
-	//other chair
-	glUniform1i(applyBloomUniform_perFragmentLight, 0);
-	for(int i = 0; i < 14; i++)
-	{
-
-		modelMatrix = mat4::identity();
-		scaleMatrix = mat4::identity();
-		rotateMatrix = mat4::identity();
-		if(i < 7)
-		{
-		modelMatrix = vmath::translate(TranslateMeasure[i], 40.0f, 700.0f);
-		}
-		else{
-		modelMatrix = vmath::translate(TranslateMeasure[i-7], 40.0f, -700.0f);
-		}
-		scaleMatrix = scale(30.0f, 30.0f, 30.0f);
-		if(i < 7)
-		{
-		rotateMatrix = rotate(180.0f, 0.0f, 1.0f, 0.0f);
-		}
-
-		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
-
-		glUniformMatrix4fv(gModelMatrixUniform_perFragmentLight, 1, GL_FALSE, modelMatrix);
-		glBindVertexArray(gModel_OtherChair.Vao);
-		for (int i = 0; i < gModel_OtherChair.model_mesh_data.size(); i++)
-		{
-		if (gbLight == true)
-		{
-			glUniform3fv(gKaUniform_perFragmentLight, 1, gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].Ka);
-			glUniform3fv(gKdUniform_perFragmentLight, 1, gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].Kd);
-			glUniform3fv(gKsUniform_perFragmentLight, 1, gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].Ks);
-			glUniform1f(gMaterialShininessUniform_perFragmentLight, material_shininess);
-			glUniform1f(gAlphaUniform_perFragmentLight, gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].d);
-			if (gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].ismap_Kd == true)
-			{
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].gTexture_diffuse);
-				glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
-				glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
-				
-			}
-			else
-				glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
-		}
-		glDrawArrays(GL_TRIANGLES, gModel_OtherChair.model_mesh_data[i].vertex_Index, gModel_OtherChair.model_mesh_data[i].vertex_Count);
-		}
-
-		glBindVertexArray(0);
-
-		
-	}
-	
-		
-//krishna chair
-	modelMatrix = mat4::identity();
-	scaleMatrix = mat4::identity();
-	rotateMatrix = mat4::identity();
-	modelMatrix = vmath::translate(-380.0f, 135.0f, 1.0f);
-	scaleMatrix = scale(45.0f, 45.0f, 45.0f);
-	rotateMatrix = rotate(90.0f, 0.0f, 1.0f, 0.0f);
-
-	modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
-
-	glUniformMatrix4fv(gModelMatrixUniform_perFragmentLight, 1, GL_FALSE, modelMatrix);
-	glBindVertexArray(gModel_KrishnaChair.Vao);
-	for (int i = 0; i < gModel_KrishnaChair.model_mesh_data.size(); i++)
-	{
-		if (gbLight == true)
-		{
-			glUniform3fv(gKaUniform_perFragmentLight, 1, gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].Ka);
-			glUniform3fv(gKdUniform_perFragmentLight, 1, gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].Kd);
-			glUniform3fv(gKsUniform_perFragmentLight, 1, gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].Ks);
-			glUniform1f(gMaterialShininessUniform_perFragmentLight, material_shininess);
-			glUniform1f(gAlphaUniform_perFragmentLight, gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].d);
-			if (gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].ismap_Kd == true)
-			{
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].gTexture_diffuse);
-				glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
-				glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
-			
-			}
-			else
-				glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
-		}
-		glDrawArrays(GL_TRIANGLES, gModel_KrishnaChair.model_mesh_data[i].vertex_Index, gModel_KrishnaChair.model_mesh_data[i].vertex_Count);
-	}
-	glBindVertexArray(0);
-
 	if (isFirstScene == false)
 	{
-
-		// shishupal model
-		glUniform1i(applyBloomUniform_perFragmentLight, 0);
-		modelMatrix = mat4::identity();
-		scaleMatrix = mat4::identity();
-		rotateMatrix = mat4::identity();
-
-		modelMatrix = vmath::translate(2300.0f, -15.0f, 600.0f);
-		scaleMatrix = scale(200.0f, 200.0f, 200.0f);
-		rotateMatrix = rotate(230.0f, 0.0f, 1.0f, 0.0f);
-
-		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
-
-		glUniformMatrix4fv(gModelMatrixUniform_perFragmentLight, 1, GL_FALSE, modelMatrix);
-		glBindVertexArray(gModel_Krishna.Vao);
-		for (int i = 0; i < gModel_Krishna.model_mesh_data.size(); i++)
-		{
-			if (gbLight == true)
-			{
-				glUniform3fv(gKaUniform_perFragmentLight, 1, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].Ka);
-				glUniform3fv(gKdUniform_perFragmentLight, 1, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].Kd);
-				glUniform3fv(gKsUniform_perFragmentLight, 1, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].Ks);
-				glUniform1f(gMaterialShininessUniform_perFragmentLight, material_shininess);
-				glUniform1f(gAlphaUniform_perFragmentLight, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].d);
-				if (gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].ismap_Kd == true)
-				{
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].gTexture_diffuse);
-					glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
-					glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
-					
-				}
-				else
-					glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
-			}
-			glDrawArrays(GL_TRIANGLES, gModel_Krishna.model_mesh_data[i].vertex_Index, gModel_Krishna.model_mesh_data[i].vertex_Count);
-		}
-		glBindVertexArray(0);
-
 		static float gAngle_rotateY = 0.0f;
 		if (isHandsUpDone == true)
 		{
@@ -646,7 +387,7 @@ void display_perFragmentLight()
 	}
 
 	glUseProgram(0);
-}*/
+}
 
 void update_perFragmentLight()
 {

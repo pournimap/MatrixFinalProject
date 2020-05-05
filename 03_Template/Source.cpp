@@ -797,7 +797,7 @@ void display(void)
 				renderBrightChakraSource();
 			}
 
-			//display_perFragmentLight();
+			display_perFragmentLight();
 
 			display_pointLight();
 
