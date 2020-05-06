@@ -317,7 +317,7 @@ void initFirstScene()
 float t_fire_FirstScene = 0.0f;
 
 //vec3 positionLamp_FirstScene[] = { vec3(0.0f, 50.0f, 20.0f), vec3(0.0f, -0.5f, 0.0f) };
-vec3 positionLamp_FirstScene[] = { vec3(-0.2f, -5.5f, -20.0f) };
+vec3 positionLamp_FirstScene[] = { vec3(-0.2f, -0.5f, -20.0f) };
 //0.0f, -20.0f, -30.0f
 
 void draw_image(int isBloom, GLfloat TranslateX, GLfloat TranslateY, GLfloat TranslateZ, GLfloat RotateAngleZ, GLfloat RotateZDir, GLuint texture_id)
