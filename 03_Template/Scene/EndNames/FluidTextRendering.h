@@ -252,7 +252,10 @@ void Update_FluidText(void)
 		NameCount_fluidText = NameCount_fluidText + 1;
 		clear_data();
 	}
-
+	if (NameCount_fluidText >= 7)
+	{
+		isEndTitle = true;
+	}
 	time_fluid_Text += 0.05f;
 	if (time_fluid_Text >= 360.0f)
 		time_fluid_Text = 0.0f;
@@ -333,13 +336,13 @@ void initFluidText(void)
 			"float alpha	= smoothstep(glyph_center - width, glyph_center+width, dist);" \
 
 			"vec2 uv = TexCoords.xy;" \
-			"uv.y = uv.y + 0.1 * sin(iTime + 5.0 * uv.x);" \
+			"uv.y = uv.y + 0.1 * sin(iTime + 2.0 * uv.x);" \
 			
 			"vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, uv).r);" \
 			/*"FragColor = vec4(1.0, 1.0,1.0, 1.0) * sampled;" \*/
 			"vec3 rgb		= mix(glow_color, glyph_color, alpha);" \
 			"float mu		= smoothstep(glyph_center, glow_center, sqrt(dist));" \
-			"FragColor		= vec4(rgb, max(alpha, mu)) * sampled;" \
+			"FragColor		= vec4(rgb, max(alpha, mu));" \
 			
 			"FragColor		= FragColor * fluid_tex * fadeinFactor * fadeoutFactor;" \
 		"}";
@@ -661,7 +664,7 @@ void display_FluidText(void)
 	}
 	else if (NameCount_fluidText == 3)
 	{
-		text = "Ajaya Ambaure";
+		text = "Ajaya A/baure";
 		modelMatrix_fluidText = translate(-15.0f, -0.0f, ZTransitionForName_fluidText);
 	}
 	else if (NameCount_fluidText == 4)

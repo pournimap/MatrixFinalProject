@@ -16,9 +16,12 @@
 
 #include "Scene/DepthOfField/DepthOfField.h"
 
-#include"Scene/EndNames/FluidTextRendering.h"
-
 #include "Scene/XAudio/Audio.h"
+
+#include"Scene/EndNames/FluidTextRendering.h"
+#include "Scene/EndNames/TextRendering.h"
+
+
 #include "Scene/FirstScene/FirstScene.h"
 
 // Callback
@@ -721,6 +724,7 @@ int initialize(void)
 	initializeDepthOfField();
 
 	initialize_FluidText();
+	initTextRendering();
 
 	InitColorProgramShaders();
 	initBrightChakraSource();
@@ -762,90 +766,103 @@ int initialize(void)
 
 void display(void)
 {
-	
-	if (iShowEndScene)
+	if (isStartTitle)
 	{
-		display_FluidText();
+		display_textRendering_FirstPage();
 	}
 	else
 	{
-		static const GLfloat one = { 1.0f };
-		static const GLfloat black[] = { 0.0f, 0.0f, 0.0, 1.0f };
-
-		//if (bDoneFadeOutFirstScene == false)
-		//{
-			//renderShadowDepthShader_FirstScene();
-		//}
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glViewport(0, 0, gWidth, gHeight);
-		//call your scene Display here
-
-		glBindFramebuffer(GL_FRAMEBUFFER, render_fbo_bloom);
-		glClearBufferfv(GL_COLOR, 0, black);	// GL_COLOR_ATTACHMENT0
-		glClearBufferfv(GL_COLOR, 1, black);	// GL_COLOR_ATTACHMENT1
-		glClearBufferfv(GL_COLOR, 2, black);	// GL_COLOR_ATTACHMENT2
-		glClearBufferfv(GL_DEPTH, 0, &one);
-
-	
-		if(isShowStartingScene == false)
-		{ 
-		
-			//applyDOF();
-			if (gbGoToFullViewKrishna)
-			{
-				//renderBrightSource();
-				renderBrightChakraSource();
-			}
-
-			display_perFragmentLight();
-
-			display_pointLight();
-
-			Clothdisplay();
-			if (isFireInYadnya == true)
-			{
-				display_fire();
-			}
-			if (isFirstScene == false)
-			{
-				if (isAssimpAnimatedModelShow == true)
-					display_AssimpModelLoader();
-				else
-					display_krishnaAnimate();
-			}
-
-			//stopApplyingDOF();
-		}
-		if (bDoneFadeOutFirstScene == false)
+		if (iShowEndScene)
 		{
-			renderLampWithPointLight();
+			if (isEndTitle)
+			{
+				display_textRendering_SecondLastPage();
+			}
+			else
+			{
+				display_FluidText();
+			}
 		}
-		
+		else
+		{
+			static const GLfloat one = { 1.0f };
+			static const GLfloat black[] = { 0.0f, 0.0f, 0.0, 1.0f };
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			//if (bDoneFadeOutFirstScene == false)
+			//{
+				//renderShadowDepthShader_FirstScene();
+			//}
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glViewport(0, 0, gWidth, gHeight);
+			//call your scene Display here
+
+			glBindFramebuffer(GL_FRAMEBUFFER, render_fbo_bloom);
+			glClearBufferfv(GL_COLOR, 0, black);	// GL_COLOR_ATTACHMENT0
+			glClearBufferfv(GL_COLOR, 1, black);	// GL_COLOR_ATTACHMENT1
+			glClearBufferfv(GL_COLOR, 2, black);	// GL_COLOR_ATTACHMENT2
+			glClearBufferfv(GL_DEPTH, 0, &one);
 
 
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, render_fbo_bloom);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, intermediate_fbo);
-	
-		glReadBuffer(GL_COLOR_ATTACHMENT0);
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		glBlitFramebuffer(0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, 0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+			if (isShowStartingScene == false)
+			{
 
-		glReadBuffer(GL_COLOR_ATTACHMENT1);
-		glDrawBuffer(GL_COLOR_ATTACHMENT1);
-		glBlitFramebuffer(0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, 0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+				//applyDOF();
+				if (gbGoToFullViewKrishna)
+				{
+					//renderBrightSource();
+					renderBrightChakraSource();
+				}
 
-		glReadBuffer(GL_COLOR_ATTACHMENT2);
-		glDrawBuffer(GL_COLOR_ATTACHMENT2);
-		glBlitFramebuffer(0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, 0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+				display_perFragmentLight();
 
-		glBlitFramebuffer(0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, 0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-	
-		display_GodRaysPostProcessing();
+				display_pointLight();
 
-		glViewport(0, 0, gWidth, gHeight);
-		ApplyingBloom();
+				Clothdisplay();
+				if (isFireInYadnya == true)
+				{
+					display_fire();
+				}
+				if (isFirstScene == false)
+				{
+					if (isAssimpAnimatedModelShow == true)
+						display_AssimpModelLoader();
+					else
+						display_krishnaAnimate();
+				}
+
+				//stopApplyingDOF();
+			}
+			if (bDoneFadeOutFirstScene == false)
+			{
+				renderLampWithPointLight();
+			}
+
+
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, render_fbo_bloom);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, intermediate_fbo);
+
+			glReadBuffer(GL_COLOR_ATTACHMENT0);
+			glDrawBuffer(GL_COLOR_ATTACHMENT0);
+			glBlitFramebuffer(0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, 0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+			glReadBuffer(GL_COLOR_ATTACHMENT1);
+			glDrawBuffer(GL_COLOR_ATTACHMENT1);
+			glBlitFramebuffer(0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, 0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+			glReadBuffer(GL_COLOR_ATTACHMENT2);
+			glDrawBuffer(GL_COLOR_ATTACHMENT2);
+			glBlitFramebuffer(0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, 0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+			glBlitFramebuffer(0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, 0, 0, MAX_SCENE_WIDTH, MAX_SCENE_HEIGHT, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+			display_GodRaysPostProcessing();
+
+			glViewport(0, 0, gWidth, gHeight);
+			ApplyingBloom();
+		}
 	}
 
 	SwapBuffers(ghdc);

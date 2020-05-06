@@ -102,6 +102,9 @@ bool isFireInYadnya = false;
 bool isRajeInSabha = false;
 bool isAssimpAnimatedModelShow = false;
 bool isModelAnimationStart = false;
+bool isStartTitle = true;
+bool isEndTitle = false;
+bool startAnimation = false;
 void programObjectSafeRelease(GLuint shaderProgramObject) {
 	// code
 	if (shaderProgramObject) {

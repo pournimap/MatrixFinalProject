@@ -50,7 +50,7 @@ GLuint texture6_book;
 GLuint texture7_book;
 
 
-bool startAnimation = false;
+
 GLfloat temp_counter_for_candleShow = 0.0f;
 bool ShowCandleDone = false;
 
