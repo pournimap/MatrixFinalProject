@@ -488,7 +488,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			fprintf(gpFile, "____________________________________________________\n");
 			*/
 
-			/*fprintf(gpFile, "\n\n First Scene Current Positins Camera  : \n");
+			fprintf(gpFile, "\n\n First Scene Current Positins Camera  : \n");
 			fflush(gpFile);
 			fprintf(gpFile, "___________________________________________________ \n");
 			fflush(gpFile);
@@ -499,8 +499,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			fprintf(gpFile, "up coodinates     :  %f     , %f     , %f  \n", first_scene_camera_up_coord[0],		first_scene_camera_up_coord[1],		first_scene_camera_up_coord[2]);
 			fflush(gpFile);
 			fprintf(gpFile, "___________________________________________________ \n");
-			fflush(gpFile);*/
-			fprintf(gpFile, "fps_counter_second_scene = %f\n", fps_counter_second_scene);
+			fflush(gpFile);
+			//fprintf(gpFile, "fps_counter_second_scene = %f\n", fps_counter_second_scene);
 			fflush(gpFile);
 			break;
 
@@ -562,7 +562,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 		case 'g':
 		case 'G':
-			gpIXAudio2_SceneFirstSourceVoice->Start(0);
+			//gpIXAudio2_SceneFirstSourceVoice->Start(0);
+			isStartTitle = true;
 			break;
 
 		case 'm':
@@ -909,7 +910,7 @@ void update(void)
 		//	vmath_camera_center_coord[1] = 195.00f;
 		//	vmath_camera_center_coord[2] = 0.0f;
 		//}
-		if (fps_counter_second_scene == 2700)
+		if (fps_counter_second_scene == 2800)
 		{
 			isModelAnimationStart = true;
 		}

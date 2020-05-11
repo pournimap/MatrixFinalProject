@@ -659,7 +659,7 @@ void display_FluidText(void)
 	}
 	else if (NameCount_fluidText == 2)
 	{
-		text = "BauVaNa kLmakr";
+		text = "BaUVaNa kLmakr";
 		modelMatrix_fluidText = translate(-14.0f, -0.0f, ZTransitionForName_fluidText);
 	}
 	else if (NameCount_fluidText == 3)

@@ -612,7 +612,7 @@ void renderLampWithPointLight()
 
 		//modelMatrix_fire = vmath::translate(-20.0f, 1.0f, -90.0f);
 		//modelMatrix_fire = vmath::translate(-25.5f, -3.0f, -10.0f);
-		modelMatrix_fire = vmath::translate(-0.2f, -6.0f, -20.0f);
+		modelMatrix_fire = vmath::translate(-0.1f, -5.8f, -20.0f);
 		scaleMatrix_fire = vmath::scale(1.0f, 3.5f, 0.5f);
 		//scaleMatrix_fire	= vmath::scale(50.0f, 50.0f, 100.0f);
 		//rotateMatrix_fire = rotate(75.0f, 0.0f, 1.0f, 0.0f);
@@ -627,7 +627,7 @@ void renderLampWithPointLight()
 
 		//glPointSize(gWidth_fire / 10);
 		//glPointSize(50);
-		glPointSize(15);
+		glPointSize(25);
 		glActiveTexture(GL_TEXTURE0);
 
 		glBindTexture(GL_TEXTURE_2D, gParticleTexture_fire);
@@ -788,32 +788,32 @@ void updteForFirstScene()
 										SevenImageDone = true;  // SEVEN IMAGE DONE
 
 										if (ShowCandleDone == false &&
-											first_scene_camera_eye_coord[0] > 0.0f && first_scene_camera_eye_coord[1] > -1.0f && first_scene_camera_eye_coord[2] > 7.0f &&
-											first_scene_camera_center_coord[0] > 0.0f && first_scene_camera_center_coord[1] < -2.0f
+											first_scene_camera_eye_coord[0] > 0.0f && first_scene_camera_eye_coord[1] > -12.0f && first_scene_camera_eye_coord[2] > 20.0f &&
+											first_scene_camera_center_coord[0] > 0.0f && first_scene_camera_center_coord[1] < -5.0f
 											)
 										{
 											first_scene_camera_eye_coord[0] -= (46.0f - 0.0f) / 200.0f;
-											first_scene_camera_eye_coord[1] -= (3.f - 1.0f) / 200.0f;
-											first_scene_camera_eye_coord[2] -= (38.0f - 7.0f) / 200.0f;
+											first_scene_camera_eye_coord[1] -= (12.f - 3.0f) / 200.0f;
+											first_scene_camera_eye_coord[2] -= (38.0f - 20.0f) / 200.0f;
 
 											first_scene_camera_center_coord[0] -= (43.0f - 0.0f) / 200.0f;
-											first_scene_camera_center_coord[1] += (54.0f - 2.0f) / 200.0f;
+											first_scene_camera_center_coord[1] += (54.0f - 5.0f) / 200.0f;
 										}
 										else
 										{
 											ShowCandleDone = true;
 											temp_counter_for_candleShow = temp_counter_for_candleShow + 0.01f;
 											if (temp_counter_for_candleShow > 19.8f && LastImageDone == false &&
-												first_scene_camera_eye_coord[0] < 10.0f && first_scene_camera_eye_coord[1] > -2.0f && first_scene_camera_eye_coord[2] < 24.0f &&
-												first_scene_camera_center_coord[0] < 10.0f && first_scene_camera_center_coord[1] > -28.0f
+												first_scene_camera_eye_coord[0] < 10.0f &&  first_scene_camera_eye_coord[2] < 24.0f &&
+												first_scene_camera_center_coord[0] < 10.0f && first_scene_camera_center_coord[1] > -30.0f
 												)
 											{
 												first_scene_camera_eye_coord[0] += (10.0f - 0.0f) / 200.0f;
-												first_scene_camera_eye_coord[1] -= (2.0f - 1.0f) / 200.0f;
-												first_scene_camera_eye_coord[2] += (24.0f - 7.0f) / 200.0f;
+												//first_scene_camera_eye_coord[1] -= (2.0f - 1.0f) / 200.0f;
+												first_scene_camera_eye_coord[2] += (24.0f - 20.0f) / 200.0f;
 
 												first_scene_camera_center_coord[0] += (10.0f - 0.0f) / 200.0f;
-												first_scene_camera_center_coord[1] -= (28.0f - 2.0f) / 200.0f;
+												first_scene_camera_center_coord[1] -= (30.0f - 5.0f) / 200.0f;
 											}
 											else
 											{
