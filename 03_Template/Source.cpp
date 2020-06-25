@@ -912,6 +912,7 @@ void update(void)
 		//}
 		if (fps_counter_second_scene == 2800)
 		{
+			angry_cloth_flag = true;
 			isModelAnimationStart = true;
 		}
 		//if (fps_counter_second_scene == 2860)

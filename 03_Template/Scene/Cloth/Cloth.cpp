@@ -11,11 +11,6 @@
 #include "vmath.h"
 #include "../../Include/Camera/Camera_2.h"
 
-//#include "Include/Common_Header.h"
-/*
-#include "Include/BasicShapeLoader/Shapes/Matrix_BasicShapes.h"
-#include "vmath.h"
-*/
 #include "cuda.h" // for CUDA
 
 
@@ -30,9 +25,6 @@ using namespace vmath;
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "C:\\glew\\lib\\Release\\x64\\glew32.lib")
 #pragma comment(lib, "cudart.lib")
-
-
-
 
 
 //******* Macros **********//
@@ -50,13 +42,7 @@ enum {
 };
 
 //**** Global variable declaration ************//
-//bool bFullScreen = false;
-//DWORD dwStyle;
-//HWND ghWnd = NULL;
-//WINDOWPLACEMENT wpPrev = { sizeof(WINDOWPLACEMENT) };
-//HDC ghdc = NULL;
-//HGLRC ghrc = NULL;
-//bool gbActiveWindow = false;
+
 FILE *ClothgpFile = NULL;
 struct cudaGraphicsResource *ClothgraphicResourcePos = NULL;
 struct cudaGraphicsResource *ClothgraphicResourceNor = NULL;
@@ -78,7 +64,7 @@ GLuint ClothApplyBloomUniform, ClothBloomIsActiveUniform;
 GLuint ClothBloom_thresh_minUniform, ClothBloom_thresh_maxUniform;
 GLuint ClothFadeinFactorUniform, ClothFadeoutFactorUniform;
 
-float ClothlightAmbient[4] = { 0.0f,0.0f,0.0f,0.0f };
+float ClothlightAmbient[4] = { 0.2f,0.2f,0.2f,0.2f };
 float ClothlightDiffuse[4] = { 0.5f,0.0f,0.0f,1.0f };
 float ClothlightSpecular[4] = { 0.7f,0.5f,0.2f,1.0f };
 float ClothlightPosition[4] = { 100.0f,100.0f,100.0f,1.0f };
@@ -90,7 +76,7 @@ float ClothlightSpecular2[4] = { 1.0f,0.0f,0.0f,1.0f };
 float ClothlightDiffuse3[4] = { 0.0f,0.5f,0.0f,1.0f };
 float ClothlightSpecular3[4] = { 0.7f,0.5f,0.2f,1.0f };
 
-float ClothmaterialAmbient[4] = { 0.0f,0.0f,0.0f,0.0f };
+float ClothmaterialAmbient[4] = { 0.01f,0.01f,0.01f,1.0f };
 float ClothmaterialDiffuse[4] = { 1.0f,1.0f,1.0f,1.0f };
 float ClothmaterialSpecular[4] = { 1.0f,1.0f,1.0f,1.0f };
 float ClothmaterialShinyness = 128.0f;
@@ -99,22 +85,15 @@ mat4 ClothperspectiveProjectionMatrix;  //this is from Vmath
 bool ClothbLight = true;
 
 
-
-
-
 float Clothlength(float* v)
 {
 	return sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
 }
 
 
-
 #define DAMPING 0.0 // how much to damp the cloth simulation each frame
-#define TIME_STEPSIZE2 0.3  // how large time step each particle takes each frame
+#define TIME_STEPSIZE2 0.3f  // how large time step each particle takes each frame
 #define CONSTRAINT_ITERATIONS 50 // how many iterations of constraint satisfaction each frame (more is rigid, less is soft)
-
-
-
 
 
 
@@ -124,7 +103,6 @@ float Clothlength(float* v)
 #define CLOTHHEIGHT_NOOFPARTICLES  80
 #define NOOFPARTICLE CLOTHWIDTH_NOOFPARTICLES*CLOTHHEIGHT_NOOFPARTICLES
 #define NEIGHBOUR_PARTICLES_ARRAY_INDEX 37802 //((CLOTHWIDTH_NOOFPARTICLES*CLOTHHEIGHT_NOOFPARTICLES*4)-598)
-
 
 
 float3 ClothParticles_pos_array[NOOFPARTICLE];
@@ -145,12 +123,15 @@ float3 *ClothGPUParticles_Accelaration = NULL;
 size_t tPitch = 0;
 
 float windForceY = 0.4f;
+extern bool angry_cloth_flag;
 
 int Clothparticle_width =CLOTHWIDTH_NOOFPARTICLES, Clothparticle_height =CLOTHHEIGHT_NOOFPARTICLES;
 float mass = 1.0;
-float3 Clothaccelaration={0.0 * TIME_STEPSIZE2, -0.8 * TIME_STEPSIZE2, 0.05 * TIME_STEPSIZE2};
+//float3 Clothaccelaration={0.0 * TIME_STEPSIZE2, -0.01 , 0.000000001};
+float3 Clothaccelaration = { 0.0 * TIME_STEPSIZE2, -0.09 , 0.000000005 };
 
-float3 ClothwindForce = {0.0f * TIME_STEPSIZE2, windForceY * TIME_STEPSIZE2, 0.005f * TIME_STEPSIZE2};
+//float3 ClothwindForce = {0.0f * TIME_STEPSIZE2, 0.0f * TIME_STEPSIZE2, 0.0f * TIME_STEPSIZE2};
+float3 ClothwindForce = { 0.0f * TIME_STEPSIZE2, windForceY * TIME_STEPSIZE2, 0.05f * TIME_STEPSIZE2 };
 int widthaddjustment = 0;
 //********* Global function declaration ***********//
 
@@ -166,7 +147,44 @@ float3 getParticleNormals(int x, int y) { return ClothParticles_Normals[y*Clothp
 
 int ClothgetParticles_pos_array_index(int x, int y) { return y*Clothparticle_width + x; }
 
+#define gNumPointLights_Cloth  20
+struct PointLightUniform_Cloth
+{
+	GLuint u_La;
+	GLuint u_Ld;
+	GLuint u_Ls;
+	GLuint u_constant;
+	GLuint u_linear;
+	GLuint u_quadratic;
+	GLuint position;
+	GLuint DiffuseIntensity;
+};
+PointLightUniform_Cloth m_pointLightsLocation[gNumPointLights_Cloth];
 
+struct PointLight_Cloth
+{
+	vec3 u_La;
+	vec3 u_Ld;
+	vec3 u_Ls;
+	float DiffuseIntensity;
+	float u_constant;
+	float u_linear;
+	float u_quadratic;
+	vec3 position;
+	PointLight_Cloth()
+	{
+		position = vec3(0.0, 0.0, 0.0);
+		u_constant = 0.0f;
+		u_linear = 0.0f;
+		u_quadratic = 0.0f;
+		u_La = vec3(0.0, 0.0, 0.0);
+		u_Ld = vec3(0.0, 0.0, 0.0);
+		u_Ls = vec3(0.0, 0.0, 0.0);
+	}
+};
+GLuint ClothViewPosUniform, ClothNumPointLightsUniform;
+
+extern FILE* gpFile;
 
 void ClothMovable()
 {
@@ -191,11 +209,10 @@ void ClothMovable()
 }
 
 
-
 void Cloth(float width, float height, int num_particles_width, int num_particles_height) 
 {
-		
-		// creating particles in a grid of particles from (0,0,0) to (width,-height,0)
+
+	// creating particles in a grid of particles from (0,0,0) to (width,-height,0)
 		for (int x = 0; x < num_particles_width; x++)
 		{
 			for (int y = 0; y < num_particles_height; y++)
@@ -293,26 +310,24 @@ void Cloth(float width, float height, int num_particles_width, int num_particles
 				}
 			}
 		}
-		
-		//fprintf(ClothgpFile, "Size of Array index =%d ", index);
-		
+
 		ClothMovable();
-		
 		
 }
 
 
 int Clothintialize(void)
 {
-	//fprintf(ClothgpFile, "Inside Intialization.!!!\n");
-	// ******* Function declaration **********//
-	
+	//fopen_s(&ClothgpFile, "ClothLog.txt", "w");
+	fprintf(gpFile, "Log File Successfully Created.\n");
+	fflush(gpFile);
+
 	//Define VertexShader Object
 	ClothgVertexShaderObject = glCreateShader(GL_VERTEX_SHADER);
 	//Specify/Write vertex shader code
 
 	const GLchar *VertexShaderSourseCode =
-		"#version 450 core" \
+		/*"#version 450 core" \
 		"\n" \
 		"in vec4 vPosition;" \
 		"in vec3 vNormal;" \
@@ -334,13 +349,35 @@ int Clothintialize(void)
 		"viewer_vector =vec3(-eye_coordinate.xyz);" \
 		"}" \
 		"gl_Position = u_projection_matrix * u_view_matrix * u_model_matrix * vPosition;" \
+		"}";*/
+		"#version 450 core" \
+		"\n" \
+		"in vec4 vPosition;" \
+		"in vec3 vNormal;" \
+
+		"uniform int u_Lkeypress;" \
+		"uniform mat4 u_model_matrix;" \
+		"uniform mat4 u_view_matrix;" \
+		"uniform mat4 u_projection_matrix;" \
+		"uniform vec4 u_lightPosition;" \
+
+		"out vec3 Transformednormal;" \
+		"out vec3 lightDirection;" \
+		"out vec3 viewer_vector;" \
+		"out vec3 fragment_position;" \
+
+		"void main(void)" \
+		"{" \
+		"if(u_Lkeypress==1)" \
+		"{" \
+		"fragment_position = vec3(u_model_matrix * vPosition);" \
+		"vec4 eye_coordinate = u_view_matrix * u_model_matrix * vPosition;" \
+		"Transformednormal=mat3(u_view_matrix * u_model_matrix) * vNormal;" \
+		"lightDirection = vec3(u_lightPosition - eye_coordinate);" \
+		"viewer_vector =vec3(-eye_coordinate.xyz);" \
+		"}" \
+		"gl_Position = u_projection_matrix * u_view_matrix * u_model_matrix * vPosition;" \
 		"}";
-
-	//"gl_Position=vec4(0,0,0,0);" \
-
-	/*fprintf(ClothgpFile, "\n Vertex Shader code start");
-	fclose(ClothgpFile);
-	fopen_s(&ClothgpFile, "Log.txt", "a+");*/
 
 	//Specify above code to Vertex Shader object
 	glShaderSource(ClothgVertexShaderObject, 1, (GLchar const**)&VertexShaderSourseCode, NULL);
@@ -349,18 +386,9 @@ int Clothintialize(void)
 	GLint iInfologLength = 0;
 	GLchar *szInfoLog = NULL;
 
-	/*fprintf(ClothgpFile, "\n Vertex Shader source code attached");
-	fclose(ClothgpFile);
-	fopen_s(&ClothgpFile, "Log.txt", "a+");*/
-
 	//Compile the Vertex shader
 	glCompileShader(ClothgVertexShaderObject);
 	glGetShaderiv(ClothgVertexShaderObject, GL_COMPILE_STATUS, &iShaderCompileStatus);
-
-	/*fprintf(ClothgpFile, "\n Vertex Shader compile error checking start \n");
-	fclose(ClothgpFile);
-	fopen_s(&ClothgpFile, "Log.txt", "a+");*/
-
 
 	if (iShaderCompileStatus == GL_FALSE)
 	{
@@ -373,12 +401,11 @@ int Clothintialize(void)
 				GLsizei written;
 				glGetShaderInfoLog(ClothgVertexShaderObject, iInfologLength, &written, szInfoLog);
 
-				/*fprintf(ClothgpFile, "\n VS : %s = ", szInfoLog);
-				fclose(ClothgpFile);
-				fopen_s(&ClothgpFile, "Log.txt", "a+");*/
+				fprintf(gpFile, "\n\nClothgVertexShaderObject Compilation Error: \n%s\n\n", szInfoLog);
+				fflush(gpFile);
+
 				free(szInfoLog);
-				//unintialize();
-				//DestroyWindow(ghWnd);
+		
 				exit(0);
 
 			}
@@ -386,17 +413,13 @@ int Clothintialize(void)
 	}
 
 
-
-
-
 	//Define FragmentShader Object
 	ClothgFragmentShaderObject = glCreateShader(GL_FRAGMENT_SHADER);
 	//Specify/Write fragment shader code
 
 	const GLchar *FragmentShaderSourseCode =
-		"#version 450 core" \
+		/*"#version 450 core" \
 		"\n"
-		/*"out vec4 fragColor;" \*/
 		"layout (location = 0) out vec4 fragColor;" \
 		"layout (location = 1) out vec4 BloomColor;" \
 		"layout (location = 2) out vec4 GodRaysColor;" \
@@ -460,7 +483,144 @@ int Clothintialize(void)
 		"BloomColor = vec4(0.0);" \
 		"}" \
 		"GodRaysColor = vec4(0.0);" \
+		"}";*/
+		"#version 450 core" \
+		"\n"
+		"struct PointLight" \
+		"{" \
+		"vec3 u_La;" \
+		"vec3 u_Ld;" \
+		"vec3 u_Ls;" \
+		"float u_constant;" \
+		"float u_linear;" \
+		"float u_quadratic;" \
+		"vec3 position;" \
+		"float diffuseIntensity;" \
+		"};" \
+
+		"uniform int gNumPointLights;" \
+		"uniform PointLight pointLight[20];" \
+		"uniform vec3 viewPos;" \
+
+
+		"layout (location = 0) out vec4 fragColor;" \
+		"layout (location = 1) out vec4 BloomColor;" \
+		"layout (location = 2) out vec4 GodRaysColor;" \
+		"uniform int u_Lkeypress;" \
+		"uniform vec3 u_la;" \
+		"uniform vec3 u_ld;" \
+		"uniform vec3 u_ls;" \
+		"uniform vec3 u_ka;" \
+		"uniform vec3 u_kd;" \
+		"uniform vec3 u_ks;" \
+		"uniform float u_materialShinyness;" \
+
+		"uniform int applyBloom;" \
+		"uniform float bloom_thresh_min = 0.8f;" \
+		"uniform float bloom_thresh_max = 1.2f;" \
+		"uniform int u_bloom_is_active;" \
+
+		"uniform float fadeinFactor;" \
+		"uniform float fadeoutFactor;" \
+
+		"vec3 phong_ads_light;" \
+		"in vec3 Transformednormal;" \
+		"in vec3 lightDirection;" \
+		"in vec3 viewer_vector;" \
+		"in vec3 fragment_position;" \
+
+
+			"vec3 calculatePointLight(int index)" \
+			"{" \
+			"vec3 pointLightColor;" \
+
+			"vec3 normalized_transformed_normals=normalize(Transformednormal);" \
+
+			"vec3 normalized_light_direction;" \
+			"vec3 normalized_viewer_vector;" \
+
+			"if(index > 8)" \
+			"{" \
+			"normalized_light_direction = normalize(pointLight[index].position - fragment_position); " \
+			"normalized_viewer_vector=normalize(viewPos - fragment_position);" \
+			"}" \
+			"else if(index <= 8)" \
+			"{" \
+			"normalized_light_direction = normalize(pointLight[index].position + fragment_position); " \
+			"normalized_viewer_vector=normalize(viewPos + fragment_position);" \
+			"}" \
+
+
+			"vec3 ambient = pointLight[index].u_La * u_ka;" \
+			"float tn_dot_ld = max(dot(normalized_transformed_normals, normalized_light_direction), 0.0);" \
+			"vec3 diffuse = pointLight[index].u_Ld * u_kd * tn_dot_ld;" \
+
+			"vec3 specular = vec3(0.0, 0.0, 0.0);" \
+			/*"if(u_is_texture == 1)" \
+			"{" \*/
+			"vec3 reflection_vector = reflect(-normalized_light_direction, normalized_transformed_normals);" \
+			"specular = pointLight[index].u_Ls * pow(max(dot(reflection_vector, normalized_viewer_vector), 0.0), u_materialShinyness);" \
+			/*"}" \*/
+
+			"float distance = length(pointLight[index].position - fragment_position);" \
+			"float attenuation = 1.0 / (pointLight[index].u_constant + pointLight[index].u_linear * distance + "\
+			"pointLight[index].u_quadratic * (distance * distance));" \
+
+			"diffuse = diffuse * attenuation;" \
+			"specular = specular * attenuation;" \
+			"pointLightColor = ambient + diffuse + specular;" \
+			"return pointLightColor;" \
+
+			"}" \
+
+		"void main(void)" \
+		"{" \
+		"if(u_Lkeypress==1)" \
+		"{" \
+		/*"vec3 NormalizeTransformednormal = normalize(Transformednormal);"
+		"vec3 NormalizelightDirection = normalize(lightDirection);"
+		"vec3 Normalizeviewer_vector = normalize(viewer_vector);"
+		"float TN_dot_ld = max(dot(NormalizelightDirection,NormalizeTransformednormal),0.0f);" \
+		"vec3 reflection_vector = reflect(-NormalizelightDirection,NormalizeTransformednormal);" \
+		"vec3 ambient = u_la * u_ka;" \
+		"vec3 diffuse = u_ld * u_kd * TN_dot_ld;" \
+		"vec3 specular = u_ls * u_ks * pow(max(dot(reflection_vector , Normalizeviewer_vector ),0.0f),u_materialShinyness);" \
+		"phong_ads_light = ambient + diffuse + specular;" \*/
+
+			"vec3 pointLightColor = vec3(0.0, 0.0, 0.0);" \
+			"for(int i = 0; i < gNumPointLights; i++)" \
+			"{" \
+			"pointLightColor += calculatePointLight(i);" \
+			"}" \
+			"phong_ads_light = pointLightColor;" \
+		"}" \
+		"else" \
+		"{" \
+		"phong_ads_light = vec3(1.0f,1.0f,1.0f);" \
+		"}" \
+		"fragColor = vec4(phong_ads_light,1.0) * fadeinFactor * fadeoutFactor;" \
+
+		"if(applyBloom == 1)" \
+		"{" \
+		"vec4 c = fragColor;" \
+		"if (u_bloom_is_active == 1)" \
+		"{" \
+		"float Y = dot(c, vec4(0.299, 0.587, 0.144, 1.0));\n" \
+		"c = c * 4.0 * smoothstep(bloom_thresh_min, bloom_thresh_max, Y);\n" \
+		"BloomColor = c;\n" \
+		"}" \
+		"else" \
+		"{" \
+		"BloomColor = c;\n" \
+		"}" \
+		"}" \
+		"else" \
+		"{" \
+		"BloomColor = vec4(0.0);" \
+		"}" \
+		"GodRaysColor = vec4(0.0);" \
 		"}";
+
 	//Specify above code to Fragment Shader object
 	glShaderSource(ClothgFragmentShaderObject, 1, (GLchar const**)&FragmentShaderSourseCode, NULL);
 
@@ -483,12 +643,10 @@ int Clothintialize(void)
 				GLsizei written;
 				glGetShaderInfoLog(ClothgFragmentShaderObject, iInfologLength, &written, szInfoLog);
 
-				/*fprintf(ClothgpFile, "\n FS : %s = ", szInfoLog);
-				fclose(ClothgpFile);
-				fopen_s(&ClothgpFile, "Log.txt", "a+");*/
+				fprintf(gpFile, "\nClothgFragmentShaderObject Compilation Error: \n%s\n\n", szInfoLog);
+				fflush(gpFile);
 				free(szInfoLog);
-				//unintialize();
-				//DestroyWindow(ghWnd);
+			
 				exit(0);
 
 			}
@@ -526,19 +684,16 @@ int Clothintialize(void)
 			{
 				GLsizei written;
 				glGetProgramInfoLog(ClothglShaderProgramObject, iInfologLength, &written, szInfoLog);
+				
+				fprintf(gpFile, "\n ClothglShaderProgramObject Compilation Error: \n%s\n\n", szInfoLog);
+				fflush(gpFile);
 
-
-				/*fprintf(ClothgpFile, "\n Program link : %s = ", szInfoLog);
-				fclose(ClothgpFile);
-				fopen_s(&ClothgpFile, "Log.txt", "a+");*/
 				free(szInfoLog);
-				//unintialize();
-				//DestroyWindow(ghWnd);
 				exit(0);
 			}
 		}
 	}
-
+	
 	//Post linking retriving/getting uniform location 
 	ClothmodelMatrix_Uniform = glGetUniformLocation(ClothglShaderProgramObject, "u_model_matrix");
 	ClothviewMatrix_Uniform = glGetUniformLocation(ClothglShaderProgramObject, "u_view_matrix");
@@ -562,51 +717,60 @@ int Clothintialize(void)
 
 	ClothFadeinFactorUniform = glGetUniformLocation(ClothglShaderProgramObject, "fadeinFactor");
 	ClothFadeoutFactorUniform = glGetUniformLocation(ClothglShaderProgramObject, "fadeoutFactor");
+
+	ClothViewPosUniform = glGetUniformLocation(ClothglShaderProgramObject, "viewPos");
+	ClothNumPointLightsUniform = glGetUniformLocation(ClothglShaderProgramObject, "gNumPointLights");
+	
+
+	char Name[128];
+	for (int i = 0; i < gNumPointLights_Cloth; i++)
+	{
+		memset(Name, 0, sizeof(Name));
+
+		snprintf(Name, sizeof(Name), "pointLight[%d].u_La", i);
+		m_pointLightsLocation[i].u_La = glGetUniformLocation(ClothglShaderProgramObject, Name);
+
+		snprintf(Name, sizeof(Name), "pointLight[%d].u_Ld", i);
+		m_pointLightsLocation[i].u_Ld = glGetUniformLocation(ClothglShaderProgramObject, Name);
+
+		snprintf(Name, sizeof(Name), "pointLight[%d].u_Ls", i);
+		m_pointLightsLocation[i].u_Ls = glGetUniformLocation(ClothglShaderProgramObject, Name);
+
+		snprintf(Name, sizeof(Name), "pointLight[%d].u_constant", i);
+		m_pointLightsLocation[i].u_constant = glGetUniformLocation(ClothglShaderProgramObject, Name);
+
+		snprintf(Name, sizeof(Name), "pointLight[%d].u_linear", i);
+		m_pointLightsLocation[i].u_linear = glGetUniformLocation(ClothglShaderProgramObject, Name);
+
+		snprintf(Name, sizeof(Name), "pointLight[%d].u_quadratic", i);
+		m_pointLightsLocation[i].u_quadratic = glGetUniformLocation(ClothglShaderProgramObject, Name);
+
+		snprintf(Name, sizeof(Name), "pointLight[%d].position", i);
+		m_pointLightsLocation[i].position = glGetUniformLocation(ClothglShaderProgramObject, Name);
+
+		snprintf(Name, sizeof(Name), "pointLight[%d].diffuseIntensity", i);
+		m_pointLightsLocation[i].DiffuseIntensity = glGetUniformLocation(ClothglShaderProgramObject, Name);
+	}
+
+
 	//Ortho fixfunction program
 	
-	
-	//Create voa/,
+	//Create vao
 	glGenVertexArrays(1, &Clothvao);
 	glBindVertexArray(Clothvao);
-	/*glGenBuffers(1, &Clothvbo);
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(ClothtriangleVertices), NULL, GL_DYNAMIC_DRAW);
-	glBufferData(GL_ARRAY_BUFFER, NOOFPARTICLE * 6 * sizeof(float3), NULL, GL_DYNAMIC_DRAW);
 	
-	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	glGenBuffers(1, &vbo_normal);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_normal);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(ClothtriangleVertices_normal), NULL, GL_DYNAMIC_DRAW);
-	glBufferData(GL_ARRAY_BUFFER, NOOFPARTICLE * 6 * sizeof(float3), NULL, GL_DYNAMIC_DRAW);
-	
-	glVertexAttribPointer(AMC_ATTRIBUTE_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(AMC_ATTRIBUTE_NORMAL);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	*/
 	glGenBuffers(1, &Clothvbo_pos_gpu);
 	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(ClothtriangleVertices), ClothtriangleVertices, GL_STATIC_DRAW);
+
 	glBufferData(GL_ARRAY_BUFFER, NOOFPARTICLE * 6 * sizeof(float3), NULL, GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(AMC_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_POSITION);
-
-	
 	
 	error = cudaGraphicsGLRegisterBuffer(&ClothgraphicResourcePos,Clothvbo_pos_gpu,cudaGraphicsMapFlagsWriteDiscard);
 	
 	if(error !=cudaSuccess)
 	{
-		//fprintf(ClothgpFile, "cudagraphicsRegister failed !!!");
-		//fclose(ClothgpFile);
-		//unintialize();
-		//DestroyWindow(ghWnd);
 		exit(0);
-		
 	}
 	
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -614,7 +778,6 @@ int Clothintialize(void)
 	
 	glGenBuffers(1, &Clothvbo_normal_gpu);
 	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(ClothtriangleVertices), ClothtriangleVertices, GL_STATIC_DRAW);
 	glBufferData(GL_ARRAY_BUFFER, NOOFPARTICLE * 6 * sizeof(float3), NULL, GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(AMC_ATTRIBUTE_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(AMC_ATTRIBUTE_NORMAL);
@@ -625,12 +788,7 @@ int Clothintialize(void)
 	
 	if(error !=cudaSuccess)
 	{
-		//fprintf(ClothgpFile, "cudagraphicsRegister failed !!!");
-		//fclose(ClothgpFile);
-		//unintialize();
-		//DestroyWindow(ghWnd);
-		exit(0);
-		
+		exit(0);	
 	}
 	
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -645,14 +803,6 @@ int Clothintialize(void)
 
 
 	glEnable(GL_TEXTURE_2D);
-
-	//ClothperspectiveProjectionMatrix = mat4::identity();
-	
-	
-	/*fprintf(ClothgpFile, "\n Before Cloth");
-	fclose(ClothgpFile);
-	fopen_s(&ClothgpFile, "Log.txt", "a+");*/
-	
 	
 	for(int index = 0; index < NOOFPARTICLE; index++)
 		MovableStatus[index] = true;
@@ -691,30 +841,11 @@ int Clothintialize(void)
 	cudaMemcpy(ClothGPUParticles_old_pos_array, ClothParticles_old_pos_array, sizeof(float3)* NOOFPARTICLE   , cudaMemcpyHostToDevice);
 	cudaMemcpy(ClothGPUParticles_pos_array, ClothParticles_pos_array, NOOFPARTICLE * sizeof(float3)  , cudaMemcpyHostToDevice);
 		
-	/*fprintf(ClothgpFile, "\n After Cloth");
-	fclose(ClothgpFile);
-	fopen_s(&ClothgpFile, "Log.txt", "a+");*/
-	
-	//resize(WIN_WIDTH, WIN_HEIGHT);
-
-
+	fprintf(gpFile, "\n End of Cloth initialize\n\n");
+	fflush(gpFile);
 	return(0);
 }
 
-/*
-void resize(int width, int height)
-{
-	if (height == 0)
-	{
-		height = 1;
-	}
-
-	glViewport(0, 0, (GLsizei)width, (GLsizei)height);
-
-	ClothperspectiveProjectionMatrix= perspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 100.0f);
-
-}
-*/
 void ClothtimeStep()
 	{
 		//void timeStepCudaKernel(float3* ClothGPUParticles_pos_array,int2* GPUNeighbourParticlesInddex,float* ClothGPURestDistance,bool* ClothGPUMovableStatus, int NoOfwidthparticles,int NoOfheightparticle,int Totalthreads);
@@ -778,39 +909,7 @@ void ClothtimeStep()
 		
 		timeStepDisplacementCudaKernel(ClothGPUParticles_pos_array,ClothGPUParticles_old_pos_array,ClothGPUMovableStatus,DAMPING, ClothGPUParticles_Accelaration,Clothparticle_width, Clothparticle_height);
 		
-		/*cudaMemcpy(ClothParticles_Accelaration, ClothGPUParticles_Accelaration, NOOFPARTICLE * sizeof(float3)  , cudaMemcpyDeviceToHost);
-		
-		for (int index = 0; index < NOOFPARTICLE; index++)
-		{
-			//(*particle).timeStep(); // calculate the position of each particle at the next time step.
-			if(MovableStatus[index])
-			{
-				float temp[3];
-				temp[0] = ClothParticles_pos_array[index].x;
-				temp[1] = ClothParticles_pos_array[index].y;
-				temp[2] = ClothParticles_pos_array[index].z;
-				
-				ClothParticles_pos_array[index].x = ClothParticles_pos_array[index].x + (ClothParticles_pos_array[index].x - ClothParticles_old_pos_array[index].x)*(1.0 - DAMPING) + ClothParticles_Accelaration[index].x * TIME_STEPSIZE2;
-				ClothParticles_pos_array[index].y = ClothParticles_pos_array[index].y + (ClothParticles_pos_array[index].y - ClothParticles_old_pos_array[index].y)*(1.0 - DAMPING) + ClothParticles_Accelaration[index].y * TIME_STEPSIZE2;
-				ClothParticles_pos_array[index].z = ClothParticles_pos_array[index].z + (ClothParticles_pos_array[index].z - ClothParticles_old_pos_array[index].z)*(1.0 - DAMPING) + ClothParticles_Accelaration[index].z * TIME_STEPSIZE2;
-				
-				ClothParticles_old_pos_array[index].x = temp[0];
-				ClothParticles_old_pos_array[index].y = temp[1];
-				ClothParticles_old_pos_array[index].z = temp[2];
-				
-				
-				
-				ClothParticles_Accelaration[index].x = 0.0f;
-				ClothParticles_Accelaration[index].y = 0.0f;
-				ClothParticles_Accelaration[index].z = 0.0f;
-			}
-			
-			
-		}
-		cudaMemcpy(ClothGPUParticles_pos_array, ClothParticles_pos_array, NOOFPARTICLE * sizeof(float3)  , cudaMemcpyHostToDevice);
-		*/
-		
-		
+	
 	}
 
 
@@ -819,11 +918,11 @@ GLfloat ClothangleX = 0.0f;
 GLfloat ClothangleY = 0.0f;
 GLfloat ClothangleZ = 0.0f;
 
-float* Clothcross(const float* v1, const float* v2)
+/*float* Clothcross(const float* v1, const float* v2)
 {
 	float crossProduct[3] = {v1[1] * v2[2] - v1[2] * v2[1], v1[2] * v2[0] - v1[0] * v2[2], v1[0] * v2[1] - v1[1] * v2[0]};
 	return &crossProduct[0];
-}
+}*/
 
 void Clothaddforce()
 {
@@ -842,8 +941,15 @@ void ClothapplyWindForce()
 		
 }
 
+vec3 positionLamp_Cloth[] = { vec3(-720.0f, 600.0f, 440.0f), vec3(-720.0f, 600.0f, 750.0f), vec3(-250.0f, 400.0f, 750.0f), vec3(320.0f, 400.0f, 750.0f), vec3(850.0f, 400.0f, 750.0f),vec3(1420.0f, 400.0f, 750.0f) , vec3(1950.0f, 400.0f, 750.0f) , vec3(2520.0f, 400.0f, 750.0f) ,
+						vec3(3105.0f, 400.0f, 750.0f) , vec3(3650.0f,400.0f, 750.0f) ,
+						vec3(-750.0f, 600.0f, -510.0f), vec3(-750.0f, 600.0f, -810.0f), vec3(-250.0f, 400.0f, -810.0f), vec3(320.0f, 400.0f, -810.0f), vec3(850.0f, 400.0f, -810.0f),vec3(1420.0f, 400.0f, -810.0f) , vec3(2000.0f, 400.0f, -810.0f) , vec3(2570.0f, 400.0f, -810.0f) ,
+						vec3(3100.0f, 400.0f, -810.0f) , vec3(3700.0f, 400.0f, -810.0f) , };
+
+
 extern mat4 gPerspectiveProjectionMatrix;
 extern mat4 gViewMatrix;
+extern vec3 vmath_camera_eye_coord;
 extern float bloom_thresh_min;
 extern float bloom_thresh_max;
 extern bool startJoin_krishnaAnimate;
@@ -855,15 +961,14 @@ void Clothdisplay()
 {
 	//code
 	void unintialize(void);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	void DrawCloth(vec3 translate, vec3 scaleM, bool isRotation,  float angle = 0.0f);
+	void DrawCentralCloth(vec3 translate, vec3 scaleM);
 
 	glUseProgram(ClothglShaderProgramObject);
 
-	/*if (isShowStartingScene == false)
-	{*/
-		if (FadeInFactor_cloth <= 1.0f)
-			FadeInFactor_cloth += 0.001f;
-	/*}*/
+	if (FadeInFactor_cloth <= 1.0f)
+		FadeInFactor_cloth += 0.001f;
+	
 
 	if (bStartFadeOutSecondScene == true)
 	{
@@ -899,44 +1004,59 @@ void Clothdisplay()
 	rotationMatrixZ = mat4::identity();
 	scalematrix = mat4::identity();
 	modelViewProjectionMatrix = mat4::identity();
-
-	//Do necessary transformation
-
-	//Do necessary Matrix multiplication
-	//translateMatrix = translate(-70.0f, 70.0f, -95.0f);
-	translateMatrix = translate(-750.0f, 750.0f, -900.0f);
-	//rotationMatrixX = rotate(ClothangleX, 1.0f, 0.0f, 0.0f);
-	//rotationMatrixY = rotate(ClothangleY, 0.0f, 1.0f, 0.0f);
-	//rotationMatrixZ = rotate(ClothangleZ, 0.0f, 0.0f, 1.0f);
-	scalematrix = scale(12.0f, 11.0f, 1.0f);
+	ClothlightPosition[0] = 100.0f;
+	ClothlightPosition[1] = 100.0f;
+	ClothlightPosition[2] = 100.0f;
+	ClothlightPosition[3] = 1.0f;
 	
-	translateMatrix = translateMatrix * scalematrix ;
-	modelMatrix = modelMatrix * translateMatrix;
+	//Do necessary transformation
+	
+	PointLight_Cloth pointLight[gNumPointLights_Cloth];
 
-	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);
+	for (int i = 0; i < gNumPointLights_Cloth; i++)
+	{
+		pointLight[i].u_La = vec3(0.01f, 0.01f, 0.01f);
+		pointLight[i].u_Ld = vec3(0.5f, 0.0f, 0.0f);
+		pointLight[i].u_Ls = vec3(0.7f, 0.5f, 0.2f);
+		pointLight[i].u_linear = 0.01;
+		pointLight[i].u_constant = 0.01;
+		pointLight[i].u_quadratic = 0.0;
+		pointLight[i].DiffuseIntensity = 1.0f;
+
+		pointLight[i].position = positionLamp_Cloth[i];
+	}
+	
+	glUniform3fv(ClothViewPosUniform, 1, vmath_camera_eye_coord);
+	glUniform1i(ClothNumPointLightsUniform, gNumPointLights_Cloth);
+	for (int i = 0; i < gNumPointLights_Cloth; i++)
+	{
+		glUniform3fv(m_pointLightsLocation[i].u_La, 1, pointLight[i].u_La);
+		glUniform3fv(m_pointLightsLocation[i].u_Ls, 1, pointLight[i].u_Ls);
+		glUniform3fv(m_pointLightsLocation[i].u_Ld, 1, pointLight[i].u_Ld);
+		glUniform1f(m_pointLightsLocation[i].DiffuseIntensity, pointLight[i].DiffuseIntensity);
+
+		glUniform3fv(m_pointLightsLocation[i].position, 1, pointLight[i].position);
+		glUniform1f(m_pointLightsLocation[i].u_constant, pointLight[i].u_constant);
+		glUniform1f(m_pointLightsLocation[i].u_linear, pointLight[i].u_linear);
+		glUniform1f(m_pointLightsLocation[i].u_quadratic, pointLight[i].u_quadratic);
+	}
+
+
 	glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, gViewMatrix);
 	glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);
 
 
-	//if (ClothbLight == true)
-	//{
-		glUniform1i(ClothLKeyPress_Uniform, 1);
-		glUniform3fv(Clothla_Uniform, 1, ClothlightAmbient);
-		glUniform3fv(Clothld_Uniform, 1, ClothlightDiffuse);
-		glUniform3fv(Clothls_Uniform, 1, ClothlightSpecular);
-		glUniform4fv(ClothlightPosition_Uniform, 1, ClothlightPosition);
+	glUniform1i(ClothLKeyPress_Uniform, 1);
+	glUniform3fv(Clothla_Uniform, 1, ClothlightAmbient);
+	glUniform3fv(Clothld_Uniform, 1, ClothlightDiffuse);
+	glUniform3fv(Clothls_Uniform, 1, ClothlightSpecular);
+	glUniform4fv(ClothlightPosition_Uniform, 1, ClothlightPosition);
 
-		glUniform3fv(Clothka_Uniform, 1, ClothmaterialAmbient);
-		glUniform3fv(Clothkd_Uniform, 1, ClothmaterialDiffuse);
-		glUniform3fv(Clothks_Uniform, 1, ClothmaterialSpecular);
-		glUniform1f(ClothmaterialShinyness_Uniform, ClothmaterialShinyness);
+	glUniform3fv(Clothka_Uniform, 1, ClothmaterialAmbient);
+	glUniform3fv(Clothkd_Uniform, 1, ClothmaterialDiffuse);
+	glUniform3fv(Clothks_Uniform, 1, ClothmaterialSpecular);
+	glUniform1f(ClothmaterialShinyness_Uniform, ClothmaterialShinyness);
 
-
-	/*}
-	else
-	{
-		glUniform1i(ClothLKeyPress_Uniform, 0);
-	}*/
 
 	Clothaddforce();
 	ClothapplyWindForce();
@@ -956,23 +1076,11 @@ void Clothdisplay()
 	
 	error = cudaGraphicsMapResources(1,&ClothgraphicResourcePos,0);
 		if (error != cudaSuccess) {
-			/*fprintf(ClothgpFile, "cudaGraphicsMapResources() failed.\n");
-			fclose(ClothgpFile);
-			fopen_s(&ClothgpFile, "Log.txt", "a+");*/
-	
-			//unintialize();
-			//DestroyWindow(ghWnd);
 			exit(0);
 		}
 		//Step 2 
 		error = cudaGraphicsResourceGetMappedPointer((void**)&ClothGPUtriangleVertices, &byteCount, ClothgraphicResourcePos);
 		if (error != cudaSuccess) {
-			/*fprintf(ClothgpFile, "cudaGraphicsResourcesGetMappedPointer() failed.\n");
-			fclose(ClothgpFile);
-			fopen_s(&ClothgpFile, "Log.txt", "a+");*/
-	
-			//unintialize();
-			//DestroyWindow(ghWnd);
 			exit(0);
 		}
 		
@@ -980,29 +1088,14 @@ void Clothdisplay()
 		
 		error = cudaGraphicsMapResources(1,&ClothgraphicResourceNor,0);
 		if (error != cudaSuccess) {
-			/*fprintf(ClothgpFile, "cudaGraphicsMapResources() failed.\n");
-			fclose(ClothgpFile);
-			fopen_s(&ClothgpFile, "Log.txt", "a+");*/
-	
-			//unintialize();
-			//DestroyWindow(ghWnd);
 			exit(0);
 		}
 		//Step 2 
 		error = cudaGraphicsResourceGetMappedPointer((void**)&ClothGPUtriangleVertices_normal, &byteCount, ClothgraphicResourceNor);
 		if (error != cudaSuccess) {
-			/*fprintf(ClothgpFile, "cudaGraphicsResourcesGetMappedPointer() failed.\n");
-			fclose(ClothgpFile);
-			fopen_s(&ClothgpFile, "Log.txt", "a+");*/
-	
-			//unintialize();
-			//DestroyWindow(ghWnd);
 			exit(0);
 		}
 	
-		
-		
-		
 			
 		//Step 3 launch cuda kernel
 		renderCudaKernel(ClothGPUtriangleVertices,ClothGPUtriangleVertices_normal, ClothGPUParticles_pos_array, ClothGPUParticles_Normal, Clothparticle_width, Clothparticle_height);
@@ -1010,649 +1103,182 @@ void Clothdisplay()
 		// Step 4 unmap resorce
 		error = cudaGraphicsUnmapResources(1,&ClothgraphicResourcePos,0);
 		if (error != cudaSuccess) {
-			//fprintf(ClothgpFile, "cudaGraphicsUnMapResources() failed.\n");
-			//unintialize();
-			//DestroyWindow(ghWnd);
 			exit(0);
 		}
 		
 		error = cudaGraphicsUnmapResources(1,&ClothgraphicResourceNor,0);
 		if (error != cudaSuccess) {
-			//fprintf(ClothgpFile, "cudaGraphicsUnMapResources() failed.\n");
-			//unintialize();
-			//DestroyWindow(ghWnd);
 			exit(0);
 		}
-	
-			
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);		
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-			
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);		
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
-	
-	
-	
-	
-	//secondcloth
-	
-	modelMatrix = mat4::identity();
-	
-	translateMatrix = mat4::identity();
-	rotationMatrixX = mat4::identity();
-	rotationMatrixY = mat4::identity();
-	rotationMatrixZ = mat4::identity();
-	scalematrix = mat4::identity();
-	modelViewProjectionMatrix = mat4::identity();
+		//first right
+	//	DrawCloth(vec3(-750.0f, 650.0f, -900.0f), vec3(12.0f, 11.0f, 1.0f), 0);
+		DrawCloth(vec3(-750.0f, 700.0f, -900.0f), vec3(12.0f, 13.0f, 1.0f), 0);
+		
+		//secondcloth
+		//DrawCloth(vec3(-200.0f, 650.0f, -900.0f), vec3(12.0f, 11.0f, 1.0f), 0);
+		DrawCloth(vec3(-200.0f, 700.0f, -900.0f), vec3(12.0f, 13.0f, 1.0f), 0);
 
-	//Do necessary transformation
+		//Third cloth
+		//DrawCloth(vec3(400.0f, 650.0f, -900.0f), vec3(12.0f, 11.0f, 1.0f), 0);
+		DrawCloth(vec3(400.0f, 700.0f, -900.0f), vec3(12.0f, 13.0f, 1.0f), 0);
 
-	//Do necessary Matrix multiplication
-	translateMatrix = translate(-200.0f, 750.0f, -900.0f);
-	scalematrix = scale(12.0f, 11.0f, 1.0f);
-	
-	translateMatrix = translateMatrix * scalematrix ;
-	modelMatrix = modelMatrix * translateMatrix;
+		//fourth cloth
+		//DrawCloth(vec3(900.0f, 650.0f, -900.0f), vec3(12.0f, 11.0f, 1.0f), 0);
+		DrawCloth(vec3(900.0f, 700.0f, -900.0f), vec3(12.0f, 13.0f, 1.0f), 0);
 
-	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);
-	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);
-	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);
+		//fifth cloth
+		//DrawCloth(vec3(1500.0f, 650.0f, -900.0f), vec3(12.0f, 11.0f, 1.0f), 0);
+		DrawCloth(vec3(1500.0f, 700.0f, -900.0f), vec3(12.0f, 13.0f, 1.0f), 0);
 
+		//sixth cloth
+		//DrawCloth(vec3(2100.0f, 650.0f, -900.0f), vec3(12.0f, 11.0f, 1.0f), 0);
+		DrawCloth(vec3(2100.0f, 700.0f, -900.0f), vec3(12.0f, 13.0f, 1.0f), 0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);		
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-			
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);		
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
-	
-	
-	//Third cloth
-	
-	modelMatrix = mat4::identity();
-	
-	translateMatrix = mat4::identity();
-	rotationMatrixX = mat4::identity();
-	rotationMatrixY = mat4::identity();
-	rotationMatrixZ = mat4::identity();
-	scalematrix = mat4::identity();
-	modelViewProjectionMatrix = mat4::identity();
-
-	//Do necessary transformation
-
-	//Do necessary Matrix multiplication
-	translateMatrix = translate(400.0f, 750.0f, -900.0f);
-	scalematrix = scale(12.0f, 11.0f, 1.0f);
-	
-	translateMatrix = translateMatrix * scalematrix ;
-	modelMatrix = modelMatrix * translateMatrix;
-
-	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);
-	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);
-	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);
-
-
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);		
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-			
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);		
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
-	
-	//fourth cloth
-	
-	modelMatrix = mat4::identity();
-	
-	translateMatrix = mat4::identity();
-	rotationMatrixX = mat4::identity();
-	rotationMatrixY = mat4::identity();
-	rotationMatrixZ = mat4::identity();
-	scalematrix = mat4::identity();
-	modelViewProjectionMatrix = mat4::identity();
-
-	//Do necessary transformation
-
-	//Do necessary Matrix multiplication
-	translateMatrix = translate(900.0f, 750.0f, -900.0f);
-	scalematrix = scale(12.0f, 11.0f, 1.0f);
-	
-	translateMatrix = translateMatrix * scalematrix ;
-	modelMatrix = modelMatrix * translateMatrix;
-
-	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);
-	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);
-	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);
-
-
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);		
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-			
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);		
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
-	
-	//fifth cloth
-	
-	
-	modelMatrix = mat4::identity();
-	
-	translateMatrix = mat4::identity();
-	rotationMatrixX = mat4::identity();
-	rotationMatrixY = mat4::identity();
-	rotationMatrixZ = mat4::identity();
-	scalematrix = mat4::identity();
-	modelViewProjectionMatrix = mat4::identity();
-
-	//Do necessary transformation
-
-	//Do necessary Matrix multiplication
-	translateMatrix = translate(1500.0f, 750.0f, -900.0f);
-	scalematrix = scale(12.0f, 11.0f, 1.0f);
-	
-	translateMatrix = translateMatrix * scalematrix ;
-	modelMatrix = modelMatrix * translateMatrix;
-
-	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);
-	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);
-	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);
-
-
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);		
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-			
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);		
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
-	
-	
-	
-	//sixth cloth
-	
-	
-	modelMatrix = mat4::identity();
-	
-	translateMatrix = mat4::identity();
-	rotationMatrixX = mat4::identity();
-	rotationMatrixY = mat4::identity();
-	rotationMatrixZ = mat4::identity();
-	scalematrix = mat4::identity();
-	modelViewProjectionMatrix = mat4::identity();
-
-	//Do necessary transformation
-
-	//Do necessary Matrix multiplication
-	translateMatrix = translate(2100.0f, 750.0f, -900.0f);
-	scalematrix = scale(12.0f, 11.0f, 1.0f);
-	
-	translateMatrix = translateMatrix * scalematrix ;
-	modelMatrix = modelMatrix * translateMatrix;
-
-	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);
-	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);
-	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);
-
-
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);		
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-			
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);		
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
-	
-	
-	
 		//seventh cloth
-
-	modelMatrix = mat4::identity();
-	
-	translateMatrix = mat4::identity();
-	rotationMatrixX = mat4::identity();
-	rotationMatrixY = mat4::identity();
-	rotationMatrixZ = mat4::identity();
-	scalematrix = mat4::identity();
-	modelViewProjectionMatrix = mat4::identity();
-
-	//Do necessary transformation
-
-	//Do necessary Matrix multiplication
-	translateMatrix = translate(2600.0f, 750.0f, -900.0f);
-	scalematrix = scale(12.0f, 11.0f, 1.0f);
-	
-	translateMatrix = translateMatrix * scalematrix ;
-	modelMatrix = modelMatrix * translateMatrix;
-
-	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);
-	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);
-	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);
-
-
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);		
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-			
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);		
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
-	
-	
+		//DrawCloth(vec3(2600.0f, 650.0f, -900.0f), vec3(12.0f, 11.0f, 1.0f), 0);
+		DrawCloth(vec3(2600.0f, 700.0f, -900.0f), vec3(12.0f, 13.0f, 1.0f), 0);
 	
 		//eight cloth
-
-	modelMatrix = mat4::identity();
-	
-	translateMatrix = mat4::identity();
-	rotationMatrixX = mat4::identity();
-	rotationMatrixY = mat4::identity();
-	rotationMatrixZ = mat4::identity();
-	scalematrix = mat4::identity();
-	modelViewProjectionMatrix = mat4::identity();
-
-	//Do necessary transformation
-
-	//Do necessary Matrix multiplication
-	translateMatrix = translate(3200.0f, 750.0f, -900.0f);
-	scalematrix = scale(12.0f, 11.0f, 1.0f);
-	
-	translateMatrix = translateMatrix * scalematrix ;
-	modelMatrix = modelMatrix * translateMatrix;
-
-	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);
-	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);
-	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);
-
-
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);		
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-			
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);		
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
-	
+		//DrawCloth(vec3(3200.0f, 650.0f, -900.0f), vec3(12.0f, 11.0f, 1.0f), 0);
+		DrawCloth(vec3(3200.0f, 700.0f, -900.0f), vec3(12.0f, 13.0f, 1.0f), 0);
 	//////////////////////
 	
-	
-	modelMatrix = mat4::identity();
-	
-	translateMatrix = mat4::identity();
-	rotationMatrixX = mat4::identity();
-	rotationMatrixY = mat4::identity();
-	rotationMatrixZ = mat4::identity();
-	scalematrix = mat4::identity();
-	modelViewProjectionMatrix = mat4::identity();
+		//1st left
+		//DrawCloth(vec3(-320.0f, 650.0f, 850.0f), vec3(12.0f, 11.0f, 1.0f), 1, 180.0f);
+		DrawCloth(vec3(-320.0f, 700.0f, 900.0f), vec3(12.0f, 13.0f, 1.0f), 1, 180.0f);
 
-	//Do necessary transformation
-
-	//Do necessary Matrix multiplication	
-	translateMatrix = translate(-320.0f, 750.0f, 900.0f);	
-	scalematrix = scale(12.0f, 11.0f, 1.0f);	
-	rotationMatrixY = rotate(180.0f, 0.0f, 1.0f, 0.0f);	
-	translateMatrix = translateMatrix * scalematrix ;	
-	modelMatrix = modelMatrix * translateMatrix *rotationMatrixY;	
-	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);	
-	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);	
-	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);	
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);			
-	glBindBuffer(GL_ARRAY_BUFFER, 0);	
-		
-				
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);			
-	glBindBuffer(GL_ARRAY_BUFFER, 0);	
-		
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));	
-		
-		
 		//2nd left
-	modelMatrix = mat4::identity();
-	
-	translateMatrix = mat4::identity();
-	rotationMatrixX = mat4::identity();
-	rotationMatrixY = mat4::identity();
-	rotationMatrixZ = mat4::identity();
-	scalematrix = mat4::identity();
-	modelViewProjectionMatrix = mat4::identity();
+	//	DrawCloth(vec3(300.0f, 650.0f, 850.0f), vec3(12.0f, 11.0f, 1.0f), 1, 180.0f);
+		DrawCloth(vec3(200.0f, 700.0f, 900.0f), vec3(12.0f, 13.0f, 1.0f), 1, 180.0f);
+		
+		//3rd left
+		//DrawCloth(vec3(800.0f, 650.0f, 850.0f), vec3(12.0f, 11.0f, 1.0f), 1, 180.0f);
+		DrawCloth(vec3(700.0f, 700.0f, 900.0f), vec3(12.0f, 13.0f, 1.0f), 1, 180.0f);
 
-	//Do necessary transformation
-
-	//Do necessary Matrix multiplication	
-	translateMatrix = translate(200.0f, 750.0f, 900.0f);	
-	scalematrix = scale(12.0f, 11.0f, 1.0f);	
-	rotationMatrixY = rotate(180.0f, 0.0f, 1.0f, 0.0f);	
-	translateMatrix = translateMatrix * scalematrix ;	
-	modelMatrix = modelMatrix * translateMatrix *rotationMatrixY;	
-	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);	
-	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);	
-	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);	
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);			
-	glBindBuffer(GL_ARRAY_BUFFER, 0);	
+		//4rth left
+		//DrawCloth(vec3(1400.0f, 650.0f, 850.0f), vec3(12.0f, 11.0f, 1.0f), 1, 180.0f);
+		DrawCloth(vec3(1200.0f, 700.0f, 900.0f), vec3(12.0f, 13.0f, 1.0f), 1, 180.0f);
 		
-				
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);			
-	glBindBuffer(GL_ARRAY_BUFFER, 0);	
-		
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));	
-		
-		
-			//3rd left
-	modelMatrix = mat4::identity();
-	
-	translateMatrix = mat4::identity();
-	rotationMatrixX = mat4::identity();
-	rotationMatrixY = mat4::identity();
-	rotationMatrixZ = mat4::identity();
-	scalematrix = mat4::identity();
-	modelViewProjectionMatrix = mat4::identity();
-
-	//Do necessary transformation
-
-	//Do necessary Matrix multiplication	
-	translateMatrix = translate(700.0f, 750.0f, 900.0f);	
-	scalematrix = scale(12.0f, 11.0f, 1.0f);	
-	rotationMatrixY = rotate(180.0f, 0.0f, 1.0f, 0.0f);	
-	translateMatrix = translateMatrix * scalematrix ;	
-	modelMatrix = modelMatrix * translateMatrix *rotationMatrixY;	
-	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);	
-	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);	
-	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);	
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);			
-	glBindBuffer(GL_ARRAY_BUFFER, 0);	
-		
-				
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);			
-	glBindBuffer(GL_ARRAY_BUFFER, 0);	
-		
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));	
-	
-	
-	
-	
-			//4rth left
-	modelMatrix = mat4::identity();
-	
-	translateMatrix = mat4::identity();
-	rotationMatrixX = mat4::identity();
-	rotationMatrixY = mat4::identity();
-	rotationMatrixZ = mat4::identity();
-	scalematrix = mat4::identity();
-	modelViewProjectionMatrix = mat4::identity();
-
-	//Do necessary transformation
-
-	//Do necessary Matrix multiplication	
-	translateMatrix = translate(1200.0f, 750.0f, 900.0f);	
-	scalematrix = scale(12.0f, 11.0f, 1.0f);	
-	rotationMatrixY = rotate(180.0f, 0.0f, 1.0f, 0.0f);	
-	translateMatrix = translateMatrix * scalematrix ;	
-	modelMatrix = modelMatrix * translateMatrix *rotationMatrixY;	
-	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);	
-	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);	
-	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);	
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);			
-	glBindBuffer(GL_ARRAY_BUFFER, 0);	
-		
-				
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);			
-	glBindBuffer(GL_ARRAY_BUFFER, 0);	
-		
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));	
-		
-		
-		
-		
-				//5th left
-	modelMatrix = mat4::identity();
-	
-	translateMatrix = mat4::identity();
-	rotationMatrixX = mat4::identity();
-	rotationMatrixY = mat4::identity();
-	rotationMatrixZ = mat4::identity();
-	scalematrix = mat4::identity();
-	modelViewProjectionMatrix = mat4::identity();
-
-	//Do necessary transformation
-
-	//Do necessary Matrix multiplication	
-	translateMatrix = translate(1700.0f, 750.0f, 900.0f);	
-	scalematrix = scale(12.0f, 11.0f, 1.0f);	
-	rotationMatrixY = rotate(180.0f, 0.0f, 1.0f, 0.0f);	
-	translateMatrix = translateMatrix * scalematrix ;	
-	modelMatrix = modelMatrix * translateMatrix *rotationMatrixY;	
-	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);	
-	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);	
-	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);	
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);			
-	glBindBuffer(GL_ARRAY_BUFFER, 0);	
-		
-				
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);			
-	glBindBuffer(GL_ARRAY_BUFFER, 0);	
-		
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));	
-	
-	
-	
-	
-			//6th left
-	modelMatrix = mat4::identity();
-	
-	translateMatrix = mat4::identity();
-	rotationMatrixX = mat4::identity();
-	rotationMatrixY = mat4::identity();
-	rotationMatrixZ = mat4::identity();
-	scalematrix = mat4::identity();
-	modelViewProjectionMatrix = mat4::identity();
-
-	//Do necessary transformation
-
-	//Do necessary Matrix multiplication	
-	translateMatrix = translate(2200.0f, 750.0f, 900.0f);	
-	scalematrix = scale(12.0f, 11.0f, 1.0f);	
-	rotationMatrixY = rotate(180.0f, 0.0f, 1.0f, 0.0f);	
-	translateMatrix = translateMatrix * scalematrix ;	
-	modelMatrix = modelMatrix * translateMatrix *rotationMatrixY;	
-	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);	
-	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);	
-	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);	
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);			
-	glBindBuffer(GL_ARRAY_BUFFER, 0);	
-		
-				
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);			
-	glBindBuffer(GL_ARRAY_BUFFER, 0);	
-		
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));	
-	
-	
-	
-			//7th left
-	modelMatrix = mat4::identity();
-	
-	translateMatrix = mat4::identity();
-	rotationMatrixX = mat4::identity();
-	rotationMatrixY = mat4::identity();
-	rotationMatrixZ = mat4::identity();
-	scalematrix = mat4::identity();
-	modelViewProjectionMatrix = mat4::identity();
-
-	//Do necessary transformation
-
-	//Do necessary Matrix multiplication	
-	translateMatrix = translate(2700.0f, 750.0f, 900.0f);	
-	scalematrix = scale(12.0f, 11.0f, 1.0f);	
-	rotationMatrixY = rotate(180.0f, 0.0f, 1.0f, 0.0f);	
-	translateMatrix = translateMatrix * scalematrix ;	
-	modelMatrix = modelMatrix * translateMatrix *rotationMatrixY;	
-	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);	
-	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);	
-	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);	
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);			
-	glBindBuffer(GL_ARRAY_BUFFER, 0);	
-		
-				
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);			
-	glBindBuffer(GL_ARRAY_BUFFER, 0);	
-		
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
-
-
-
+		//5th left
+		//DrawCloth(vec3(2000.0f, 650.0f, 850.0f), vec3(12.0f, 11.0f, 1.0f), 1, 180.0f);
+		DrawCloth(vec3(1700.0f, 700.0f, 900.0f), vec3(12.0f, 13.0f, 1.0f), 1, 180.0f);
 
 		//6th left
-	modelMatrix = mat4::identity();
-	
-	translateMatrix = mat4::identity();
-	rotationMatrixX = mat4::identity();
-	rotationMatrixY = mat4::identity();
-	rotationMatrixZ = mat4::identity();
-	scalematrix = mat4::identity();
-	modelViewProjectionMatrix = mat4::identity();
+		//DrawCloth(vec3(2500.0f, 650.0f, 850.0f), vec3(12.0f, 11.0f, 1.0f), 1, 180.0f);
+		DrawCloth(vec3(2200.0f, 700.0f, 900.0f), vec3(12.0f, 13.0f, 1.0f), 1, 180.0f);
 
-	//Do necessary transformation
+		//7th left
+		//DrawCloth(vec3(3000.0f, 650.0f, 850.0f), vec3(12.0f, 11.0f, 1.0f), 1, 180.0f);
+		DrawCloth(vec3(2700.0f, 700.0f, 900.0f), vec3(12.0f, 13.0f, 1.0f), 1, 180.0f);
 
-	//Do necessary Matrix multiplication	
-	translateMatrix = translate(3200.0f, 750.0f, 900.0f);	
-	scalematrix = scale(12.0f, 11.0f, 1.0f);	
-	rotationMatrixY = rotate(180.0f, 0.0f, 1.0f, 0.0f);	
-	translateMatrix = translateMatrix * scalematrix ;	
-	modelMatrix = modelMatrix * translateMatrix *rotationMatrixY;	
-	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);	
-	//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);	
-	//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);	
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);			
-	glBindBuffer(GL_ARRAY_BUFFER, 0);	
-		
-				
-	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);			
-	glBindBuffer(GL_ARRAY_BUFFER, 0);	
-		
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));		
+		//6th left
+		//DrawCloth(vec3(3650.0f, 650.0f, 850.0f), vec3(12.0f, 11.0f, 1.0f), 1, 180.0f);
+		DrawCloth(vec3(3250.0f, 700.0f, 900.0f), vec3(12.0f, 13.0f, 1.0f), 1, 180.0f);
 		//////////////////////////////////////////////////////
-	//Front cloth , Stage cloth , Center cloth	
 		
-	/*if (startJoin_krishnaAnimate == false)
-	{*/
-		modelMatrix = mat4::identity();
-
-		translateMatrix = mat4::identity();
-		rotationMatrixX = mat4::identity();
-		rotationMatrixY = mat4::identity();
-		rotationMatrixZ = mat4::identity();
-		scalematrix = mat4::identity();
-		modelViewProjectionMatrix = mat4::identity();
-		//Do necessary transformation	
-		//Do necessary Matrix multiplication	
-		//translateMatrix = translate(-85.0f, 70.0f, 15.0f);	
-		translateMatrix = translate(-820.0f, 70.0f, 17.0f);
-		//translateMatrix = translate(0.0f, 0.0f, -6.0f);	
-		//rotationMatrixX = rotate(ClothangleX, 1.0f, 0.0f, 0.0f);	
-		rotationMatrixY = rotate(90.0f, 0.0f, 1.0f, 0.0f);
-		//rotationMatrixZ = rotate(ClothangleZ, 0.0f, 0.0f, 1.0f);	
-		scalematrix = scale(1.0f, 15.0f, 15.0f);
-		translateMatrix = scalematrix * translateMatrix;
-		modelMatrix = modelMatrix * translateMatrix * rotationMatrixY;
+		//Front cloth , Stage cloth , Center cloth	
+	
+	
 		ClothlightPosition[0] = -815.0f;
 		ClothlightPosition[1] = 75.0f;
 		ClothlightPosition[2] = 17.0f;
 		ClothlightPosition[3] = 1.0f;
 		glUniform4fv(ClothlightPosition_Uniform, 1, ClothlightPosition);
-		glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);
-		//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);	
-		//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);	
-		glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		//DrawCentralCloth(vec3(-820.0f, 70.0f, 17.0f), vec3(1.0f, 15.0f, 15.0f));
+		DrawCentralCloth(vec3(-820.0f, 57.5f, 17.0f), vec3(1.0f, 15.0f, 15.0f));
 
-
-		glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
-
-
-
-
-		modelMatrix = mat4::identity();
-
-		translateMatrix = mat4::identity();
-		rotationMatrixX = mat4::identity();
-		rotationMatrixY = mat4::identity();
-		rotationMatrixZ = mat4::identity();
-		scalematrix = mat4::identity();
-		modelViewProjectionMatrix = mat4::identity();
-		//Do necessary transformation	
-		//Do necessary Matrix multiplication	
-		//translateMatrix = translate(-85.0f, 70.0f, 15.0f);	
-		translateMatrix = translate(-900.0f, 70.0f, 17.0f);
-		//translateMatrix = translate(0.0f, 0.0f, -6.0f);	
-		//rotationMatrixX = rotate(ClothangleX, 1.0f, 0.0f, 0.0f);	
-		rotationMatrixY = rotate(90.0f, 0.0f, 1.0f, 0.0f);
-		//rotationMatrixZ = rotate(ClothangleZ, 0.0f, 0.0f, 1.0f);	
-		scalematrix = scale(1.0f, 15.0f, 30.0f);
-		translateMatrix = scalematrix * translateMatrix;
-		modelMatrix = modelMatrix * translateMatrix * rotationMatrixY;
-		ClothlightPosition[0] = -815.0f;
-		ClothlightPosition[1] = 75.0f;
-		ClothlightPosition[2] = 17.0f;
-		ClothlightPosition[3] = 1.0f;
-		glUniform4fv(ClothlightPosition_Uniform, 1, ClothlightPosition);
-		//glUniform3fv(Clothld_Uniform, 1, ClothlightDiffuse2);
-		//glUniform3fv(Clothls_Uniform, 1, ClothlightSpecular2);
-
-		glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);
-		//glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, &viewMatrix[0][0]);
-		//glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);
-
-
-		glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-
-		glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
-
-
+		
+		//DrawCentralCloth(vec3(-900.0f, 70.0f, 17.0f), vec3(1.0f, 15.0f, 30.0f));
+		DrawCentralCloth(vec3(-900.0f, 57.5f, 17.0f), vec3(1.0f, 15.0f, 30.0f));
 		//unbind Clothvao
 		glBindVertexArray(0);
-	/*}*/
-	//unusal program
+	
 
 	glUseProgram(0);
 
-	//SwapBuffers(ghdc);
+
+	if (angry_cloth_flag == true)
+	{
+		/*fprintf(gpFile, "\n angry_cloth_flag = true\n\n");
+		fflush(gpFile);*/
+		ClothwindForce.y = 0.29f;
+		ClothwindForce.z = 0.02f;
+	}
+	else {
+		ClothwindForce.y = 0.0f;
+		ClothwindForce.z = 0.0f;
+	}
+
+}
+
+void DrawCentralCloth(vec3 translateM, vec3 scaleM)
+{
+	mat4 modelMatrix = mat4::identity();
+	mat4 translateMatrix = mat4::identity();
+	mat4 rotationMatrixX = mat4::identity();
+	mat4 rotationMatrixY = mat4::identity();
+	mat4 rotationMatrixZ = mat4::identity();
+	mat4 scalematrix = mat4::identity();
+	mat4 modelViewProjectionMatrix = mat4::identity();
+
+	translateMatrix = translate(translateM);
+	scalematrix = scale(scaleM);
+	rotationMatrixY = rotate(90.0f, 0.0f, 1.0f, 0.0f);
+
+	translateMatrix = scalematrix * translateMatrix ;
+
+	modelMatrix = modelMatrix * translateMatrix * rotationMatrixY;
+	
+
+	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);
+
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
+
+}
+void DrawCloth(vec3 translateM, vec3 scaleM, bool isRotation, float angle)
+{
+	mat4 modelMatrix = mat4::identity();
+	mat4 translateMatrix = mat4::identity();
+	mat4 rotationMatrixX = mat4::identity();
+	mat4 rotationMatrixY = mat4::identity();
+	mat4 rotationMatrixZ = mat4::identity();
+	mat4 scalematrix = mat4::identity();
+	mat4 modelViewProjectionMatrix = mat4::identity();
+
+	translateMatrix = translate(translateM);
+	scalematrix = scale(scaleM);
+	rotationMatrixY = rotate(angle, 0.0f, 1.0f, 0.0f);
+
+	translateMatrix = translateMatrix * scalematrix;
+	if(isRotation)
+		modelMatrix = modelMatrix * translateMatrix * rotationMatrixY;
+	else
+		modelMatrix = modelMatrix * translateMatrix;
+
+	glUniformMatrix4fv(ClothmodelMatrix_Uniform, 1, GL_FALSE, modelMatrix);
+
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_pos_gpu);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+	glBindBuffer(GL_ARRAY_BUFFER, Clothvbo_normal_gpu);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glDrawArrays(GL_TRIANGLES, 0, sizeof(ClothtriangleVertices) / sizeof(ClothtriangleVertices[0]));
+
 }
 
 void Clothunintialize(void) {
 
 	// ************* If screen is fullscreen then resize then Unintialize ***********//
-	/*if (true == bFullScreen) {
-		SetWindowLong(ghWnd, GWL_STYLE, dwStyle | WS_OVERLAPPEDWINDOW);
-		SetWindowPlacement(ghWnd, &wpPrev);
-		SetWindowPos(ghWnd,
-			HWND_TOP,
-			0,
-			0,
-			0,
-			0,
-			SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
-		ShowCursor(TRUE);
-	}*/
-
+	
 	if (Clothvbo_pos_gpu) {
 		glDeleteBuffers(1, &Clothvbo_pos_gpu);
 		Clothvbo_pos_gpu = 0;
@@ -1692,26 +1318,6 @@ void Clothunintialize(void) {
 		ClothglShaderProgramObject = 0;
 		glUseProgram(0);
 	}
-
-
-	/*if (wglGetCurrentContext() == ghrc) {
-		wglMakeCurrent(NULL, NULL);
-	}
-	if (ghrc) {
-		wglDeleteContext(ghrc);
-		ghrc = NULL;
-	}
-	if (ghdc) {
-		ReleaseDC(ghWnd, ghdc);
-		ghdc = NULL;
-	}*/
-
-	/*if (ClothgpFile) {
-		fprintf(ClothgpFile, "Log file close Successfully.\n");
-		fclose(ClothgpFile);
-		ClothgpFile = NULL;
-	}*/
-
 
 }
 

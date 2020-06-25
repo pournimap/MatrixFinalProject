@@ -89,7 +89,22 @@ void initfire(void)
 		"{" \
 		"vLifetime		= mod(uTime, aLifetime);" \
 		"float ti		= 1.0 - vLifetime/aLifetime;" \
-		"gl_Position	= u_projection_matrix * u_view_matrix * u_model_matrix * vec4(aXPos*ti, aYSpeed*vLifetime - 1.0, 0.0, 1.0);" \
+		
+		"mat4 mv_matrix = u_view_matrix * u_model_matrix;" \
+		
+		/*"mv_matrix[0][0] = 1.0f;" \
+		"mv_matrix[0][1] = 0.0f;" \
+		"mv_matrix[0][2] = 0.0f;" \
+		
+		/*"mv_matrix[1][0] = 0.0f;" \
+		"mv_matrix[1][1] = 1.0f;" \
+		"mv_matrix[1][2] = 0.0f;" \
+		
+		"mv_matrix[2][0] = 0.0f;" \
+		"mv_matrix[2][1] = 0.0f;" \
+		"mv_matrix[2][2] = 1.0f;" \*/
+		
+		"gl_Position	= u_projection_matrix * mv_matrix * vec4(aXPos*ti, aYSpeed*vLifetime - 1.0, 1.0, 1.0);" \
 		"vLifetime		= 4.0 * ti * (1.0 - ti);" \
 		"color			= aColor;" \
 		"}";
@@ -310,7 +325,8 @@ void display_fire(void)
 	mat4 scaleMatrix_fire	= mat4::identity();
 	mat4 rotateMatrix_fire	= mat4::identity();
 
-	modelMatrix_fire	= vmath::translate(1200.0f, 120.0f, 00.0f);
+	modelMatrix_fire = vmath::translate(1200.0f, 120.0f, 00.0f);
+	//modelMatrix_fire	= vmath::translate(1120.0f, 120.0f, 00.0f);
 	scaleMatrix_fire	= vmath::scale(130.0f, 100.0f, 100.0f);
 	//scaleMatrix_fire	= vmath::scale(50.0f, 50.0f, 100.0f);
 	rotateMatrix_fire	= rotate(75.0f, 0.0f, 1.0f, 0.0f);

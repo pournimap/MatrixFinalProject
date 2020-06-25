@@ -105,6 +105,7 @@ bool isModelAnimationStart = false;
 bool isStartTitle = false;
 bool isEndTitle = false;
 bool startAnimation = false;
+bool angry_cloth_flag = false;
 void programObjectSafeRelease(GLuint shaderProgramObject) {
 	// code
 	if (shaderProgramObject) {

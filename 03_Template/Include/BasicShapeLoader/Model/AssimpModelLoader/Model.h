@@ -174,7 +174,7 @@ void Model::loadModel(const std::string& path)
 	
 	directory = path.substr(0, path.find_last_of('/'));
 
-	fprintf(gpFile, "ASSIMP::MODEL:: Directory-> %s\n", directory.c_str());
+	/*fprintf(gpFile, "ASSIMP::MODEL:: Directory-> %s\n", directory.c_str());
 	fprintf(gpFile, "scene->HasAnimations() 1: %d\n", scene->HasAnimations());
 	fprintf(gpFile, "scene->mNumMeshes 1: %d\n", scene->mNumMeshes);
 	fprintf(gpFile, "scene->mAnimations[0]->mNumChannels 1: %d\n", scene->mAnimations[0]->mNumChannels);
@@ -182,24 +182,24 @@ void Model::loadModel(const std::string& path)
 	fprintf(gpFile, "scene->mAnimations[0]->mTicksPerSecond 1:  %f\n", scene->mAnimations[0]->mTicksPerSecond);
 
 	fprintf(gpFile, "		name nodes : \n");
-	fflush(gpFile);
+	fflush(gpFile);*/
 
-	showNodeName(scene->mRootNode);
+	//showNodeName(scene->mRootNode);
 
 	processNode(scene->mRootNode, scene);
 
-	for (int i = 0; i < scene->mAnimations[0]->mNumChannels; i++)
+	/*for (int i = 0; i < scene->mAnimations[0]->mNumChannels; i++)
 	{
 		fprintf(gpFile, "nodes animation name : %s \n", scene->mAnimations[0]->mChannels[i]->mNodeName.C_Str());
 		fflush(gpFile);
-	}
+	}*/
 	
 }
 
 void Model::showNodeName(aiNode* node)
 {
-	fprintf(gpFile, "Data : %s\n", node->mName.data);
-	fflush(gpFile);
+	/*fprintf(gpFile, "Data : %s\n", node->mName.data);
+	fflush(gpFile);*/
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
 		showNodeName(node->mChildren[i]);
@@ -221,8 +221,8 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
-	fprintf(gpFile, "bones: %d , vertices: %d\n", mesh->mNumBones , mesh->mNumVertices );
-	fflush(gpFile);
+	/*fprintf(gpFile, "bones: %d , vertices: %d\n", mesh->mNumBones , mesh->mNumVertices );
+	fflush(gpFile);*/
 
 	std::vector<Vertex> vertices;
 	std::vector<GLuint>indices;
@@ -337,8 +337,8 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		int bone_index = 0;
 		std::string bone_name(mesh->mBones[i]->mName.data);
 
-		fprintf(gpFile, "MODEL::%s \n", mesh->mBones[i]->mName.data);
-		fflush(gpFile);
+		/*fprintf(gpFile, "MODEL::%s \n", mesh->mBones[i]->mName.data);
+		fflush(gpFile);*/
 
 		if (m_bone_mapping.find(bone_name) == m_bone_mapping.end())
 		{
@@ -379,8 +379,8 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 		std::string filename = std::string(ai_str.C_Str());
 		filename = directory + '/' + filename;
 
-		fprintf(gpFile, "Texture::%s of type_name:%s\n", ai_str.C_Str(), type_name.c_str());
-		fflush(gpFile);
+		/*fprintf(gpFile, "Texture::%s of type_name:%s\n", ai_str.C_Str(), type_name.c_str());
+		fflush(gpFile);*/
 
 		Texture texture;
 		//texture.id = TextureFromFile(filename.c_str()); // return prepaired openGL texture
@@ -685,8 +685,8 @@ unsigned int TextureFromFile(const char* path, const std::string& directory, boo
 		glBindTexture(GL_TEXTURE_2D, 0);
 		stbi_image_free(data);
 
-		fprintf(gpFile, "Texture load at path : %s \n", path);
-		fflush(gpFile);
+		/*fprintf(gpFile, "Texture load at path : %s \n", path);
+		fflush(gpFile);*/
 	}
 	else
 	{

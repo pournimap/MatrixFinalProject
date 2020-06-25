@@ -194,6 +194,8 @@ void initPointLightShader()
 		"{" \
 		"vec3 pointLightColor;" \
 		
+		"vec3 Final_Texture_color = texture(u_texture0_sampler, out_texcord).rgb; " \
+
 		"vec3 normalized_transformed_normals=normalize(transformed_normals);" \
 		
 		"vec3 normalized_light_direction;" \
@@ -211,14 +213,37 @@ void initPointLightShader()
 		"}" \
 		
 		
-		"vec3 ambient = pointLight[index].u_La * u_Ka;" \
-		"float tn_dot_ld = max(dot(normalized_transformed_normals, normalized_light_direction), 0.0);" \
-		"vec3 diffuse = pointLight[index].u_Ld * u_Kd * tn_dot_ld;" \
+		"vec3 ambient = vec3(0.0f);" \
+		"vec3 diffuse = vec3(0.0f);" \
+		"vec3 specular = vec3(0.0f);" \
 
-		"vec3 specular = vec3(0.0, 0.0, 0.0);" \
 		"if(u_is_texture == 1)" \
 		"{" \
-			"vec3 reflection_vector = reflect(-normalized_light_direction, normalized_transformed_normals);" \
+		"ambient = pointLight[index].u_La * u_Ka * Final_Texture_color;" \
+		"}" \
+		"else" \
+		"{" \
+		"ambient = pointLight[index].u_La * u_Ka;" \
+		"}" \
+		"float tn_dot_ld = max(dot(normalized_transformed_normals, normalized_light_direction), 0.0);" \
+
+		"if(u_is_texture == 1)" \
+		"{" \
+		"diffuse = pointLight[index].u_Ld * u_Kd * tn_dot_ld * Final_Texture_color;" \
+		"}" \
+		"else" \
+		"{" \
+		"diffuse = pointLight[index].u_Ld * u_Kd * tn_dot_ld;" \
+		"}" \
+
+		"vec3 reflection_vector = reflect(-normalized_light_direction, normalized_transformed_normals);" \
+		
+		"if(u_is_texture == 1)" \
+		"{" \
+			"specular = pointLight[index].u_Ls * pow(max(dot(reflection_vector, normalized_viewer_vector), 0.0), u_material_shininess);" \
+		"}" \
+		"else" \
+		"{" \
 			"specular = pointLight[index].u_Ls * pow(max(dot(reflection_vector, normalized_viewer_vector), 0.0), u_material_shininess);" \
 		"}" \
 		
@@ -253,15 +278,15 @@ void initPointLightShader()
 			"{" \
 				"phong_ads_color = vec3(1.0, 1.0, 1.0);" \
 			"}" \
-			"if(u_is_texture == 1)" \
+		/*	"if(u_is_texture == 1)" \
 			"{" \
 				"Final_Texture = texture(u_texture0_sampler, out_texcord); " \
 				"FragColor = vec4(phong_ads_color, u_alpha) * Final_Texture * fadeinFactor * fadeoutFactor;" \
 			"}" \
 			"else" \
-			"{" \
+			"{" \*/
 				"FragColor = vec4(phong_ads_color, u_alpha) * fadeinFactor * fadeoutFactor;" \
-			"}" \
+		/*	"}" \*/
 
 			"if(applyBloom == 1)" \
 			"{" \
@@ -777,9 +802,9 @@ void display_pointLight()
 
 	for (int i = 0; i < gNumPointLights_pointLight; i++)
 	{
-		pointLight[i].u_La = vec3(0.0f, 0.0f, 0.0f);
+		pointLight[i].u_La = vec3(0.01f, 0.01f, 0.01f);
 		pointLight[i].u_Ld = vec3(1.0f, 1.0f, 1.0f);
-		pointLight[i].u_Ls = vec3(1.0f, 1.0f, 1.0f);
+		pointLight[i].u_Ls = vec3(0.1f, 0.1f, 0.1f);
 		pointLight[i].u_linear = 0.01;
 		pointLight[i].u_constant = 0.01;
 		pointLight[i].u_quadratic = 0.0;

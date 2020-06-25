@@ -18,8 +18,11 @@ HANDLE hFile = NULL;
 IXAudio2* gpIXAudio2 = NULL;
 IXAudio2MasteringVoice* gpIXAudio2MasteringVoice = NULL;
 IXAudio2SourceVoice* gpIXAudio2_SceneFirstSourceVoice = NULL;
+
 void initAudio()
 {
+	void Uninitialize_Audio();
+
 	void getDataFromWav(LPCSTR, WAVEFORMATEXTENSIBLE*, XAUDIO2_BUFFER*);
 	void initializeXAudio2();
 	void initializeSourceVoice(IXAudio2SourceVoice * *pIXAudio2SourceVoice, WAVEFORMATEXTENSIBLE * wfx, XAUDIO2_BUFFER * buffer);
@@ -29,8 +32,7 @@ void initAudio()
 	WAVEFORMATEXTENSIBLE wfx_scene_first = { 0 };
 	
 	//Fetching data from wav file
-	//getDataFromWav(TEXT("Resources/Audio/ShankhDhvani.wav"), &wfx_scene_first, &buffer_scene_first);
-	getDataFromWav(TEXT("Resources/Audio/FirstScene5.wav"), &wfx_scene_first, &buffer_scene_first);
+	getDataFromWav(TEXT("Resources/Audio/newTemp.wav"), &wfx_scene_first, &buffer_scene_first);
 	
 	//Initializing XAudio2
 	initializeXAudio2();
@@ -38,6 +40,16 @@ void initAudio()
 	//Initialize Source Voices
 	initializeSourceVoice(&gpIXAudio2_SceneFirstSourceVoice, &wfx_scene_first, &buffer_scene_first);
 
+	HRESULT hr = S_OK;
+
+	hr = gpIXAudio2_SceneFirstSourceVoice->SubmitSourceBuffer(&buffer_scene_first);
+	if (FAILED(hr))
+	{
+		fprintf(gpFile, "SubmitSourceBuffer() buffer_scene_first failed.\nError Code: %x\n", hr);
+		fflush(gpFile);
+
+		Uninitialize_Audio();
+	}
 
 }
 
@@ -139,15 +151,6 @@ void initializeSourceVoice(IXAudio2SourceVoice** pIXAudio2SourceVoice, WAVEFORMA
 		fprintf(gpFile, "IXAudio2::CreateSourceVoice() failed.\nError Code: %x\n", hr);
 		fflush(gpFile);
 
-		Uninitialize_Audio();
-	}
-
-	hr = gpIXAudio2_SceneFirstSourceVoice->SubmitSourceBuffer(buffer);
-	if (FAILED(hr))
-	{
-		fprintf(gpFile, "SubmitSourceBuffer() failed.\nError Code: %x\n", hr);
-		fflush(gpFile);
-	
 		Uninitialize_Audio();
 	}
 

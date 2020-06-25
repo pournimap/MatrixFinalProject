@@ -522,7 +522,7 @@ void initialize_FluidText(void)
 			texture,
 			ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
 			ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-			face->glyph->advance.x
+			(GLuint)face->glyph->advance.x
 		};
 		Characters.insert(std::pair<GLchar, Character>(c, character));
 
@@ -748,7 +748,6 @@ void display_FluidText(void)
 
 	Update_FluidText();
 }
-
 
 
 

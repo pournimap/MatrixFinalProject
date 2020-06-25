@@ -312,6 +312,18 @@ void initFirstScene()
 		fprintf(gpFile, "loadTexture_firstScene Failed in FirstScene\n");
 	}
 
+	glShadeModel(GL_SMOOTH);
+
+	glClearDepth(1.0f);
+	// enable depth testing
+	glEnable(GL_DEPTH_TEST);
+	// depth test to do
+	glDepthFunc(GL_LEQUAL);
+
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	glEnable(GL_CULL_FACE);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 float t_fire_FirstScene = 0.0f;
@@ -595,7 +607,7 @@ void renderLampWithPointLight()
 		glEnable(GL_POINT_SPRITE);
 
 		//t_fire_FirstScene += 0.01f;
-		t_fire_FirstScene += 0.1f;
+		t_fire_FirstScene += 0.005f;
 		if (t_fire_FirstScene > 360.0f)
 			t_fire_FirstScene = 0.0f;
 
@@ -612,8 +624,8 @@ void renderLampWithPointLight()
 
 		//modelMatrix_fire = vmath::translate(-20.0f, 1.0f, -90.0f);
 		//modelMatrix_fire = vmath::translate(-25.5f, -3.0f, -10.0f);
-		modelMatrix_fire = vmath::translate(-0.1f, -5.8f, -20.0f);
-		scaleMatrix_fire = vmath::scale(1.0f, 3.5f, 0.5f);
+		modelMatrix_fire = vmath::translate(-0.1f, -5.8f, -22.0f);
+		scaleMatrix_fire = vmath::scale(2.0f, 3.5f, 1.0f);
 		//scaleMatrix_fire	= vmath::scale(50.0f, 50.0f, 100.0f);
 		//rotateMatrix_fire = rotate(75.0f, 0.0f, 1.0f, 0.0f);
 
@@ -1029,6 +1041,7 @@ void initPointLightShader_FirstScene()
 		"for(int i = 0; i < samples; ++i)" \
 		"{" \
 		"float closestDepth = texture(depthMap, fragToLight  + gridSamplingDisk[i] * diskRadius).r;" \
+		
 		"closestDepth *= far_plane;" \
 		"if(currentDepth - bias > closestDepth)" \
 		"shadow += 1.0;" \
