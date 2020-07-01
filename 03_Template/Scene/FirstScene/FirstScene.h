@@ -104,7 +104,20 @@ float near_plane = 0.1f;
 float far_plane = 150.0f;
 vec3 lightPos;
 
+/****************************Fire*********************************/
+GLuint gVertexShaderObject_fire_FirstScene;
+GLuint gFragmentShaderObject_fire_FirstScene;
+GLuint gShaderProgramObject_fire_FirstScene;
 
+
+GLuint gModelMatrixUniform_fire_FirstScene, gViewMatrixUniform_fire_FirstScene, gProjectionMatrixUniform_fire_FirstScene;
+GLuint applyBloomUniform_fire_FirstScene, u_bloom_is_activeUniform_fire_FirstScene;
+GLuint bloom_thresh_minUniform_fire_FirstScene, bloom_thresh_maxUniform_fire_FirstScene;
+GLuint fadeinFactorUniform_fire_FirstScene, fadeoutFactorUniform_fire_FirstScene;
+GLuint timeUniform_fire_FirstScene, PointSizeUniform_fire_FirstScene, sTextureUniform_fire_FirstScene;
+/*************************************************************/
+
+bool bShowCandle_FirstScene = false;
 BOOL loadTexture_firstScene(GLuint* texture, TCHAR imageResourceID[])
 {
 	HBITMAP hBitmap = NULL;
@@ -146,9 +159,11 @@ void initFirstScene()
 {
 	void initPointLightShader_FirstScene();
 	void initShadowDepthShader();
+	void initfire_FirstScene(void);
 
 	initPointLightShader_FirstScene();
 	initShadowDepthShader();
+	initfire_FirstScene();
 	/*//VERTEX SHADER
 	gVertexShaderObject_book = glCreateShader(GL_VERTEX_SHADER);
 	const GLchar* vertextShaderSourceCode_book =
@@ -588,7 +603,8 @@ void renderLampWithPointLight()
 #pragma region FIRE
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		glUseProgram(gShaderProgramObject_fire);
+	
+		glUseProgram(gShaderProgramObject_fire_FirstScene);
 
 		if (isShowStartingScene == false)
 		{
@@ -611,12 +627,12 @@ void renderLampWithPointLight()
 		if (t_fire_FirstScene > 360.0f)
 			t_fire_FirstScene = 0.0f;
 
-		glUseProgram(gShaderProgramObject_fire);
+		glUseProgram(gShaderProgramObject_fire_FirstScene);
 
-		glUniform1i(u_bloom_is_activeUniform_fire, 1);
-		glUniform1f(bloom_thresh_minUniform_fire, bloom_thresh_min);
-		glUniform1f(bloom_thresh_maxUniform_fire, bloom_thresh_max);
-		glUniform1i(applyBloomUniform_fire, 1);
+		glUniform1i(u_bloom_is_activeUniform_fire_FirstScene, 1);
+		glUniform1f(bloom_thresh_minUniform_fire_FirstScene, bloom_thresh_min);
+		glUniform1f(bloom_thresh_maxUniform_fire_FirstScene, bloom_thresh_max);
+		glUniform1i(applyBloomUniform_fire_FirstScene, 1);
 
 		mat4 modelMatrix_fire = mat4::identity();
 		mat4 scaleMatrix_fire = mat4::identity();
@@ -625,17 +641,24 @@ void renderLampWithPointLight()
 		//modelMatrix_fire = vmath::translate(-20.0f, 1.0f, -90.0f);
 		//modelMatrix_fire = vmath::translate(-25.5f, -3.0f, -10.0f);
 		modelMatrix_fire = vmath::translate(-0.1f, -5.8f, -22.0f);
-		scaleMatrix_fire = vmath::scale(2.0f, 3.5f, 1.0f);
+		if (bShowCandle_FirstScene == true)
+		{
+			scaleMatrix_fire = vmath::scale(20.0f, 3.5f, 1.0f);
+		}
+		else
+		{
+			scaleMatrix_fire = vmath::scale(2.0f, 3.5f, 1.0f);
+		}
 		//scaleMatrix_fire	= vmath::scale(50.0f, 50.0f, 100.0f);
 		//rotateMatrix_fire = rotate(75.0f, 0.0f, 1.0f, 0.0f);
 
 		modelMatrix_fire = modelMatrix_fire * rotateMatrix_fire * scaleMatrix_fire;
 
-		glUniformMatrix4fv(gModelMatrixUniform_fire, 1, GL_FALSE, modelMatrix_fire);
-		glUniformMatrix4fv(gViewMatrixUniform_fire, 1, GL_FALSE, viewMatrix_for_firstScene);
-		glUniformMatrix4fv(gProjectionMatrixUniform_fire, 1, GL_FALSE, gPerspectiveProjectionMatrix);
+		glUniformMatrix4fv(gModelMatrixUniform_fire_FirstScene, 1, GL_FALSE, modelMatrix_fire);
+		glUniformMatrix4fv(gViewMatrixUniform_fire_FirstScene, 1, GL_FALSE, viewMatrix_for_firstScene);
+		glUniformMatrix4fv(gProjectionMatrixUniform_fire_FirstScene, 1, GL_FALSE, gPerspectiveProjectionMatrix);
 
-		glUniform1f(timeUniform_fire, t_fire_FirstScene);
+		glUniform1f(timeUniform_fire_FirstScene, t_fire_FirstScene);
 
 		//glPointSize(gWidth_fire / 10);
 		//glPointSize(50);
@@ -643,7 +666,7 @@ void renderLampWithPointLight()
 		glActiveTexture(GL_TEXTURE0);
 
 		glBindTexture(GL_TEXTURE_2D, gParticleTexture_fire);
-		glUniform1i(sTextureUniform_fire, 0);
+		glUniform1i(sTextureUniform_fire_FirstScene, 0);
 
 
 		glBindVertexArray(vao_fire);
@@ -804,6 +827,7 @@ void updteForFirstScene()
 											first_scene_camera_center_coord[0] > 0.0f && first_scene_camera_center_coord[1] < -5.0f
 											)
 										{
+											bShowCandle_FirstScene = true;
 											first_scene_camera_eye_coord[0] -= (46.0f - 0.0f) / 200.0f;
 											first_scene_camera_eye_coord[1] -= (12.f - 3.0f) / 200.0f;
 											first_scene_camera_eye_coord[2] -= (38.0f - 20.0f) / 200.0f;
@@ -1318,4 +1342,157 @@ void renderShadowDepthShader_FirstScene()
 	renderModels_FirstScene(gModelMatrixUniform_ShadowDepthMap);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+}
+
+
+void initfire_FirstScene(void)
+{
+
+	//VERTEX SHADER
+	gVertexShaderObject_fire_FirstScene = glCreateShader(GL_VERTEX_SHADER);
+
+	const GLchar* vertextShaderSourceCode_fire_FirstScene =
+		"#version 460" \
+		"\n" \
+
+		"in float aLifetime;" \
+		"in float aXPos;" \
+		"in float aYSpeed;" \
+		"in vec2 aColor;" \
+
+		"uniform float uTime;" \
+		"uniform float uPointSize;" \
+
+		"uniform mat4 u_model_matrix;" \
+		"uniform mat4 u_view_matrix;" \
+		"uniform mat4 u_projection_matrix;" \
+
+		"out float vLifetime;" \
+		"out vec2 color;" \
+
+		"void main(void)" \
+		"{" \
+		"vLifetime		= mod(uTime, aLifetime);" \
+		"float ti		= 1.0 - vLifetime/aLifetime;" \
+
+		"mat4 mv_matrix = u_view_matrix * u_model_matrix;" \
+
+		"mv_matrix[0][0] = 1.0f;" \
+		"mv_matrix[0][1] = 0.0f;" \
+		"mv_matrix[0][2] = 0.0f;" \
+
+		/*"mv_matrix[1][0] = 0.0f;" \
+		"mv_matrix[1][1] = 1.0f;" \
+		"mv_matrix[1][2] = 0.0f;" \*/
+
+		"mv_matrix[2][0] = 0.0f;" \
+		"mv_matrix[2][1] = 0.0f;" \
+		"mv_matrix[2][2] = 1.0f;" \
+
+		"gl_Position	= u_projection_matrix * mv_matrix * vec4(aXPos*ti, aYSpeed*vLifetime - 1.0, 1.0, 1.0);" \
+		"vLifetime		= 4.0 * ti * (1.0 - ti);" \
+		"color			= aColor;" \
+		"}";
+
+	glShaderSource(gVertexShaderObject_fire_FirstScene, 1, (const GLchar**)&vertextShaderSourceCode_fire_FirstScene, NULL);
+
+	//compile shader
+	glCompileShader(gVertexShaderObject_fire_FirstScene);
+
+	checkCompilationLog((char*)"gVertexShaderObject_fire_FirstScene", gVertexShaderObject_fire_FirstScene);
+
+	//FRAGMENT SHADER
+
+	gFragmentShaderObject_fire_FirstScene = glCreateShader(GL_FRAGMENT_SHADER);
+
+	const GLchar* fragmentShaderSourceCode_fire_FirstScene =
+		"#version 460" \
+		"\n" \
+		"uniform sampler2D sTexture;" \
+
+		"in float vLifetime;" \
+		"in vec2 color;" \
+
+		"layout (location = 0) out vec4 FragColor;" \
+		"layout (location = 1) out vec4 BloomColor;" \
+		"layout (location = 2) out vec4 GodRaysColor;" \
+
+		"uniform int applyBloom;" \
+		"uniform float bloom_thresh_min = 0.8f;" \
+		"uniform float bloom_thresh_max = 1.2f;" \
+		"uniform int u_bloom_is_active;" \
+
+		"uniform float fadeinFactor;" \
+		"uniform float fadeoutFactor;" \
+
+		"void main(void)" \
+		"{" \
+		/*"gl_PointSize = 5;" \*/
+		"vec4 ColorTemp;" \
+		"vec4 texColor	= texture2D(sTexture, gl_PointCoord);" \
+		"ColorTemp		= vec4(color, 0., 1.) * texColor ;" \
+		"ColorTemp.a	= vLifetime + 0.9;" \
+		"if(ColorTemp.r < 0.1 && ColorTemp.g < 0.1 && ColorTemp.b < 0.1)" \
+		"discard;" \
+		"FragColor		= ColorTemp * fadeinFactor * fadeoutFactor;" \
+
+
+		"if(applyBloom == 1)" \
+		"{" \
+		"vec4 c = FragColor;" \
+		"if (u_bloom_is_active == 1)" \
+		"{" \
+		"float Y = dot(c, vec4(0.299, 0.587, 0.144, 1.0));\n" \
+		"c = c * 4.0 * smoothstep(bloom_thresh_min, bloom_thresh_max, Y);\n" \
+		"BloomColor = c;\n" \
+		"}" \
+		"else" \
+		"{" \
+		"BloomColor = c;\n" \
+		"}" \
+		"}" \
+		"else" \
+		"{" \
+		"BloomColor = vec4(0.0);" \
+		"}" \
+		"GodRaysColor = vec4(0.0);" \
+		"}";
+
+	glShaderSource(gFragmentShaderObject_fire_FirstScene, 1, (const GLchar**)&fragmentShaderSourceCode_fire_FirstScene, NULL);
+
+	glCompileShader(gFragmentShaderObject_fire_FirstScene);
+	checkCompilationLog((char*)"gFragmentShaderObject_fire_FirstScene", gFragmentShaderObject_fire_FirstScene);
+
+
+	//Shader Program
+
+	gShaderProgramObject_fire_FirstScene = glCreateProgram();
+
+	glAttachShader(gShaderProgramObject_fire_FirstScene, gVertexShaderObject_fire_FirstScene);
+	glAttachShader(gShaderProgramObject_fire_FirstScene, gFragmentShaderObject_fire_FirstScene);
+
+	glBindAttribLocation(gShaderProgramObject_fire_FirstScene, 0, "aLifetime");
+	glBindAttribLocation(gShaderProgramObject_fire_FirstScene, 1, "aXPos");
+	glBindAttribLocation(gShaderProgramObject_fire_FirstScene, 2, "aYSpeed");
+	glBindAttribLocation(gShaderProgramObject_fire_FirstScene, 3, "aColor");
+
+	glLinkProgram(gShaderProgramObject_fire_FirstScene);
+	checkLinkLog((char*)"gShaderProgramObject_fire_FirstScene", gShaderProgramObject_fire_FirstScene);
+
+
+	timeUniform_fire_FirstScene = glGetUniformLocation(gShaderProgramObject_fire_FirstScene, "uTime");
+	PointSizeUniform_fire_FirstScene = glGetUniformLocation(gShaderProgramObject_fire_FirstScene, "uPointSize");
+	sTextureUniform_fire_FirstScene = glGetUniformLocation(gShaderProgramObject_fire_FirstScene, "sTexture");
+
+	gModelMatrixUniform_fire_FirstScene = glGetUniformLocation(gShaderProgramObject_fire_FirstScene, "u_model_matrix");
+	gViewMatrixUniform_fire_FirstScene = glGetUniformLocation(gShaderProgramObject_fire_FirstScene, "u_view_matrix");
+	gProjectionMatrixUniform_fire_FirstScene = glGetUniformLocation(gShaderProgramObject_fire_FirstScene, "u_projection_matrix");
+
+	applyBloomUniform_fire_FirstScene = glGetUniformLocation(gShaderProgramObject_fire_FirstScene, "applyBloom");
+	u_bloom_is_activeUniform_fire_FirstScene = glGetUniformLocation(gShaderProgramObject_fire_FirstScene, "u_bloom_is_active");
+	bloom_thresh_minUniform_fire_FirstScene = glGetUniformLocation(gShaderProgramObject_fire_FirstScene, "bloom_thresh_min");
+	bloom_thresh_maxUniform_fire_FirstScene = glGetUniformLocation(gShaderProgramObject_fire_FirstScene, "bloom_thresh_max");
+
+	fadeinFactorUniform_fire_FirstScene = glGetUniformLocation(gShaderProgramObject_fire_FirstScene, "fadeinFactor");
+	fadeoutFactorUniform_fire_FirstScene = glGetUniformLocation(gShaderProgramObject_fire_FirstScene, "fadeoutFactor");
 }
