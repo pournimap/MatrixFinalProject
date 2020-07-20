@@ -32,7 +32,7 @@ void initAudio()
 	WAVEFORMATEXTENSIBLE wfx_scene_first = { 0 };
 	
 	//Fetching data from wav file
-	getDataFromWav(TEXT("Resources/Audio/newTemp.wav"), &wfx_scene_first, &buffer_scene_first);
+	getDataFromWav(TEXT("Resources/Audio/projectAudio.wav"), &wfx_scene_first, &buffer_scene_first);
 	
 	//Initializing XAudio2
 	initializeXAudio2();

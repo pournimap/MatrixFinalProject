@@ -1,4 +1,17 @@
+#pragma once
 
+//function declaration
+void InitColorProgramShaders(void);
+void renderBrightSource(void);
+void initBrightChakraSource(void);
+void renderBrightChakraSource(void);
+vec4 vec4Transform(vec4& vSrcVector, mat4& matSrcMatrix);
+vec2 getScreenSpaceSunPos(void);
+void initGodRaysPostProcessing(void);
+void display_GodRaysPostProcessing(void);
+
+
+//variable declaration
 GLuint gVertexShaderObject_color;
 GLuint gFragmentShaderObject_color;
 GLuint gShaderProgramObject_color;
@@ -6,7 +19,7 @@ GLuint gShaderProgramObject_color;
 GLuint gModelMatrixUniform_Color, gViewMatrixUniform_Color, gProjMatrixUniform_Color, gColorUniform_Color;
 GLuint fadeinFactorUniform_color, fadeoutFactorUniform_color;
 
-void InitColorProgramShaders()
+void InitColorProgramShaders(void)
 {
 	//VERTEX SHADER
 	gVertexShaderObject_color = glCreateShader(GL_VERTEX_SHADER);
@@ -85,7 +98,7 @@ void InitColorProgramShaders()
 
 vec3 SourceDir;
 
-void renderBrightSource()
+void renderBrightSource(void)
 {
 	mat4 modelMatrix = mat4::identity();
 	mat4 scaleMatrix = mat4::identity();
@@ -122,7 +135,7 @@ void renderBrightSource()
 
 GLuint vaoChakraSource, vbo_Position_ChakraSource, vbo_Color_ChakraSource;
 
-void initBrightChakraSource()
+void initBrightChakraSource(void)
 {
 	float R = 1.5;
 	float r = 1.2;
@@ -176,7 +189,7 @@ void initBrightChakraSource()
 
 
 }
-void renderBrightChakraSource()
+void renderBrightChakraSource(void)
 {
 
 	// Initialize above matrices to Identity - For Circle
@@ -256,7 +269,7 @@ vec4 vec4Transform(vec4& vSrcVector, mat4& matSrcMatrix)
 	return vDstVector;
 }
 
-vec2 getScreenSpaceSunPos()
+vec2 getScreenSpaceSunPos(void)
 {
 	mat4 model = mat4::identity();
 	model = translate(0.0f, 0.0f, 0.0f);
@@ -301,7 +314,7 @@ GLuint gScreenSpaceSunPosUniform_godRays, gDensityUniform_godRays, gWeightUnifor
 GLuint gModelMatrixUniform_godRays, gViewMatrixUniform_godRays, gProjectionMatrixUniform_godRays;
 GLuint fadeinFactorUniform_godRays, fadeoutFactorUniform_godRays;
 
-void initGodRaysPostProcessing()
+void initGodRaysPostProcessing(void)
 {
 
 	//VERTEX SHADER
@@ -406,7 +419,7 @@ void initGodRaysPostProcessing()
 }
 
 
-void display_GodRaysPostProcessing()
+void display_GodRaysPostProcessing(void)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, godRays_fbo);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

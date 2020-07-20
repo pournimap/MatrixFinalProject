@@ -2,6 +2,14 @@
 
 #include "../../Include/BasicShapeLoader/Model/BasicOBJLoader/Matrix_Obj_Loader.h"
 
+//function declaration
+void initialize_krishnaAnimate();
+void initKrishnaAnimate();
+
+void display_krishnaAnimate(void);
+
+void uninitialize_krishnaAnimate(void);
+
 // SHADER 1
 GLuint gVertexShaderObject_krishnaAnimate;
 GLuint gGeometryShaderObject_krishnaAnimate;
@@ -99,12 +107,12 @@ GLuint samplerUniform2_mor_pis;
 GLuint textureFeather1_mor_pis;
 GLuint textureFeather2_mor_pis;
 GLuint fadeinFactorUniform_mor_pis, fadeoutFactorUniform_mor_pis;
-
+GLuint applyBloomUniform_mor_pis, u_bloom_is_activeUniform_mor_pis;
+GLuint bloom_thresh_minUniform_mor_pis, bloom_thresh_maxUniform_mor_pis;
 GLfloat X_Pos_mor_pis = -250.0f;
 
 
-
-void initKrishnaAnimate()
+void initKrishnaAnimate(void)
 {
 	void uninitialize(int);
 
@@ -279,8 +287,6 @@ void initKrishnaAnimate()
 		"}" \
 
 		"GodRaysColor = vec4(0.0, 0.0, 0.0, 0.0);" \
-		//"if(virat_roop_start == 1)" \
-		//		"FragColor		= vec4(0.2,0.1,1.0,1.0f);" \
 
 		"if(virat_roop_start == 1 && out_gl_pos.y > time)" \
 		"{" \
@@ -427,7 +433,6 @@ void initKrishnaAnimate()
 			"BloomColor = vec4(0.0);" \
 		"}" \
 		"GodRaysColor = vec4(0.0, 0.0, 0.0, 0.0);" \
-		//"FragColor = vec4(0.2,0.1,1.0,0.5);" 
 		"}";
 
 	glShaderSource(gFragmentShaderObject_attractor_krishna, 1, (const GLchar**)&fragmentShaderSourceCode_attractor_krishna, NULL);
@@ -445,7 +450,6 @@ void initKrishnaAnimate()
 	glAttachShader(gShaderProgramObject_attractor_krishna, gFragmentShaderObject_attractor_krishna);
 
 	glBindAttribLocation(gShaderProgramObject_attractor_krishna, MATRIX_ATTRIBUTE_POSITION, "vPosition");
-	//glBindAttribLocation(gShaderProgramObject_attractor_krishna, MATRIX_ATTRIBUTE_TEXTURE0, "vTexcoord");
 
 	glLinkProgram(gShaderProgramObject_attractor_krishna);
 
@@ -496,9 +500,15 @@ void initKrishnaAnimate()
 		"#version 450 core" \
 		"\n" \
 		"in vec2 out_texcoord;" \
-		"out vec4 FragColor;" \
+		"layout (location = 0) out vec4 FragColor;" \
+
 		"uniform sampler2D u_sampler1;" \
 		"uniform sampler2D u_sampler2;" \
+
+		"uniform int applyBloom;" \
+		"uniform float bloom_thresh_min = 0.8f;" \
+		"uniform float bloom_thresh_max = 1.2f;" \
+		"uniform int u_bloom_is_active;" \
 
 		"uniform float fadeinFactor;" \
 		"uniform float fadeoutFactor;" \
@@ -510,6 +520,7 @@ void initKrishnaAnimate()
 		"FragColor = FragColor1 * FragColor2  * fadeinFactor * fadeoutFactor;"
 		"if(FragColor.r < 0.1 && FragColor.g < 0.1 && FragColor.b < 0.1)" \
 		"discard;" \
+
 		"}";
 
 	glShaderSource(gFragmentShaderObject_mor_pis_krishna, 1, (const GLchar**)&fragmentShaderSourceCode_mor_pis_krishna, NULL);
@@ -541,6 +552,12 @@ void initKrishnaAnimate()
 
 	fadeinFactorUniform_mor_pis = glGetUniformLocation(gShaderProgramObject_mor_pis_krishna, "fadeinFactor");
 	fadeoutFactorUniform_mor_pis = glGetUniformLocation(gShaderProgramObject_mor_pis_krishna, "fadeoutFactor");
+
+	applyBloomUniform_mor_pis = glGetUniformLocation(gShaderProgramObject_mor_pis_krishna, "applyBloom");
+	u_bloom_is_activeUniform_mor_pis = glGetUniformLocation(gShaderProgramObject_mor_pis_krishna, "u_bloom_is_active");
+	bloom_thresh_minUniform_mor_pis = glGetUniformLocation(gShaderProgramObject_mor_pis_krishna, "bloom_thresh_min");
+	bloom_thresh_maxUniform_mor_pis = glGetUniformLocation(gShaderProgramObject_mor_pis_krishna, "bloom_thresh_max");
+
 #pragma endregion
 }
 
@@ -581,40 +598,8 @@ BOOL loadTexture_mor_pis(GLuint* texture, TCHAR imageResourceID[])
 
 	return(bStatus);
 }
-
-void initialize_krishnaAnimate()
+void initMorpis()
 {
-	initKrishnaAnimate();
-
-	krishna_Animated_StandUpHand.loadModel("Resources/11MarchKrishnaModel/pointFinger.fbx");
-
-	for (GLfloat i = -2.0f; i <= 2.0f; i = i + 0.15f)
-	{
-		for (GLfloat j = -2.0f; j <= 2.0f; j = j + 0.15f)
-		{
-			for (GLfloat k = -2.0f; k <= 2.0f; k = k + 0.10f)
-			{
-				vertices_attractor.push_back(i);
-				vertices_attractor.push_back(j);
-				vertices_attractor.push_back(k);
-			}
-		}
-	}
-
-	// create VaoForAttractor
-	glGenVertexArrays(1, &VaoForAttractor);
-	glBindVertexArray(VaoForAttractor);
-
-	// create VboForAttractorForAttractor
-	glGenBuffers(1, &VboForAttractor);
-	glBindBuffer(GL_ARRAY_BUFFER, VboForAttractor);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices), triangleVertices, GL_STATIC_DRAW);
-	glBufferData(GL_ARRAY_BUFFER, vertices_attractor.size() * sizeof(float), NULL, GL_DYNAMIC_DRAW);
-	glVertexAttribPointer(MATRIX_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_POSITION);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
 	const GLfloat rectangleVertices_mor_pis[] =
 	{
 		1.0f, 1.0f,0.0f,
@@ -654,6 +639,41 @@ void initialize_krishnaAnimate()
 
 	glBindVertexArray(0);
 
+}
+void initialize_krishnaAnimate()
+{
+	initKrishnaAnimate();
+
+	krishna_Animated_StandUpHand.loadModel("Resources/11MarchKrishnaModel/pointFinger.fbx");
+
+	for (GLfloat i = -2.0f; i <= 2.0f; i = i + 0.15f)
+	{
+		for (GLfloat j = -2.0f; j <= 2.0f; j = j + 0.15f)
+		{
+			for (GLfloat k = -2.0f; k <= 2.0f; k = k + 0.10f)
+			{
+				vertices_attractor.push_back(i);
+				vertices_attractor.push_back(j);
+				vertices_attractor.push_back(k);
+			}
+		}
+	}
+
+	// create VaoForAttractor
+	glGenVertexArrays(1, &VaoForAttractor);
+	glBindVertexArray(VaoForAttractor);
+
+	// create VboForAttractorForAttractor
+	glGenBuffers(1, &VboForAttractor);
+	glBindBuffer(GL_ARRAY_BUFFER, VboForAttractor);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices), triangleVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices_attractor.size() * sizeof(float), NULL, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(MATRIX_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(MATRIX_ATTRIBUTE_POSITION);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	initMorpis();
 	/* defined in Text.rc
 	#define IDBITMAP_FEATHER1 102
 	#define IDBITMAP_FEATHER2 103
@@ -666,8 +686,9 @@ void initialize_krishnaAnimate()
 }
 
 float FadeOutFactor_krishnaAnimate = 1.0f;
-void display_krishnaAnimate()
+void display_krishnaAnimate(void)
 {
+	void drawMorpis();
 	/*glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_NOTEQUAL, 0);
 	glEnable(GL_BLEND);
@@ -798,14 +819,16 @@ void display_krishnaAnimate()
 
 	}
 
-	/*if (isKrishnaRenderInPoints == true)
-	{
-		glDisable(GL_ALPHA_TEST);
-		glDisable(GL_BLEND);
-		glDisable(GL_POINT_SMOOTH);
-	}*/
-
+	drawMorpis();
 	
+}
+
+void drawMorpis()
+{
+	mat4 modelMatrix = mat4::identity();
+	mat4 scaleMatrix = mat4::identity();
+	mat4 rotateMatrix = mat4::identity();
+
 	glUseProgram(gShaderProgramObject_mor_pis_krishna);
 
 	modelMatrix = mat4::identity();
@@ -838,9 +861,8 @@ void display_krishnaAnimate()
 	glBindVertexArray(0);
 
 	glUseProgram(0);
-	
-}
 
+}
 void resetAttractorVao()
 {
 	vertices_attractor.clear();
@@ -880,12 +902,6 @@ void update_krishnaAnimate()
 			vertices_attractor[i + 1] = Y1;
 			vertices_attractor[i + 2] = Z1;
 		}
-
-		// to move attractor along with camera
-		//if (X_Pos_attractor < 100.0f)
-		//{
-		//	X_Pos_attractor = X_Pos_attractor + 0.1f;
-		//}
 		
 		if (ftime_krishnaAnimate > 1200.0f && Y_Pos_attractor > 170.0f)
 		{
@@ -900,20 +916,60 @@ void update_krishnaAnimate()
 			Y_Pos_attractor = Y_Pos_attractor + 0.4f;
 		}
 		
-		/*
-		if (Z_Pos_attractor > -100.0f)
-		{
-			Z_Pos_attractor = Z_Pos_attractor - 0.1f;
-		}
-		*/
-
 	}
 }
 
-void uninitialize_krishnaAnimate()
+void uninitialize_krishnaAnimate(void)
 {
-	uninitializeAllModelData();
-	uninitializeSphereShape();
 	programObjectSafeRelease(gShaderProgramObject_krishnaAnimate);
+}
 
+void drawMorpisAlone()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glViewport(0, 0, gWidth, gHeight);
+
+	mat4 modelMatrix = mat4::identity();
+	mat4 viewMatrix = mat4::identity();
+	mat4 scaleMatrix = mat4::identity();
+	mat4 rotateMatrix = mat4::identity();
+
+	glUseProgram(gShaderProgramObject_mor_pis_krishna);
+
+	modelMatrix = mat4::identity();
+	viewMatrix = mat4::identity();
+	scaleMatrix = mat4::identity();
+	rotateMatrix = mat4::identity();
+
+	modelMatrix = translate(0.0f, 0.0f, -70.0f);
+	scaleMatrix = scale(30.0f, 30.0f, 30.0f);
+	//rotateMatrix = rotate(90.0f, 0.0f, 1.0f, 0.0f);
+	modelMatrix = modelMatrix * scaleMatrix;
+
+	glUniform1f(fadeoutFactorUniform_mor_pis, 1.0f);
+	glUniform1f(fadeinFactorUniform_mor_pis, 1.0f);
+
+	glUniformMatrix4fv(gModelMatrixUniform_mor_pis, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(gViewMatrixUniform_mor_pis, 1, GL_FALSE, viewMatrix);								    // globally camera set in perFrag file
+	glUniformMatrix4fv(gProjectionMatrixUniform_mor_pis, 1, GL_FALSE, gPerspectiveProjectionMatrix);			// globally pojection set
+
+	glUniform1i(applyBloomUniform_mor_pis, 0);
+	glUniform1i(u_bloom_is_activeUniform_mor_pis, 1.0f);
+	glUniform1f(bloom_thresh_minUniform_mor_pis, bloom_thresh_min);
+	glUniform1f(bloom_thresh_maxUniform_mor_pis, bloom_thresh_max);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureFeather1_mor_pis);
+	glUniform1i(samplerUniform1_mor_pis, 0);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, textureFeather2_mor_pis);
+	glUniform1i(samplerUniform2_mor_pis, 1);
+
+	// bind with vao
+	glBindVertexArray(vao_rectangle_mor_pis);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glBindVertexArray(0);
+
+	glUseProgram(0);
 }

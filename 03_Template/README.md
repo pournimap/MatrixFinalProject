@@ -1,28 +1,20 @@
-# Template 01
-___
-might update further
+# Matrix Group Final Project
 
-## PENDING TASK :
+# Demo Name => Shishupal Vadh
 
-# Bloom Applying Step:
-## PRESS 'B' or 'b' TO START THE BLOOM EFFECT. Its toggling is there in the WndProc function.
-i) Call applyBloom() function.
-ii) Call your object/model rendering immediately after the call to applyBloom().
-iii) Call stopApplyingBloom() at the end of it.
 
-# For e.g., to render a sinhasan,
-=> 	applyBloom();
-	renderSinhasan();
-	stopApplyingBloom();
-Should be the sequence of function calls.	
+Platform : x64 
+
+To run : please press "g" or "G" to start the demo
+
+In build.bat,
+		
+		Include Path
+		1. C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.0\include
+		Lib Path
+		2. C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.0\lib\x64\cudart.lib
+		Cuda Sample Include folder Location
+		3. C:\ProgramData\NVIDIA Corporation\CUDA Samples\v11.0\common\inc
+
+	You have to replace above paths with your system specific paths.
 	
-	
-# IMP :: 
-1.ExternalLibraries.zip
-
-Please Extract this ExternalLibraries.zip folder present in Include folder as it is.
-
-it contains folder "ExternalLibraries",
-put this folder into Include folder.
-
-

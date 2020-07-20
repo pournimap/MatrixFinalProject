@@ -2,7 +2,17 @@
 
 #include"..\..\Include\Fire\FireHeader.h"
 
+//function declaration
+int LoadGLTextures_fire(GLuint* texture, TCHAR imageResourceId[]);
+void initialize_fire(void);
+void initfire(void);
 
+void display_fire(void);
+void display_fireOnly(void);
+
+void uninitialize_fire(void);
+
+//variable declaration
 GLuint gVertexShaderObject_fire;
 GLuint gFragmentShaderObject_fire;
 GLuint gShaderProgramObject_fire;
@@ -26,6 +36,7 @@ float t_fire = 0.0f;
 
 float gWidth_fire;
 
+//code
 int LoadGLTextures_fire(GLuint* texture, TCHAR imageResourceId[])
 {
 	HBITMAP hBitmap;
@@ -91,18 +102,6 @@ void initfire(void)
 		"float ti		= 1.0 - vLifetime/aLifetime;" \
 		
 		"mat4 mv_matrix = u_view_matrix * u_model_matrix;" \
-		
-		/*"mv_matrix[0][0] = 1.0f;" \
-		"mv_matrix[0][1] = 0.0f;" \
-		"mv_matrix[0][2] = 0.0f;" \
-		
-		/*"mv_matrix[1][0] = 0.0f;" \
-		"mv_matrix[1][1] = 1.0f;" \
-		"mv_matrix[1][2] = 0.0f;" \
-		
-		"mv_matrix[2][0] = 0.0f;" \
-		"mv_matrix[2][1] = 0.0f;" \
-		"mv_matrix[2][2] = 1.0f;" \*/
 		
 		"gl_Position	= u_projection_matrix * mv_matrix * vec4(aXPos*ti, aYSpeed*vLifetime - 1.0, 1.0, 1.0);" \
 		"vLifetime		= 4.0 * ti * (1.0 - ti);" \
@@ -302,11 +301,6 @@ void display_fire(void)
 		
 	glUseProgram(gShaderProgramObject_fire);
 
-	/*if (isShowStartingScene == false)
-	{
-		if (FadeInFactor_fire <= 1.0f)
-			FadeInFactor_fire += 0.001f;
-	}*/
 	if (bStartFadeOutSecondScene == true)
 	{
 		if (FadeOutFactor_fire >= 0.0f)
@@ -325,7 +319,7 @@ void display_fire(void)
 	mat4 scaleMatrix_fire	= mat4::identity();
 	mat4 rotateMatrix_fire	= mat4::identity();
 
-	modelMatrix_fire = vmath::translate(1200.0f, 120.0f, 00.0f);
+	modelMatrix_fire = vmath::translate(1150.0f, 120.0f, -30.0f);
 	//modelMatrix_fire	= vmath::translate(1120.0f, 120.0f, 00.0f);
 	scaleMatrix_fire	= vmath::scale(130.0f, 100.0f, 100.0f);
 	//scaleMatrix_fire	= vmath::scale(50.0f, 50.0f, 100.0f);
@@ -354,18 +348,10 @@ void display_fire(void)
 	glBindTexture(GL_TEXTURE_2D, 0);
 	
 	glDisable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ZERO);
-	//glClearDepth(1.0f);
-	//glDisable(GL_DEPTH_TEST);
-	//glDepthFunc(GL_LESS);
-	
-	//glDisable(GL_POINT_SPRITE);							// this is required to use texture on point
 
 	glUseProgram(0);
 
 }
-
-
 
 void uninitialize_fire(void)
 {
@@ -373,4 +359,69 @@ void uninitialize_fire(void)
 	programObjectSafeRelease(gShaderProgramObject_fire);
 }
 
+void display_fireOnly(void)
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glClearDepth(1.0f);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
 
+
+	glEnable(GL_POINT_SPRITE);							// this is required to use texture on point
+
+
+	t_fire += 0.01f;
+	if (t_fire > 360.0f)
+		t_fire = 0.0f;
+
+	glUseProgram(gShaderProgramObject_fire);
+
+	if (bStartFadeOutSecondScene == true)
+	{
+		if (FadeOutFactor_fire >= 0.0f)
+			FadeOutFactor_fire -= 0.001f;
+	}
+
+	glUniform1f(fadeoutFactorUniform_fire, FadeOutFactor_fire);
+	glUniform1f(fadeinFactorUniform_fire, 1.0f);
+
+	glUniform1i(u_bloom_is_activeUniform_fire, 1);
+	glUniform1f(bloom_thresh_minUniform_fire, bloom_thresh_min);
+	glUniform1f(bloom_thresh_maxUniform_fire, bloom_thresh_max);
+	glUniform1i(applyBloomUniform_fire, 1);
+
+	mat4 modelMatrix_fire = mat4::identity();
+	mat4 viewMatrix_fire = mat4::identity();
+	mat4 scaleMatrix_fire = mat4::identity();
+	mat4 rotateMatrix_fire = mat4::identity();
+
+	modelMatrix_fire = vmath::translate(-2.0f, 0.0f, -5.0f);
+
+	modelMatrix_fire = modelMatrix_fire * rotateMatrix_fire * scaleMatrix_fire;
+
+	glUniformMatrix4fv(gModelMatrixUniform_fire, 1, GL_FALSE, modelMatrix_fire);
+	glUniformMatrix4fv(gViewMatrixUniform_fire, 1, GL_FALSE, viewMatrix_fire);
+
+	glUniformMatrix4fv(gProjectionMatrixUniform_fire, 1, GL_FALSE, gPerspectiveProjectionMatrix);
+	glUniform1f(timeUniform_fire, t_fire);
+
+	//glPointSize(gWidth_fire / 10);
+	glPointSize(10);
+	glActiveTexture(GL_TEXTURE0);
+
+	glBindTexture(GL_TEXTURE_2D, gParticleTexture_fire);
+	glUniform1i(sTextureUniform_fire, 0);
+
+
+	glBindVertexArray(vao_fire);
+	glDrawArrays(GL_POINTS, 0, numParticles_fire);
+	glBindVertexArray(0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glDisable(GL_BLEND);
+
+	glUseProgram(0);
+}

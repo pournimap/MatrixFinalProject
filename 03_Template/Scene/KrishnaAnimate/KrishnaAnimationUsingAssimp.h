@@ -1,5 +1,14 @@
 #include "../../Include/BasicShapeLoader/Model/AssimpModelLoader/Model.h"
 
+//function declaration
+void initialize_AssimpModelLoader(void);
+void initAssimpModelLoaderShader(void);
+
+void display_AssimpModelLoader(void);
+
+void uninitialize_AssimpModelLoader(void);
+
+//variable declaration
 // SHADER 1
 GLuint gVertexShaderObject_krishnaAnimateAssimp;
 GLuint gFragmentShaderObject_krishnaAnimateAssimp;
@@ -20,9 +29,9 @@ GLuint bloom_thresh_minUniform_krishnaAnimateAssimp, bloom_thresh_maxUniform_kri
 
 Model krishna_Animated_SeatToStand;
 
+//code
 
-
-void initAssimpModelLoaderShader()
+void initAssimpModelLoaderShader(void)
 {
 	void uninitialize(int);
 
@@ -245,21 +254,13 @@ void initAssimpModelLoaderShader()
 }
 
 
-void initialize_AssimpModelLoader()
+void initialize_AssimpModelLoader(void)
 {
 	initAssimpModelLoaderShader();
 
-	
-	
 	krishna_Animated_SeatToStand.loadModel("Resources/11MarchKrishnaModel/seatToStand.fbx");
-	//initCubeShape();
-
-	//initSphereShape();
-
-	//LoadAllModels();
-
+	
 	glShadeModel(GL_SMOOTH);
-
 	glClearDepth(1.0f);
 	// enable depth testing
 	glEnable(GL_DEPTH_TEST);
@@ -270,10 +271,9 @@ void initialize_AssimpModelLoader()
 	glEnable(GL_CULL_FACE);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // blue
-
 }
 
-void display_AssimpModelLoader()
+void display_AssimpModelLoader(void)
 {
 	
 	glUseProgram(gShaderProgramObject_krishnaAnimateAssimp);
@@ -337,4 +337,9 @@ void display_AssimpModelLoader()
 	krishna_Animated_SeatToStand.draw(gShaderProgramObject_krishnaAnimateAssimp, isModelAnimationStart, 1);
 
 	glUseProgram(0);
+}
+
+void uninitialize_AssimpModelLoader(void)
+{
+	programObjectSafeRelease(gShaderProgramObject_krishnaAnimateAssimp);
 }

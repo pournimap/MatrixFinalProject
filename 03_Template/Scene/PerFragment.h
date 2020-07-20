@@ -2,6 +2,14 @@
 
 #include "../Include/BasicShapeLoader/Model/BasicOBJLoader/Matrix_Obj_Loader.h"
 
+//function declaration
+void initialize_perFragmentLight(void);
+void initShadowDepthShader(void);
+
+void display_Matrix_X(void);
+void display_perFragmentLight(void);
+
+
 GLuint gVertexShaderObject_perFragmentLight;
 GLuint gFragmentShaderObject_perFragmentLight;
 GLuint gShaderProgramObject_perFragmentLight;
@@ -30,19 +38,6 @@ GLfloat material_diffuse[] = { 1.0f,1.0f,1.0f,1.0f };
 GLfloat material_specular[] = { 1.0f,1.0f,1.0f,1.0f };
 GLfloat material_shininess = 50.0f;
 
-// FOR CAMERA
-/*
-vec3 vmath_camera_eye_coord		= { -40.0f, 180.0f,1.0f };
-vec3 vmath_camera_center_coord	= { -1000.0f,200.00f,0.0f };
-vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
-*/
-
-//vec3 vmath_camera_eye_coord		= { 3190.0f, 80.0f, 610.0f };
-//vec3 vmath_camera_eye_coord		= { 2910.0f, 75.0f, 560.0f };
-////vec3 vmath_camera_center_coord	= { 0.0f,-235.0f,0.0f };
-//vec3 vmath_camera_center_coord	= { 0.0f,-255.0f,0.0f };
-////vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
-//vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
 vec3 vmath_camera_eye_coord = { 3000.0f, 600.0f, 0.0f };
 vec3 vmath_camera_center_coord = { 0.0f,-415.0f,0.0f };
 vec3 vmath_camera_up_coord = { 0.0f,1.0f,0.0f };
@@ -69,7 +64,8 @@ bool showEmptyMahalGoInVer2Done = false;
 bool showEmptyMahalGoOutVer2Done = false;
 bool GoKrishnaCloserLook = false;
 
-void initPerFragmentShader()
+
+void initialize_perFragmentLight(void)
 {
 	void uninitialize(int);
 
@@ -262,24 +258,153 @@ void initPerFragmentShader()
 
 }
 
-
-void initialize_perFragmentLight()
+void display_Matrix_X(void)
 {
-	initPerFragmentShader();
+	glUseProgram(gShaderProgramObject_perFragmentLight);
+	glUniform1f(fadeoutFactor_perFragmentLight, 1.0f);
+	glUniform1f(fadeinFactor_perFragmentLight, 1.0f);
+
+	glUniform1i(u_bloom_is_activeUniform_perFragmentLight, (GLint)1);
+	glUniform1f(bloom_thresh_minUniform_perFragmentLight, bloom_thresh_min);
+	glUniform1f(bloom_thresh_maxUniform_perFragmentLight, bloom_thresh_max);
+
+	if (gbLight == true)
+	{
+		glUniform1i(gLKeyPressedUniform_perFragmentLight, 1);
+
+		glUniform3fv(gLdUniform_perFragmentLight, 1, lightDiffuse);//white
+		glUniform3fv(gLaUniform_perFragmentLight, 1, lightAmbient);
+		glUniform3fv(gLsUniform_perFragmentLight, 1, lightSpecular);
+		glUniform4fv(gLightPositionUniform_perFragmentLight, 1, lightPosition);
+
+		glUniform3fv(gKaUniform_perFragmentLight, 1, material_ambient);
+		glUniform3fv(gKdUniform_perFragmentLight, 1, vec3(0.117647, 0.772549, 0.011764));
+		glUniform3fv(gKsUniform_perFragmentLight, 1, material_specular);
+		glUniform1f(gMaterialShininessUniform_perFragmentLight, material_shininess);
+		glUniform1f(gAlphaUniform_perFragmentLight, 1.0f);
+
+	}
+	else
+	{
+		glUniform1i(gLKeyPressedUniform_perFragmentLight, 0);
+	}
+	mat4 modelMatrix = mat4::identity();
+	//glm::mat4 viewMatrix = glm::mat4();
+	mat4 viewMatrix = mat4::identity();
+	mat4 scaleMatrix = mat4::identity();
+	mat4 rotateMatrix = mat4::identity();
+
+	gViewMatrix = lookat(vmath_camera_eye_coord, vmath_camera_center_coord, vmath_camera_up_coord);
+	glUniformMatrix4fv(gViewMatrixUniform_perFragmentLight, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(gProjectionMatrixUniform_perFragmentLight, 1, GL_FALSE, gPerspectiveProjectionMatrix);
+
+	glUniform1i(applyBloomUniform_perFragmentLight, 1);
+
+	modelMatrix = vmath::translate(-13.0f, 5.0f, -100.0f);
+	scaleMatrix = scale(1.0f, 5.0f, 1.0f);
+	rotateMatrix = rotate(30.0f, 0.0f, 0.0f, 1.0f);
+	//rotateMatrix = rotate(gAngle_rotateY, 0.0f, 1.0f, 0.0f);
+	modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
+
+	glUniformMatrix4fv(gModelMatrixUniform_perFragmentLight, 1, GL_FALSE, modelMatrix);
+
+	drawCubeShape();
+
+	modelMatrix = vmath::translate(-13.0f, 5.0f, -100.0f);
+	scaleMatrix = scale(1.0f, 5.0f, 1.0f);
+	rotateMatrix = rotate(-30.0f, 0.0f, 0.0f, 1.0f);
+	//rotateMatrix = rotate(gAngle_rotateY, 0.0f, 1.0f, 0.0f);
+	modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
+
+	glUniformMatrix4fv(gModelMatrixUniform_perFragmentLight, 1, GL_FALSE, modelMatrix);
+
+	drawCubeShape();
+
+	glUseProgram(0);
+}
+
+void display_sudarshanChakra(void)
+{
+	static const GLfloat one = { 1.0f };
+
+	glUseProgram(gShaderProgramObject_perFragmentLight);
+	glUniform1f(fadeoutFactor_perFragmentLight, 1.0f);
+	glUniform1f(fadeinFactor_perFragmentLight, 1.0f);
+
+	glUniform1i(u_bloom_is_activeUniform_perFragmentLight, (GLint)one);
+	glUniform1f(bloom_thresh_minUniform_perFragmentLight, bloom_thresh_min);
+	glUniform1f(bloom_thresh_maxUniform_perFragmentLight, bloom_thresh_max);
+	if (gbLight == true)
+	{
+		glUniform1i(gLKeyPressedUniform_perFragmentLight, 1);
+
+		glUniform3fv(gLdUniform_perFragmentLight, 1, lightDiffuse);//white
+		glUniform3fv(gLaUniform_perFragmentLight, 1, lightAmbient);
+		glUniform3fv(gLsUniform_perFragmentLight, 1, lightSpecular);
+		glUniform4fv(gLightPositionUniform_perFragmentLight, 1, lightPosition);
+	}
+	else
+	{
+		glUniform1i(gLKeyPressedUniform_perFragmentLight, 0);
+	}
+	mat4 modelMatrix = mat4::identity();
+	//glm::mat4 viewMatrix = glm::mat4();
+	mat4 viewMatrix = mat4::identity();
+	mat4 scaleMatrix = mat4::identity();
+	mat4 rotateMatrix = mat4::identity();
+
+	gViewMatrix = lookat(vmath_camera_eye_coord, vmath_camera_center_coord, vmath_camera_up_coord);
+	glUniformMatrix4fv(gViewMatrixUniform_perFragmentLight, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(gProjectionMatrixUniform_perFragmentLight, 1, GL_FALSE, gPerspectiveProjectionMatrix);
+
+	glUniform1i(applyBloomUniform_perFragmentLight, 0);
+
+	glUniform1i(applyBloomUniform_perFragmentLight, 1);
+	modelMatrix = mat4::identity();
+	scaleMatrix = mat4::identity();
+	rotateMatrix = mat4::identity();
+
+	modelMatrix = vmath::translate(-5.0f, -20.0f, -30.0f);
+	scaleMatrix = scale(10.0f, 10.0f, 10.0f);
+	rotateMatrix = rotate(-25.0f, 0.0f, 0.0f, 1.0f);
+	//rotateMatrix = rotate(gAngle_rotateY, 0.0f, 1.0f, 0.0f);
+	modelMatrix = modelMatrix *  scaleMatrix;
+
+	glUniformMatrix4fv(gModelMatrixUniform_perFragmentLight, 1, GL_FALSE, modelMatrix);
+	glBindVertexArray(gModel_SudarshanChakra.Vao);
+	for (int i = 0; i < gModel_SudarshanChakra.model_mesh_data.size(); i++)
+	{
+		if (gbLight == true)
+		{
+			glUniform3fv(gKaUniform_perFragmentLight, 1, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].Ka);
+			glUniform3fv(gKdUniform_perFragmentLight, 1, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].Kd);
+			glUniform3fv(gKsUniform_perFragmentLight, 1, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].Ks);
+			glUniform1f(gMaterialShininessUniform_perFragmentLight, material_shininess);
+			glUniform1f(gAlphaUniform_perFragmentLight, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].d);
+			if (gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].ismap_Kd == true)
+			{
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].gTexture_diffuse);
+				glUniform1i(gTextureSamplerUniform_perFragmentLight, 0);
+				glUniform1i(gTextureActiveUniform_perFragmentLight, 1);
+			}
+			else
+				glUniform1i(gTextureActiveUniform_perFragmentLight, 0);
+		}
+		glDrawArrays(GL_TRIANGLES, gModel_SudarshanChakra.model_mesh_data[i].vertex_Index, gModel_SudarshanChakra.model_mesh_data[i].vertex_Count);
+	}
+	glBindVertexArray(0);
 
 }
 
-void display_perFragmentLight()
+void display_perFragmentLight(void)
 {
 	static const GLfloat one = { 1.0f };
 
 	glUseProgram(gShaderProgramObject_perFragmentLight);
 
-	
-		if (FadeInFactor_perFragmentLight <= 1.0f)
-			FadeInFactor_perFragmentLight += 0.001f;
-		
-	//}
+	if (FadeInFactor_perFragmentLight <= 1.0f)
+		FadeInFactor_perFragmentLight += 0.001f;
 
 	if (bStartFadeOutSecondScene == true)
 	{
@@ -307,11 +432,6 @@ void display_perFragmentLight()
 		glUniform3fv(gLaUniform_perFragmentLight, 1, lightAmbient);
 		glUniform3fv(gLsUniform_perFragmentLight, 1, lightSpecular);
 		glUniform4fv(gLightPositionUniform_perFragmentLight, 1, lightPosition);
-
-		/*glUniform3fv(gKdUniform_perFragmentLight, 1, material_diffuse);
-		glUniform3fv(gKaUniform_perFragmentLight, 1, material_ambient);
-		glUniform3fv(gKsUniform_perFragmentLight, 1, material_specular);
-		glUniform1f(gMaterialShininessUniform_perFragmentLight, material_shininess);*/
 
 	}
 	else
@@ -501,11 +621,6 @@ void update_perFragmentLight()
 	}
 	if (gbStartCamera)
 	{
-
-		//if (vmath_camera_eye_coord[0] < 20.0f && vmath_camera_eye_coord[1] < 840.0f && vmath_camera_center_coord[1] < 1270.0f && gbZoomOutForFullView == false)
-		//if (vmath_camera_eye_coord[0] < 20.0f && vmath_camera_eye_coord[1] < 820.0f && vmath_camera_center_coord[1] < 1270.0f && gbZoomOutForFullView == false)
-		//if (vmath_camera_eye_coord[0] < 207.0f && vmath_camera_eye_coord[1] < 395.0f && vmath_camera_center_coord[1] < 514.0f && gbZoomOutForFullView == false)
-		//if (vmath_camera_eye_coord[0] < 585.0f && vmath_camera_eye_coord[1] > 60.0f && vmath_camera_center_coord[1] < 460.0f && gbZoomOutForFullView == false)
 		//if (vmath_camera_eye_coord[0] < 585.0f && vmath_camera_eye_coord[1] > 105.0f && vmath_camera_eye_coord[2] > -340.0f && vmath_camera_center_coord[0] < -260.0f && vmath_camera_center_coord[1] < 440.0f && gbZoomOutForFullView == false)
 		if (vmath_camera_eye_coord[0] < 600.0f && vmath_camera_eye_coord[1] > 15.0f && vmath_camera_eye_coord[2] > -340.0f && vmath_camera_center_coord[0] < -270.0f && vmath_camera_center_coord[1] < 490.0f && gbZoomOutForFullView == false)
 		{
@@ -516,116 +631,12 @@ void update_perFragmentLight()
 			vmath_camera_center_coord[0]	= vmath_camera_center_coord[0]	+ ((350.0f - 270.0f)	/ 3000.0f);					
 			vmath_camera_center_coord[1]	= vmath_camera_center_coord[1]	+ ((490.0f - 100.0f)	/ 3000.0f);	
 		}
-		/*
-		else
-		{
-			gbZoomOutForFullView = true;
-		}
-
-		if (gbZoomOutForFullView == true)
-		{
-			
-			if (vmath_camera_eye_coord[0] < 670.0f)
-			{
-				vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + ((670.0f - 20.0f) / 1000.0f);			// 20.0f is old position , 670.0f is new, so old position to final position in 1000 steps
-			}
-			if (vmath_camera_eye_coord[1] < 1100.0f)
-			{
-				vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] + ((1100.0f - 840.0f) / 1000.0f);			
-			}
-			if (vmath_camera_eye_coord[2] < 11.0f)
-			{
-				vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] + ((11.0f - 1.0f) / 1000.0f);				// 1 old postion, 11 new position	
-			}
-
-			if (vmath_camera_center_coord[1] > 360.0f)
-			{
-				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - ((1270.0f - 360.0f) / 1000.0f);
-			}
-			
-
-			if (vmath_camera_eye_coord[0] < 1900.0f)
-			{
-				vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + ((1900.0f - 20.0f) / 1000.0f);			// 20.0f is old position , 1900.0f is new, so old position to final position in 1000 steps
-			}
-			if (vmath_camera_eye_coord[1] < 1130.2f)
-			{
-				vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] + ((1130.2f - 840.0f) / 1000.0f);
-			}
-			if (vmath_camera_eye_coord[2] > -550.0f)
-			{
-				vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] - ((550.0f + 1.0f) / 1000.0f);				// 1 old postion, -550.0f new position	
-			}
-
-			if (vmath_camera_center_coord[1] > -160.0f)
-			{
-				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - ((1270.0f + 160.0f) / 1000.0f);
-			}
-			
-
-			if (vmath_camera_eye_coord[0] < 480.0f)
-			{
-				vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + ((480.0f - 20.0f) / 1000.0f);			// 20.0f is old position , 480.0f is new, so old position to final position in 1000 steps
-			}
-			if (vmath_camera_eye_coord[1] > 20.0f)
-			{
-				vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] - ((840.0f - 20.0f) / 1000.0f);
-			}
-			if (vmath_camera_eye_coord[2] > -340.50f)
-			{
-				vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] - ((340.50f - 1.0f) / 1000.0f);				// 1 old postion, 11 new position	
-			}
-
-			if (vmath_camera_center_coord[1] > 1030.0f)
-			{
-				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - ((1270.0f - 1030.0f) / 1000.0f);
-			}
-			
-			if (vmath_camera_eye_coord[0] < 676.0f)
-			{
-				vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + ((676.0f - 207.0f) / 1000.0f);
-			}
-			if (vmath_camera_eye_coord[1] > 80.0f)
-			{
-				vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] - ((395.0f - 80.0f) / 1000.0f);						// initial position is 395, final position is 80
-			}
-
-			if (vmath_camera_center_coord[1] > 351.0f)
-			{
-				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - ((514.0f - 351.0f) / 1000.0f);				// initial position is 514.0f, final position is 351.0
-			}
-			
-
-			if (vmath_camera_eye_coord[0] < 676.0f)
-			{
-				vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + ((676.0f - 207.0f) / 1000.0f);
-			}
-			if (vmath_camera_eye_coord[1] > 80.0f)
-			{
-				vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] - ((395.0f - 80.0f) / 1000.0f);						// initial position is 395, final position is 80
-			}
-
-			if (vmath_camera_center_coord[1] > 351.0f)
-			{
-				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - ((514.0f - 351.0f) / 1000.0f);				// initial position is 514.0f, final position is 351.0
-			}
-			
-		}
-		*/
+		
 	}
 	if (gbGoToFullViewKrishna)
 	{
 		//0 key handle
-		/*
-		vmath_camera_eye_coord[0] = 1055.0f;
-		vmath_camera_eye_coord[1] = 890.0f;
-		vmath_camera_eye_coord[2] = -20.0f;
-
-		vmath_camera_center_coord[0] = -270.0f;
-		vmath_camera_center_coord[1] = 630.0f;
-		vmath_camera_center_coord[2] = 0.0f;
-		*/
-		//&& vmath_camera_center_coord[0] < -270.0f
+		
 		if (vmath_camera_eye_coord[0] < 1055.0f && vmath_camera_eye_coord[1] < 890.0f && vmath_camera_eye_coord[2] < -20.0f  && vmath_camera_center_coord[1] < 630.0f)
 		{
 			vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + ((1055.0f - 600.0f) / 800.0f);				// -35.0f	: inital,585.0f : final, 2000 number of steps 
@@ -656,12 +667,7 @@ void update_perFragmentLight()
 
 void uninitialize_perFragmentLight()
 {
-	uninitializeAllModelData();
-
-	uninitializeSphereShape();
-
 	programObjectSafeRelease(gShaderProgramObject_perFragmentLight);
-
 }
 
 GLuint gVertexShaderObject_ShadowDepthMap, gGeometryShaderObject_ShadowDepthMap, gFragmentShaderObject_ShadowDepthMap;
@@ -669,7 +675,7 @@ GLuint gShaderProgramObject_ShadowDepthMap;
 GLuint gModelMatrixUniform_ShadowDepthMap, gLightPosUniform_ShadowDepthMap, gFarPlaneUniform_ShadowDepthMap;
 GLuint gShadowMatricesUniform_ShadowDepthMap[6];
 
-void initShadowDepthShader()
+void initShadowDepthShader(void)
 {
 	//VERTEX SHADER
 	gVertexShaderObject_ShadowDepthMap = glCreateShader(GL_VERTEX_SHADER);
@@ -775,9 +781,7 @@ void initShadowDepthShader()
 	glAttachShader(gShaderProgramObject_ShadowDepthMap, gFragmentShaderObject_ShadowDepthMap);
 
 	glBindAttribLocation(gShaderProgramObject_ShadowDepthMap, MATRIX_ATTRIBUTE_POSITION, "vPosition");
-	//glBindAttribLocation(gShaderProgramObject_pointLight, MATRIX_ATTRIBUTE_NORMAL, "vNormal");
-	//glBindAttribLocation(gShaderProgramObject_pointLight, MATRIX_ATTRIBUTE_TEXTURE0, "vTexcoord");
-
+	
 	glLinkProgram(gShaderProgramObject_ShadowDepthMap);
 
 	// Error checking
@@ -796,6 +800,5 @@ void initShadowDepthShader()
 		snprintf(Name, sizeof(Name), "shadowMatrices[%d]", i);
 		gShadowMatricesUniform_ShadowDepthMap[i] = glGetUniformLocation(gShaderProgramObject_ShadowDepthMap, Name);
 	}
-
 
 }

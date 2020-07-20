@@ -5,7 +5,7 @@
 #include <stdint.h> //for uint64_t
 #include <string>
 
-#include <C:\glew\include\GL\glew.h>//use it before other GL.h
+#include "Include\glew\include\GL\glew.h"//use it before other GL.h
 
 #include <gl/GL.h>
 
@@ -22,7 +22,7 @@ using namespace vmath;
 //#pragma comment(lib,"User32.lib")
 //#pragma comment(lib,"GDI32.lib")
 #pragma comment (lib, "opengl32.lib")
-#pragma comment (lib, "C:\\glew\\lib\\Release\\x64\\glew32.lib")
+#pragma comment (lib, "Include\\glew\\lib\\Release\\x64\\glew32.lib")
 #pragma comment(lib,"assimp-vc140-mt.lib")
 
 

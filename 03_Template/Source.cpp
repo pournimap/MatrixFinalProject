@@ -1,26 +1,24 @@
+//Add your header files here
 #include "Include/Common_Header.h"
-
 
 #include "Include/BasicShapeLoader/Shapes/Matrix_BasicShapes.h"
 
 #include "Scene/Framebuffer/Framebuffer.h"
 
-//Add your header files here
 #include "Scene/PerFragment.h"
 #include "Scene/Light/PointLight.h"
+
 #include "Scene/Bloom/Bloom.h"
 #include"Scene/Fire/Fire.h"
+
 #include"Scene/KrishnaAnimate/KrishnaAnimationUsingAssimp.h"
 #include"Scene/KrishnaAnimate/KrishnaAnimate5.h"
+
 #include "Scene/GodRays/GodRays.h"
-
-#include "Scene/DepthOfField/DepthOfField.h"
-
 #include "Scene/XAudio/Audio.h"
 
 #include"Scene/EndNames/FluidTextRendering.h"
 #include "Scene/EndNames/TextRendering.h"
-
 
 #include "Scene/FirstScene/FirstScene.h"
 
@@ -30,13 +28,13 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 extern int Clothintialize();
 extern void Clothdisplay();
+extern void display_clothOnly();
 extern void Clothunintialize(void);
 
 //FPS calc in milliseconds
 UINT64 iSysFrequency = 0;
 UINT64 iCurrentTime = 0;
 UINT64 iPreviousTime = 0;
-
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
 {
@@ -52,7 +50,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	HWND hwnd = NULL;
 	MSG msg;
 	int iRet = 0;
-	//TCHAR szAppName[] = L"Matrix Final Project";
 	TCHAR szAppName[] = TEXT("Matrix Final Project");
 
 	fopen_s(&gpFile, "Log.txt", "w");
@@ -77,7 +74,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 		fprintf(gpFile, "RegisterClassEx() Failed.\n");
 		fflush(gpFile);
 		uninitialize(EXIT_FAILURE);
-		//exit(0);
 	}
 
 	hwnd = CreateWindowEx(WS_EX_APPWINDOW,
@@ -155,8 +151,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 		else
 		{
 			QueryPerformanceCounter((LARGE_INTEGER*)&iCurrentTime);
-			/*if ((((double)iCurrentTime - (double)iPreviousTime) / (double)iSysFrequency) >= (1.0 / 60.0))
-			{*/
+			if ((((double)iCurrentTime - (double)iPreviousTime) / (double)iSysFrequency) >= (1.0 / 60.0))
+			{
 				if (gbActiveWindow == true)
 				{
 					update();
@@ -164,12 +160,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 				display();
 				
 				iPreviousTime = iCurrentTime;
-			//}
+			}
 			
 		}
 	}
 
-	//uninitialize(0);
 	return((int)(msg.wParam));
 }
 
@@ -206,9 +201,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_SIZE:
-		currentWidth = LOWORD(lParam);
-		currentHeight = HIWORD(lParam);
-	
 		resize(LOWORD(lParam), HIWORD(lParam));
 		break;
 
@@ -273,17 +265,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case '0':
 			gbGoToFullViewKrishna = !gbGoToFullViewKrishna;
 			X_Pos_mor_pis = -260.0f;
-			/*
-			vmath_camera_eye_coord[0] = 1055.0f;
-			vmath_camera_eye_coord[1] = 890.0f;
-			vmath_camera_eye_coord[2] = -20.0f;
-
-			vmath_camera_center_coord[0] = -270.0f;
-			vmath_camera_center_coord[1] = 630.0f;
-			vmath_camera_center_coord[2] = 0.0f;
-			*/
 			break;
-
 		case '1':
 			isFirstScene = true;
 			break;
@@ -294,11 +276,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case '3':
 			isShowStartingScene = !isShowStartingScene;
 			break;
-
 		case'9':
 			gbStartAnimationOfSudarshan = !gbStartAnimationOfSudarshan;
 			break;
-
 		case '7':
 			gpIXAudio2_SceneFirstSourceVoice->Start(0);
 			startAnimation = true;
@@ -307,9 +287,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		//Reset Logic
 		case 'B':
 		case 'b':
-			//bShowBloom_bloom = !bShowBloom_bloom;
-
-			//first_scene_camera_eye_coord = { 0.0f,0.0f,5.0f };
+			
 			first_scene_camera_eye_coord	= { 0.0f,-50.0f,100.0f };
 			first_scene_camera_center_coord = { 0.0f,-70.0f,0.0f };
 			first_scene_camera_up_coord		= { 0.0f,1.0f,0.0f };
@@ -700,7 +678,6 @@ int initialize(void)
 	
 	//Load All Shapes and Model
 	initCubeShape();
-	
 	initSphereShape();
 	initQuadShape();
 	LoadAllModels();
@@ -721,20 +698,22 @@ int initialize(void)
 	initialize_fire();
 
 	initializeBloom();
-	
-	initializeDepthOfField();
 
+	//for end fluid-text rendering
 	initialize_FluidText();
 	initTextRendering();
+	init_EndReference();
 
+	//for god-rays
 	InitColorProgramShaders();
 	initBrightChakraSource();
 	initGodRaysPostProcessing();
 	
-	
 	initFirstScene();
 
 	renderShadowDepthShader_FirstScene();
+
+	initFluidQuad();
 	// ................................................................................................
 	//
 	// Initialize your specific scene here above
@@ -767,17 +746,12 @@ int initialize(void)
 
 void display(void)
 {
-	if (isStartTitle)
-	{
-		display_textRendering_FirstPage();
-	}
-	else
-	{
+	
 		if (iShowEndScene)
 		{
 			if (isEndTitle)
 			{
-				display_textRendering_SecondLastPage();
+				drawEndReference();
 			}
 			else
 			{
@@ -789,10 +763,6 @@ void display(void)
 			static const GLfloat one = { 1.0f };
 			static const GLfloat black[] = { 0.0f, 0.0f, 0.0, 1.0f };
 
-			//if (bDoneFadeOutFirstScene == false)
-			//{
-				//renderShadowDepthShader_FirstScene();
-			//}
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glViewport(0, 0, gWidth, gHeight);
 			//call your scene Display here
@@ -803,11 +773,12 @@ void display(void)
 			glClearBufferfv(GL_COLOR, 2, black);	// GL_COLOR_ATTACHMENT2
 			glClearBufferfv(GL_DEPTH, 0, &one);
 
-
+			if (isStartTitle)
+			{
+				display_textRendering_FirstPage();
+			}
 			if (isShowStartingScene == false)
 			{
-
-				//applyDOF();
 				if (gbGoToFullViewKrishna)
 				{
 					//renderBrightSource();
@@ -831,16 +802,20 @@ void display(void)
 						display_krishnaAnimate();
 				}
 
-				//stopApplyingDOF();
 			}
 			if (bDoneFadeOutFirstScene == false)
 			{
 				renderLampWithPointLight();
 			}
 
+			//display all factors as individual elements
+			/*drawMorpisAlone();
+			display_sudarshanChakra();
+			display_clothOnly();
+			display_fireOnly();*/
+			//display_Matrix_X();
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 
 			glBindFramebuffer(GL_READ_FRAMEBUFFER, render_fbo_bloom);
 			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, intermediate_fbo);
@@ -864,25 +839,17 @@ void display(void)
 			glViewport(0, 0, gWidth, gHeight);
 			ApplyingBloom();
 		}
-	}
+	
 
-	SwapBuffers(ghdc);
+		SwapBuffers(ghdc);
 }
 
 void update(void)
 {
 	//call your scene Update here
 	update_perFragmentLight();
-	//update_pointLight();
 	update_krishnaAnimate();
 
-	/*static float count = 0.0f;
-	if (bFadeOutSecondSceneDone == true)
-	{
-		count += 0.1f;
-		if(count >= 7.5f)
-		iShowEndScene = true;
-	}*/
 	if (isShowStartingScene == false)
 	{
 		fps_counter_second_scene += 1;
@@ -892,48 +859,18 @@ void update(void)
 			isFireInYadnya = true;
 			isRajeInSabha = true;
 		}
-		//if (fps_counter_second_scene == 1500)
-		//{
-		//	//Krishna Baslay, shishupal alay
-		//	isFirstScene = false;
-		//	isAssimpAnimatedModelShow = true;
-		//}
-		//if (fps_counter_second_scene == 2100)
-		//{
-		//	//krishna cha angle side vala
-		//	//e
-		//	vmath_camera_eye_coord[0] = -60.0f;
-		//	vmath_camera_eye_coord[1] = 180.0f;
-		//	vmath_camera_eye_coord[2] = 330.0f;
-
-		//	vmath_camera_center_coord[0] = -250.0f;
-		//	vmath_camera_center_coord[1] = 195.00f;
-		//	vmath_camera_center_coord[2] = 0.0f;
-		//}
+		
 		if (fps_counter_second_scene == 2800)
 		{
 			angry_cloth_flag = true;
 			isModelAnimationStart = true;
 		}
-		//if (fps_counter_second_scene == 2860)
-		//{
-		//	//shishupal angle
-		//	//q
-		//	vmath_camera_eye_coord[0] = 2910.0f;
-		//	vmath_camera_eye_coord[1] = 75.0f;
-		//	vmath_camera_eye_coord[2] = 560.0f;
-
-		//	vmath_camera_center_coord[0] = 0.0f;
-		//	vmath_camera_center_coord[1] = -255.00f;
-		//	vmath_camera_center_coord[2] = 0.0f;
-
-		//}
+		
 		if (fps_counter_second_scene == 3150)
 		{
 			//c
 			isModelAnimationStart = false;
 			isAssimpAnimatedModelShow = false;
-			//gpIXAudio2_SceneFirstSourceVoice->Start(0);
 
 			vmath_camera_eye_coord[0] = -35.0f;
 			vmath_camera_eye_coord[1] = 105.0f;
@@ -949,7 +886,6 @@ void update(void)
 		}
 		if (fps_counter_second_scene == 6700)
 		{
-			//0
 			gbGoToFullViewKrishna = !gbGoToFullViewKrishna;
 			X_Pos_mor_pis = -260.0f;
 		}
@@ -1027,17 +963,23 @@ void uninitialize(int i_Exit_Flag)
 	// ....................................................................................
 	Uninitialize_Audio();
 
+	uninitializeCubeShape();
+	uninitializeSphereShape();
+	uninitializeQuadShape();
+	uninitializeAllModelData();
+
+	uninitializeAllFrameBuffer();
+
 	uninitialize_perFragmentLight();
 	uninitialize_pointLight();
 	uninitialize_krishnaAnimate();
+	uninitialize_AssimpModelLoader();
 
 	Clothunintialize();
 
 	uninitialize_fire();
 	
 	uninitializeBloom();
-	
-	uninitializeDOF();
 	
 	// ....................................................................................
 	//

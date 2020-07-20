@@ -5,7 +5,6 @@
 #include "Arrange_Material.h"
 
 
-
 GLuint gVbo_Model_Position, gVbo_Model_Normal, gVbo_Model_Texture, gVbo_Model_Tangents, gVbo_Model_BiTangents;
 
 struct Model_Obj
@@ -41,7 +40,7 @@ void LoadAllModels()
 {
 
 	/*****************Load Mahal Model*****************/
-	std::string mahalModelFilePath = "Resources/MahalOBJVersion1WithTextures/Mahal_Version_5.3.obj";
+	std::string mahalModelFilePath = "Resources/MahalOBJVersion1WithTextures/Mahal_Version_5.4.obj";
 
 	LoadMeshData(mahalModelFilePath.c_str(), gModel_Mahal.model_vertices, gModel_Mahal.model_textures, gModel_Mahal.model_normals, 
 		gModel_Mahal.model_tangents, gModel_Mahal.model_bitangents, gModel_Mahal.model_mesh_data, gModel_Mahal.model_materialFileName);
@@ -80,8 +79,6 @@ void LoadAllModels()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glBindVertexArray(0);
-
-
 
 
 	/*****************Load Krishna Model*****************/
@@ -423,10 +420,42 @@ void LoadAllModels()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glBindVertexArray(0);
+
 }
 
 void uninitializeAllModelData()
 {
+	/*****************Candle Model*****************/
+	for (int i = 0; i < gModel_Candle.model_mesh_data.size(); i++)
+	{
+		if (gModel_Candle.model_material[gModel_Candle.model_mesh_data[i].material_index].gTexture_diffuse)
+		{
+			glDeleteTextures(1, &gModel_Candle.model_material[gModel_Candle.model_mesh_data[i].material_index].gTexture_diffuse);
+			gModel_Candle.model_material[gModel_Candle.model_mesh_data[i].material_index].gTexture_diffuse = 0;
+		}
+	}
+
+	/*****************Sudarshan Chakra Model*****************/
+	for (int i = 0; i < gModel_SudarshanChakra.model_mesh_data.size(); i++)
+	{
+		if (gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].gTexture_diffuse)
+		{
+			glDeleteTextures(1, &gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].gTexture_diffuse);
+			gModel_SudarshanChakra.model_material[gModel_SudarshanChakra.model_mesh_data[i].material_index].gTexture_diffuse = 0;
+		}
+	}
+
+	/*****************Mashal Model*****************/
+	for (int i = 0; i < gModel_Mashal.model_mesh_data.size(); i++)
+	{
+		if (gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].gTexture_diffuse)
+		{
+			glDeleteTextures(1, &gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].gTexture_diffuse);
+			gModel_Mashal.model_material[gModel_Mashal.model_mesh_data[i].material_index].gTexture_diffuse = 0;
+		}
+	}
+
+	/*****************other chairs Model*****************/
 	for (int i = 0; i < gModel_OtherChair.model_mesh_data.size(); i++)
 	{
 		if (gModel_OtherChair.model_material[gModel_OtherChair.model_mesh_data[i].material_index].gTexture_diffuse)
@@ -436,6 +465,7 @@ void uninitializeAllModelData()
 		}
 	}
 	
+	/*****************Load Krishna chair Model*****************/
 	for (int i = 0; i < gModel_KrishnaChair.model_mesh_data.size(); i++)
 	{
 		if (gModel_KrishnaChair.model_material[gModel_KrishnaChair.model_mesh_data[i].material_index].gTexture_diffuse)
@@ -445,6 +475,17 @@ void uninitializeAllModelData()
 		}
 	}
 	
+	/*****************gModel_Krishna_Seated2*****************/
+	for (int i = 0; i < gModel_Krishna_Seated2.model_mesh_data.size(); i++)
+	{
+		if (gModel_Krishna_Seated2.model_material[gModel_Krishna_Seated2.model_mesh_data[i].material_index].gTexture_diffuse)
+		{
+			glDeleteTextures(1, &gModel_Krishna_Seated2.model_material[gModel_Krishna_Seated2.model_mesh_data[i].material_index].gTexture_diffuse);
+			gModel_Krishna_Seated2.model_material[gModel_Krishna_Seated2.model_mesh_data[i].material_index].gTexture_diffuse = 0;
+		}
+	}
+
+	/*****************Krishna Seated Model*****************/
 	for (int i = 0; i < gModel_Krishna_Seated.model_mesh_data.size(); i++)
 	{
 		if (gModel_Krishna_Seated.model_material[gModel_Krishna_Seated.model_mesh_data[i].material_index].gTexture_diffuse)
@@ -454,6 +495,7 @@ void uninitializeAllModelData()
 		}
 	}
 	
+	/*****************Krishna Model*****************/
 	for (int i = 0; i < gModel_Krishna.model_mesh_data.size(); i++)
 	{
 		if (gModel_Krishna.model_material[gModel_Krishna.model_mesh_data[i].material_index].gTexture_diffuse)
@@ -463,6 +505,7 @@ void uninitializeAllModelData()
 		}
 	}
 	
+	/*****************Mahal Model*****************/
 	for (int i = 0; i < gModel_Mahal.model_mesh_data.size(); i++)
 	{
 		if (gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].gTexture_diffuse)
@@ -490,6 +533,12 @@ void uninitializeAllModelData()
 		gModel_Krishna_Seated.Vao = 0;
 	}
 	
+	if (gModel_Krishna_Seated2.Vao)
+	{
+		glDeleteVertexArrays(1, &gModel_Krishna_Seated2.Vao);
+		gModel_Krishna_Seated2.Vao = 0;
+	}
+
 	if (gModel_KrishnaChair.Vao)
 	{
 		glDeleteVertexArrays(1, &gModel_KrishnaChair.Vao);
@@ -502,6 +551,24 @@ void uninitializeAllModelData()
 		gModel_OtherChair.Vao = 0;
 	}
 	
+	if (gModel_Mashal.Vao)
+	{
+		glDeleteVertexArrays(1, &gModel_Mashal.Vao);
+		gModel_Mashal.Vao = 0;
+	}
+
+	if (gModel_SudarshanChakra.Vao)
+	{
+		glDeleteVertexArrays(1, &gModel_SudarshanChakra.Vao);
+		gModel_SudarshanChakra.Vao = 0;
+	}
+
+	if (gModel_Candle.Vao)
+	{
+		glDeleteVertexArrays(1, &gModel_Candle.Vao);
+		gModel_Candle.Vao = 0;
+	}
+
 	if (gVbo_Model_Position)
 	{
 		glDeleteBuffers(1, &gVbo_Model_Position);
@@ -517,5 +584,14 @@ void uninitializeAllModelData()
 		glDeleteBuffers(1, &gVbo_Model_Texture);
 		gVbo_Model_Texture = 0;
 	}
-	
+	if (gVbo_Model_Tangents)
+	{
+		glDeleteBuffers(1, &gVbo_Model_Tangents);
+		gVbo_Model_Tangents = 0;
+	}
+	if (gVbo_Model_BiTangents)
+	{
+		glDeleteBuffers(1, &gVbo_Model_BiTangents);
+		gVbo_Model_BiTangents = 0;
+	}
 }

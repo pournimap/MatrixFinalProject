@@ -97,8 +97,6 @@ void Model::draw(GLuint shaders_program, bool isAnimated, int sequence)
 {
 	std::vector<aiMatrix4x4> transforms;
 
-	/*if(count1 < 900.0f)
-	boneTransform((double)timer.getTime() / 10000.0f, transforms);*/
 
 	if (sequence == 1)
 	{
@@ -145,9 +143,6 @@ void Model::draw(GLuint shaders_program, bool isAnimated, int sequence)
 
 void Model::loadModel(const std::string& path)
 {
-	/*fopen_s(&gpFile, "Log.txt", "a+");
-	fprintf(gpFile, "Enter LoadMyModel\n");
-	fclose(gpFile);*/
 	scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 	if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
@@ -316,7 +311,6 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		// 4. height maps
 		std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
 		textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
-
 
 
 		//ambient

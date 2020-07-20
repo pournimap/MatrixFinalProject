@@ -1,9 +1,13 @@
+#pragma once
 
+//function declaration
+void initAllFrameBuffer(void);
+void uninitializeAllFrameBuffer(void);
+
+//variable declaration
 GLuint godRays_fbo;
 GLuint godRays_texture_attachment;
 GLuint godRays_depth_attachment;
-
-
 
 GLuint intermediate_fbo;
 GLuint intermediate_texScene_bloom;
@@ -11,13 +15,14 @@ GLuint intermediate_texBrightPass_bloom;
 GLuint intermediate_texGodRaysPass;
 GLuint intermediate_texDepth_bloom;
 
-
 GLuint shaodowMap_fbo;
 GLuint shadowMap_texCubeMapAttachment;
-void initAllFrameBuffer()
+
+void initAllFrameBuffer(void)
 {
 	static const GLenum buffers[] = { GL_COLOR_ATTACHMENT0};
 
+	/************************************************************************/
 	//render color program need for processing
 	glGenFramebuffers(1, &godRays_fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, godRays_fbo);
@@ -53,8 +58,7 @@ void initAllFrameBuffer()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
-
-
+	/************************************************************************/
 	static const GLenum buffers_new[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1,  GL_COLOR_ATTACHMENT2 };
 
 	glGenFramebuffers(1, &intermediate_fbo);
@@ -97,7 +101,7 @@ void initAllFrameBuffer()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
-
+	/************************************************************************/
 	glGenFramebuffers(1, &shaodowMap_fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, shaodowMap_fbo);
 
@@ -131,4 +135,60 @@ void initAllFrameBuffer()
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+}
+
+void uninitializeAllFrameBuffer(void)
+{
+	/************************************************************************/
+	if (godRays_texture_attachment) {
+		glDeleteTextures(1, &godRays_texture_attachment);
+		godRays_texture_attachment = 0;
+	}
+
+	if (godRays_depth_attachment) {
+		glDeleteTextures(1, &godRays_depth_attachment);
+		godRays_depth_attachment = 0;
+	}
+
+	if (godRays_fbo) {
+		glDeleteFramebuffers(1, &godRays_fbo);
+		godRays_fbo = 0;
+	}
+
+	/************************************************************************/
+	if (intermediate_texScene_bloom) {
+		glDeleteTextures(1, &intermediate_texScene_bloom);
+		intermediate_texScene_bloom = 0;
+	}
+
+	if (intermediate_texBrightPass_bloom) {
+		glDeleteTextures(1, &intermediate_texBrightPass_bloom);
+		intermediate_texBrightPass_bloom = 0;
+	}
+
+	if (intermediate_texGodRaysPass) {
+		glDeleteTextures(1, &intermediate_texGodRaysPass);
+		intermediate_texGodRaysPass = 0;
+	}
+
+	if (intermediate_texDepth_bloom) {
+		glDeleteTextures(1, &intermediate_texDepth_bloom);
+		intermediate_texDepth_bloom = 0;
+	}
+
+	if (intermediate_fbo) {
+		glDeleteFramebuffers(1, &intermediate_fbo);
+		intermediate_fbo = 0;
+	}
+
+	/************************************************************************/
+	if (shadowMap_texCubeMapAttachment) {
+		glDeleteTextures(1, &shadowMap_texCubeMapAttachment);
+		shadowMap_texCubeMapAttachment = 0;
+	}
+
+	if (shaodowMap_fbo) {
+		glDeleteFramebuffers(1, &shaodowMap_fbo);
+		shaodowMap_fbo = 0;
+	}
 }

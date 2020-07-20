@@ -3,49 +3,17 @@
 
 __global__ void addforce_Kernel(float3* partcleAcclerationArray, float3 accelaration)
 {
-
-	//int i = threadIdx.x;
-	//int j = threadIdx.y;
-	//int i = blockIdx.x * blockDim.x + threadIdx.x;
-	//unsigned int Y = blockIdx.y * blockDim.y + threadIdx.y;
-	//unsigned int X = blockIdx.x * blockDim.x + threadIdx.x;
 	int thread_no = blockIdx.x * blockDim.x + threadIdx.x;
 	
-	//unsigned int Y = blockIdx.y * blockDim.y + threadIdx.y;
-	//unsigned int X = blockIdx.x * blockDim.x + threadIdx.x;
-	
-	//int j = threadIdx.y;
-	float3 vec;
-	/*partcleAcclerationArray[i].x = accelaration[0];
-	partcleAcclerationArray[i].y = accelaration[1];
-	partcleAcclerationArray[i].z = accelaration[2];*/
-	
-	vec.x=accelaration.x;
-	vec.y=accelaration.y;
-	vec.z=accelaration.z;
-	//partcleAcclerationArray[i] = vec;
-	
-	//partcleAcclerationArray[Y * 1 + X] = make_float3(0.0f,-0.5*0.3,0.2*0.3);
-	//partcleAcclerationArray[i] = make_float3(0.0f,-0.5*0.3,0.2*0.3);
-	
-	//if ((thread_no < (120 * 80)))
-		partcleAcclerationArray[thread_no] = make_float3(accelaration.x , accelaration.y , accelaration.z );
-		//partcleAcclerationArray[Y * 120 + X] = make_float3(0.0 * TIME_STEPSIZE2, -0.5 * TIME_STEPSIZE2, 0.2 * TIME_STEPSIZE2);
-		//partcleAcclerationArray[Y * 120 + X] = make_float3(accelaration.x, accelaration.y, accelaration.z);
-	//partcleAcclerationArray[Y * 120 + X] = vec;
+	partcleAcclerationArray[thread_no] = make_float3(accelaration.x , accelaration.y , accelaration.z );
 }
 
 
 void addforceCudaKernel(float3* partcleAcclerationArray, float3 accelaration, int numOfParticles,int particle_width, int particle_height)
 {
  
-  //dim3 DimBlock=dim3(1000,1000);
-  //dim3 DimGrid=dim3(1, 1, 1);
-   dim3 DimBlock=dim3(particle_width ,1,1);
+  dim3 DimBlock=dim3(particle_width ,1,1);
   dim3 DimGrid=dim3(particle_height, 1, 1);
-  
-  //dim3 DimBlock=dim3(8,8,1);
-  //dim3 DimGrid=dim3(120 / DimBlock.x, 80/DimBlock.y, 1);
  
   addforce_Kernel<<<DimGrid, DimBlock>>>(partcleAcclerationArray, accelaration);
   
@@ -59,12 +27,6 @@ __device__ float GPUcrossProduct[3];
 
 __device__ float* GPUcross(const float* v1, const float* v2)
 {
-	/*GPUcrossProduct[0] = v1[1] * v2[2] - v1[2] * v2[1];
-	GPUcrossProduct[1] = v1[2] * v2[0] - v1[0] * v2[2];
-	GPUcrossProduct[2] = v1[0] * v2[1] - v1[1] * v2[0];*/
-	/*crossProduct[0] = (v1[1] * v2[2] - v1[2] * v2[1]) ;
-	crossProduct[1] = (v1[2] * v2[0] - v1[0] * v2[2]);
-	crossProduct[2] = (v1[0] * v2[1] - v1[1] * v2[0]);*/
 	float crossProduct[3] = {v1[1] * v2[2] - v1[2] * v2[1], v1[2] * v2[0] - v1[0] * v2[2], v1[0] * v2[1] - v1[1] * v2[0]};
 	return crossProduct;
 }
@@ -81,11 +43,8 @@ __device__ int GPUgetParticles_pos_array_index(int x, int y, int particle_width)
 
 __global__ void applyWindForce_Kernel(float3* GPUParticles_pos_array, float3* partcleAcclerationArray,int particle_width,int particle_height,  float3 windForce)
 {
-		
-	//unsigned int X = blockIdx.x * blockDim.x + threadIdx.x;
-	//unsigned int Y = blockIdx.y * blockDim.y + threadIdx.y;
+
 	int thread_no = blockIdx.x * blockDim.x + threadIdx.x;
-	
 	
 	float *normal;
 	float3 TrianglePoint1, TrianglePoint2, TrianglePoint3;
@@ -93,9 +52,6 @@ __global__ void applyWindForce_Kernel(float3* GPUParticles_pos_array, float3* pa
 	float mass = 1.0;
 	if(((thread_no) < ((particle_width * particle_height) - blockDim.x  )) && ((thread_no % blockDim.x) < (blockDim.x-1)))
 	{
-		/*TrianglePoint1 = GPUgetParticle(GPUParticles_pos_array,X+1,Y,particle_width);
-		TrianglePoint2 = GPUgetParticle(GPUParticles_pos_array,X,Y,particle_width);
-		TrianglePoint3 = GPUgetParticle(GPUParticles_pos_array,X,Y+1,particle_width);*/
 		
 		TrianglePoint1 = GPUParticles_pos_array[thread_no + blockDim.x];//  ,X+1,Y,particle_width;
 		TrianglePoint2 = GPUParticles_pos_array[thread_no];//  ,X,Y,particle_width;
@@ -143,12 +99,6 @@ __global__ void applyWindForce_Kernel(float3* GPUParticles_pos_array, float3* pa
 			partcleAcclerationArray[particalIndex].y = partcleAcclerationArray[particalIndex].y + force[1] / mass;
 			partcleAcclerationArray[particalIndex].z = partcleAcclerationArray[particalIndex].z + force[2] / mass;
 			
-				
-			
-			
-			/*TrianglePoint1 = GPUgetParticle(GPUParticles_pos_array,X+1,Y+1,particle_width);
-			TrianglePoint2 = GPUgetParticle(GPUParticles_pos_array,X+1,Y,particle_width);
-			TrianglePoint3 = GPUgetParticle(GPUParticles_pos_array,X,Y+1,particle_width);*/
 			
 			
 			TrianglePoint1 = GPUParticles_pos_array[thread_no + blockDim.x + 1] ;//,X+1,Y+1,particle_width);
@@ -203,12 +153,8 @@ __global__ void applyWindForce_Kernel(float3* GPUParticles_pos_array, float3* pa
 
 void applyWindForceCudaKernel(float3* GPUParticles_pos_array, float3* partcleAcclerationArray, int particle_width, int particle_height, float3 windForce)
 {
-	//dim3 DimBlock=dim3(8,8,1);
-	//dim3 DimGrid=dim3(particle_width / DimBlock.x, particle_height/DimBlock.y, 1);
-	
 	dim3 DimBlock=dim3(particle_width ,1,1);
 	dim3 DimGrid=dim3( particle_height,1, 1);
-	
 	
 	applyWindForce_Kernel<<<DimGrid, DimBlock>>>(GPUParticles_pos_array,partcleAcclerationArray,particle_width,particle_height,windForce);
 }
@@ -216,18 +162,11 @@ void applyWindForceCudaKernel(float3* GPUParticles_pos_array, float3* partcleAcc
 
 __global__ void timeStep_Kernel(float3* GPUParticles_pos_array,int2* GPUNeighbourParticlesInddex,float* GPURestDistance,bool* GPUMovableStatus,int TotalThreads)
 {
-	
-	
-	//unsigned int X = blockIdx.x * blockDim.x + threadIdx.x;
-	//unsigned int Y = blockIdx.y * blockDim.y + threadIdx.y;
-	//int index = Y*NoOfwidthparticles+X;
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
-	//int index =  threadIdx.x;
-	//int index = X;
+
 	if(index < TotalThreads)
 	{
-	//for(int i=0; i < 20; i++)
-	//{
+
 		float p1_to_p2[3];
 		p1_to_p2[0] = GPUParticles_pos_array[GPUNeighbourParticlesInddex[index].y].x - GPUParticles_pos_array[GPUNeighbourParticlesInddex[index].x].x;
 		p1_to_p2[1] = GPUParticles_pos_array[GPUNeighbourParticlesInddex[index].y].y - GPUParticles_pos_array[GPUNeighbourParticlesInddex[index].x].y;
@@ -242,7 +181,7 @@ __global__ void timeStep_Kernel(float3* GPUParticles_pos_array,int2* GPUNeighbou
 		correctionVector[2] = p1_to_p2[2] * (1 - GPURestDistance[index] / current_distance);
 				
 		// Lets make it half that length, so that we can move BOTH p1 and p2.
-		//vec3 correctionVectorHalf = correctionVector * 0.5; 
+		
 		float correctionVectorHalf[3];
 		correctionVectorHalf[0] = correctionVector[0] * 0.5;
 		correctionVectorHalf[1] = correctionVector[1] * 0.5;
@@ -265,7 +204,7 @@ __global__ void timeStep_Kernel(float3* GPUParticles_pos_array,int2* GPUNeighbou
 			GPUParticles_pos_array[GPUNeighbourParticlesInddex[index].y].y = GPUParticles_pos_array[GPUNeighbourParticlesInddex[index].y].y - correctionVectorHalf[1];
 			GPUParticles_pos_array[GPUNeighbourParticlesInddex[index].y].z = GPUParticles_pos_array[GPUNeighbourParticlesInddex[index].y].z - correctionVectorHalf[2];
 		}
-	//}
+	
 	
 	
 	
@@ -280,16 +219,12 @@ __global__ void timeStep_Kernel(float3* GPUParticles_pos_array,int2* GPUNeighbou
 void timeStepCudaKernel(float3* GPUParticles_pos_array,int2* GPUNeighbourParticlesInddex,float* GPURestDistance,bool* GPUMovableStatus, int NoOfwidthparticles,int NoOfheightparticle, int ToatalThreads)
 {
 
-	//dim3 DimBlock=dim3(8,8,1);
-	//dim3 DimGrid=dim3(NoOfwidthparticles / DimBlock.x, NoOfheightparticle/DimBlock.y, 1);
-	
 	dim3 DimBlock=dim3(NoOfwidthparticles,1,1);
 	dim3 DimGrid=dim3(NoOfheightparticle, 1, 1);
 	
 	
-		timeStep_Kernel<<<DimGrid, DimBlock>>>(GPUParticles_pos_array,GPUNeighbourParticlesInddex,GPURestDistance,GPUMovableStatus,ToatalThreads);
+	timeStep_Kernel<<<DimGrid, DimBlock>>>(GPUParticles_pos_array,GPUNeighbourParticlesInddex,GPURestDistance,GPUMovableStatus,ToatalThreads);
 	
-
 }
 	
 
@@ -318,9 +253,6 @@ __global__ void timeStepDisplacement_Kernel( float3* KParticles_pos_array,float3
 		partcleArray[index].z = 0.0f;
 				
 	}
-			
-
-
 }
 
 
@@ -334,8 +266,6 @@ void timeStepDisplacementCudaKernel(float3* KParticles_pos_array,float3* KPartic
 	timeStepDisplacement_Kernel<<<DimGrid, DimBlock>>>(KParticles_pos_array,KParticles_old_pos_array,GPUMovableStatus,dampingFactor, partcleArray,particle_width, particle_height);
 
 }
-
-	
 
 
 __global__ void calculateNormal_Kernel(float3* KParticles_pos_array,float3* KParticles_Normal, int Kparticle_width, int Kparticle_height)
@@ -424,11 +354,6 @@ __global__ void calculateNormal_Kernel(float3* KParticles_pos_array,float3* KPar
 			
 	
 	}
-
-
-
-	
-
 
 }
 
@@ -537,12 +462,10 @@ __global__  void render_Kernel(float3* KtriangleVertices,float3* KtriangleVertic
 	//index++;
 	}
 
-
 }
 
 void renderCudaKernel(float3* KtriangleVertices,float3* KtriangleVertices_normal, float3* KParticles_pos_array, float3* KParticles_Normal, int Kparticle_width, int Kparticle_height)
 {
-
 	dim3 DimBlock=dim3( Kparticle_width ,1,1);
 	dim3 DimGrid=dim3( Kparticle_height, 1, 1);
 

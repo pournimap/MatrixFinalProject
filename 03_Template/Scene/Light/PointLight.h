@@ -1,11 +1,23 @@
 #pragma once
 
+//header files
 #include "../../Include/BasicShapeLoader/Model/BasicOBJLoader/Matrix_Obj_Loader.h"
 
+//function declarations
+void initialize_pointLight(void);
+
+void renderAllModelsInMahal(GLuint& ModelMatrixUniform);
+
+void display_pointLight(void);
+
+void update_pointLight(void);
+
+void uninitialize_pointLight(void);
+
+//variable declarations
 GLuint gVertexShaderObject_pointLight;
 GLuint gFragmentShaderObject_pointLight;
 GLuint gShaderProgramObject_pointLight;
-
 
 GLuint gModelMatrixUniform_pointLight;
 GLuint gViewMatrixUniform_pointLight;
@@ -57,36 +69,12 @@ struct PointLight
 		u_Ls = vec3(0.0, 0.0, 0.0);
 	}
 };
-
-
-/*GLfloat lightAmbient[] = { 0.0f,0.0f,0.0f,1.0f };
-GLfloat lightDiffuse[] = { 1.0f,1.0f,1.0f,1.0f };
-GLfloat lightSpecular[] = { 1.0f,1.0f,1.0f,1.0f };
-GLfloat lightPosition[] = { 100.0f,100.0f,100.0f,1.0f };
-
-GLfloat material_ambient[] = { 0.0f,0.0f,0.0f,1.0f };
-GLfloat material_diffuse[] = { 1.0f,1.0f,1.0f,1.0f };
-GLfloat material_specular[] = { 1.0f,1.0f,1.0f,1.0f };
-GLfloat material_shininess = 50.0f;*/
-
-// FOR CAMERA
-/*
-vec3 vmath_camera_eye_coord		= { -40.0f, 180.0f,1.0f };
-vec3 vmath_camera_center_coord	= { -1000.0f,200.00f,0.0f };
-vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
-*/
-
-/*vec3 vmath_camera_eye_coord		= { 3190.0f, 80.0f, 610.0f };
-vec3 vmath_camera_center_coord	= { 0.0f,-235.0f,0.0f };
-vec3 vmath_camera_up_coord		= { 0.0f,1.0f,0.0f };
-
-bool gbStartCamera			= false;
-bool gbZoomOutForFullView	= false;*/
  
 float FadeOutFactor_pointLight = 1.0f;
 float FadeInFactor_pointLight = 0.0f;
 
-void initPointLightShader()
+
+void initialize_pointLight(void)
 {
 	void uninitialize(int);
 
@@ -278,15 +266,7 @@ void initPointLightShader()
 			"{" \
 				"phong_ads_color = vec3(1.0, 1.0, 1.0);" \
 			"}" \
-		/*	"if(u_is_texture == 1)" \
-			"{" \
-				"Final_Texture = texture(u_texture0_sampler, out_texcord); " \
-				"FragColor = vec4(phong_ads_color, u_alpha) * Final_Texture * fadeinFactor * fadeoutFactor;" \
-			"}" \
-			"else" \
-			"{" \*/
-				"FragColor = vec4(phong_ads_color, u_alpha) * fadeinFactor * fadeoutFactor;" \
-		/*	"}" \*/
+			"FragColor = vec4(phong_ads_color, u_alpha) * fadeinFactor * fadeoutFactor;" \
 
 			"if(applyBloom == 1)" \
 			"{" \
@@ -306,7 +286,7 @@ void initPointLightShader()
 			"{" \
 			"BloomColor = vec4(0.0);" \
 			"}" \
-			"GodRaysColor = vec4(0.0, 0.0, 0.0, 0.0);" \
+			"GodRaysColor = vec4(0.0);" \
 		"}";
 
 	glShaderSource(gFragmentShaderObject_pointLight, 1, (const GLchar**)&fragmentShaderSourceCode, NULL);
@@ -322,7 +302,6 @@ void initPointLightShader()
 	gShaderProgramObject_pointLight = glCreateProgram();
 
 	glAttachShader(gShaderProgramObject_pointLight, gVertexShaderObject_pointLight);
-
 	glAttachShader(gShaderProgramObject_pointLight, gFragmentShaderObject_pointLight);
 
 	glBindAttribLocation(gShaderProgramObject_pointLight, MATRIX_ATTRIBUTE_POSITION, "vPosition");
@@ -400,11 +379,6 @@ void initPointLightShader()
 }
 
 
-void initialize_pointLight()
-{
-	initPointLightShader();
-
-}
 
 vec3 positionLamp[] = { vec3(-720.0f, 600.0f, 440.0f), vec3(-720.0f, 600.0f, 750.0f), vec3(-250.0f, 400.0f, 750.0f), vec3(320.0f, 400.0f, 750.0f), vec3(850.0f, 400.0f, 750.0f),vec3(1420.0f, 400.0f, 750.0f) , vec3(1950.0f, 400.0f, 750.0f) , vec3(2520.0f, 400.0f, 750.0f) ,
 						vec3(3105.0f, 400.0f, 750.0f) , vec3(3650.0f,400.0f, 750.0f) ,  
@@ -413,6 +387,96 @@ vec3 positionLamp[] = { vec3(-720.0f, 600.0f, 440.0f), vec3(-720.0f, 600.0f, 750
 
 float TranslateMeasure_pointLight[] = { 200.0f, 700.0f, 1200.0f, 1800.0f, 2300.0f, 2900.0f, 3500.0f };
 
+
+void display_pointLight(void)
+{
+	float PI = 3.14;
+	static float gAngle = 0.0f;
+	if (gAngle > 360.0f)
+		gAngle = 0.0f;
+	gAngle += 0.001f;
+	PointLight pointLight[gNumPointLights_pointLight];
+
+	for (int i = 0; i < gNumPointLights_pointLight; i++)
+	{
+		pointLight[i].u_La = vec3(0.01f, 0.01f, 0.01f);
+		pointLight[i].u_Ld = vec3(1.0f, 1.0f, 1.0f);
+		pointLight[i].u_Ls = vec3(0.1f, 0.1f, 0.1f);
+		pointLight[i].u_linear = 0.01;
+		pointLight[i].u_constant = 0.01;
+		pointLight[i].u_quadratic = 0.0;
+		pointLight[i].DiffuseIntensity = 1.0f;
+
+		pointLight[i].position = positionLamp[i];
+	}
+
+
+	glUseProgram(gShaderProgramObject_pointLight);
+
+	if (FadeInFactor_pointLight <= 1.0f)
+		FadeInFactor_pointLight += 0.001f;
+
+
+	if (bStartFadeOutSecondScene == true)
+	{
+		if (FadeOutFactor_pointLight >= 0.0f)
+			FadeOutFactor_pointLight -= 0.001f;
+		else
+		{
+			bFadeOutSecondSceneDone = true;
+			iShowEndScene = true;
+		}
+	}
+	glUniform1f(fadeoutFactorUniform_pointLight, FadeOutFactor_pointLight);
+	glUniform1f(fadeinFactorUniform_pointLight, FadeInFactor_pointLight);
+
+	glUniform1i(u_bloom_is_activeUniform_pointLight, 1);
+	glUniform1f(bloom_thresh_minUniform_pointLight, bloom_thresh_min);
+	glUniform1f(bloom_thresh_maxUniform_pointLight, bloom_thresh_max);
+	glUniform1i(applyBloomUniform_pointLight, 0);
+	if (gbLight == true)
+	{
+		glUniform1i(gLKeyPressedUniform_pointLight, 1);
+
+		glUniform3fv(gLdUniform_pointLight, 1, lightDiffuse);//white
+		glUniform3fv(gLaUniform_pointLight, 1, lightAmbient);
+		glUniform3fv(gLsUniform_pointLight, 1, lightSpecular);
+		glUniform4fv(gLightPositionUniform_pointLight, 1, lightPosition);
+
+		//pointLight
+		glUniform1i(gNumPointLightsUniform_pointLight, gNumPointLights_pointLight);
+		for (int i = 0; i < gNumPointLights_pointLight; i++)
+		{
+			glUniform3fv(m_pointLightsLocation[i].u_La, 1, pointLight[i].u_La);
+			glUniform3fv(m_pointLightsLocation[i].u_Ls, 1, pointLight[i].u_Ls);
+			glUniform3fv(m_pointLightsLocation[i].u_Ld, 1, pointLight[i].u_Ld);
+			glUniform1f(m_pointLightsLocation[i].DiffuseIntensity, pointLight[i].DiffuseIntensity);
+
+			glUniform3fv(m_pointLightsLocation[i].position, 1, pointLight[i].position);
+			glUniform1f(m_pointLightsLocation[i].u_constant, pointLight[i].u_constant);
+			glUniform1f(m_pointLightsLocation[i].u_linear, pointLight[i].u_linear);
+			glUniform1f(m_pointLightsLocation[i].u_quadratic, pointLight[i].u_quadratic);
+		}
+	}
+	else
+	{
+		glUniform1i(gLKeyPressedUniform_pointLight, 0);
+	}
+
+	gViewMatrix = lookat(vmath_camera_eye_coord, vmath_camera_center_coord, vmath_camera_up_coord);
+
+	glUniformMatrix4fv(gViewMatrixUniform_pointLight, 1, GL_FALSE, gViewMatrix);
+
+	glUniform3fv(gViewPosUniform_pointLight, 1, vmath_camera_eye_coord);
+
+	glUniformMatrix4fv(gProjectionMatrixUniform_pointLight, 1, GL_FALSE, gPerspectiveProjectionMatrix);
+
+
+	renderAllModelsInMahal(gModelMatrixUniform_pointLight);
+
+	glUseProgram(0);
+}
+
 void renderAllModelsInMahal(GLuint& ModelMatrixUniform)
 {
 
@@ -420,15 +484,12 @@ void renderAllModelsInMahal(GLuint& ModelMatrixUniform)
 	mat4 scaleMatrix = mat4::identity();
 	mat4 rotateMatrix = mat4::identity();
 
-	
 	//Object Drawing
 	
 	//1. Draw Mahal Model
 	modelMatrix = mat4::identity();
-	//modelMatrix = vmath::translate(0.0f, 0.0f, -6.0f);
 	modelMatrix = vmath::translate(0.0f, -2.0f, -6.0f);
-	scaleMatrix = scale(10.0f, 10.0f, 10.0f);
-	//modelMatrix = modelMatrix * scaleMatrix;
+
 
 	glUniformMatrix4fv(ModelMatrixUniform, 1, GL_FALSE, modelMatrix);
 	glBindVertexArray(gModel_Mahal.Vao);
@@ -449,8 +510,6 @@ void renderAllModelsInMahal(GLuint& ModelMatrixUniform)
 				glBindTexture(GL_TEXTURE_2D, gModel_Mahal.model_material[gModel_Mahal.model_mesh_data[i].material_index].gTexture_diffuse);
 				glUniform1i(gTextureSamplerUniform_pointLight, 0);
 				glUniform1i(gTextureActiveUniform_pointLight, 1);
-				/*fprintf(gpFile, "pointLight Mahal ismapKd true \n");
-				fflush(gpFile);*/
 			}
 			else
 				glUniform1i(gTextureActiveUniform_pointLight, 0);
@@ -516,9 +575,6 @@ void renderAllModelsInMahal(GLuint& ModelMatrixUniform)
 
 		modelMatrix = vmath::translate(positionLamp[i]);
 		scaleMatrix = scale(5.0f, 5.0f, 5.0f);
-		//if(i < 8)
-		//rotateMatrix = rotate(180.0f, 0.0f, 0.0f, 1.0f);
-
 		modelMatrix = modelMatrix * rotateMatrix * scaleMatrix;
 
 		glUniformMatrix4fv(ModelMatrixUniform, 1, GL_FALSE, modelMatrix);
@@ -791,109 +847,11 @@ void renderAllModelsInMahal(GLuint& ModelMatrixUniform)
 
 	}
 }
-void display_pointLight()
+
+void update_pointLight(void)
 {
-	float PI = 3.14;
-	static float gAngle = 0.0f;
-	if(gAngle > 360.0f)
-		gAngle = 0.0f;
-	gAngle += 0.001f;
-	PointLight pointLight[gNumPointLights_pointLight];
-
-	for (int i = 0; i < gNumPointLights_pointLight; i++)
-	{
-		pointLight[i].u_La = vec3(0.01f, 0.01f, 0.01f);
-		pointLight[i].u_Ld = vec3(1.0f, 1.0f, 1.0f);
-		pointLight[i].u_Ls = vec3(0.1f, 0.1f, 0.1f);
-		pointLight[i].u_linear = 0.01;
-		pointLight[i].u_constant = 0.01;
-		pointLight[i].u_quadratic = 0.0;
-		pointLight[i].DiffuseIntensity = 1.0f;
-
-		pointLight[i].position = positionLamp[i];
-	}
-	
-	
-	glUseProgram(gShaderProgramObject_pointLight);
-
-	if (FadeInFactor_pointLight <= 1.0f)
-			FadeInFactor_pointLight += 0.001f;
-
-
-	if (bStartFadeOutSecondScene == true)
-	{
-		if (FadeOutFactor_pointLight >= 0.0f)
-			FadeOutFactor_pointLight -= 0.001f;
-		else
-		{
-			bFadeOutSecondSceneDone = true;
-			iShowEndScene = true;
-		}
-	}
-	glUniform1f(fadeoutFactorUniform_pointLight, FadeOutFactor_pointLight);
-	glUniform1f(fadeinFactorUniform_pointLight, FadeInFactor_pointLight);
-
-	glUniform1i(u_bloom_is_activeUniform_pointLight, 1);
-	glUniform1f(bloom_thresh_minUniform_pointLight, bloom_thresh_min);
-	glUniform1f(bloom_thresh_maxUniform_pointLight, bloom_thresh_max);
-	glUniform1i(applyBloomUniform_pointLight, 0);
-	if (gbLight == true)
-	{
-		glUniform1i(gLKeyPressedUniform_pointLight, 1);
-
-		glUniform3fv(gLdUniform_pointLight, 1, lightDiffuse);//white
-		glUniform3fv(gLaUniform_pointLight, 1, lightAmbient);
-		glUniform3fv(gLsUniform_pointLight, 1, lightSpecular);
-		glUniform4fv(gLightPositionUniform_pointLight, 1, lightPosition);
-		
-		//pointLight
-		glUniform1i(gNumPointLightsUniform_pointLight, gNumPointLights_pointLight);
-		for (int i = 0; i < gNumPointLights_pointLight; i++)
-		{
-		glUniform3fv(m_pointLightsLocation[i].u_La, 1, pointLight[i].u_La);
-		glUniform3fv(m_pointLightsLocation[i].u_Ls, 1, pointLight[i].u_Ls);
-		glUniform3fv(m_pointLightsLocation[i].u_Ld, 1, pointLight[i].u_Ld);
-		glUniform1f(m_pointLightsLocation[i].DiffuseIntensity, pointLight[i].DiffuseIntensity);
-
-		glUniform3fv(m_pointLightsLocation[i].position, 1, pointLight[i].position);
-		glUniform1f(m_pointLightsLocation[i].u_constant, pointLight[i].u_constant);
-		glUniform1f(m_pointLightsLocation[i].u_linear, pointLight[i].u_linear);
-		glUniform1f(m_pointLightsLocation[i].u_quadratic, pointLight[i].u_quadratic);
-		}
-
-		/*glUniform3fv(gKdUniform_pointLight, 1, material_diffuse);
-		glUniform3fv(gKaUniform_pointLight, 1, material_ambient);
-		glUniform3fv(gKsUniform_pointLight, 1, material_specular);
-		glUniform1f(gMaterialShininessUniform_pointLight, material_shininess);*/
-
-	}
-	else
-	{
-		glUniform1i(gLKeyPressedUniform_pointLight, 0);
-	}
-
-	gViewMatrix = lookat(vmath_camera_eye_coord, vmath_camera_center_coord, vmath_camera_up_coord);
-	
-	glUniformMatrix4fv(gViewMatrixUniform_pointLight, 1, GL_FALSE, gViewMatrix);
-
-	glUniform3fv(gViewPosUniform_pointLight, 1, vmath_camera_eye_coord);
-
-	glUniformMatrix4fv(gProjectionMatrixUniform_pointLight, 1, GL_FALSE, gPerspectiveProjectionMatrix);
-
-
-	renderAllModelsInMahal(gModelMatrixUniform_pointLight);
-
-	glUseProgram(0);
-}
-
-void update_pointLight()
-{
-	
 	if (gbStartCamera)
 	{
-
-		//if (vmath_camera_eye_coord[0] < 20.0f && vmath_camera_eye_coord[1] < 840.0f && vmath_camera_center_coord[1] < 1270.0f && gbZoomOutForFullView == false)
-		//if (vmath_camera_eye_coord[0] < 20.0f && vmath_camera_eye_coord[1] < 820.0f && vmath_camera_center_coord[1] < 1270.0f && gbZoomOutForFullView == false)
 		if (vmath_camera_eye_coord[0] < 207.0f && vmath_camera_eye_coord[1] < 395.0f && vmath_camera_center_coord[1] < 514.0f && gbZoomOutForFullView == false)
 		{
 			vmath_camera_eye_coord[0]		= vmath_camera_eye_coord[0]		+ ((207.0f	- 144.0f)	/ 2000.0f);				// 144.0f	: inital, 207.0f : final, 2000 number of steps 
@@ -907,63 +865,6 @@ void update_pointLight()
 
 		if (gbZoomOutForFullView == true)
 		{
-			/*
-			if (vmath_camera_eye_coord[0] < 670.0f)
-			{
-				vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + ((670.0f - 20.0f) / 1000.0f);			// 20.0f is old position , 670.0f is new, so old position to final position in 1000 steps
-			}
-			if (vmath_camera_eye_coord[1] < 1100.0f)
-			{
-				vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] + ((1100.0f - 840.0f) / 1000.0f);			
-			}
-			if (vmath_camera_eye_coord[2] < 11.0f)
-			{
-				vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] + ((11.0f - 1.0f) / 1000.0f);				// 1 old postion, 11 new position	
-			}
-
-			if (vmath_camera_center_coord[1] > 360.0f)
-			{
-				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - ((1270.0f - 360.0f) / 1000.0f);
-			}
-			
-
-			if (vmath_camera_eye_coord[0] < 1900.0f)
-			{
-				vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + ((1900.0f - 20.0f) / 1000.0f);			// 20.0f is old position , 1900.0f is new, so old position to final position in 1000 steps
-			}
-			if (vmath_camera_eye_coord[1] < 1130.2f)
-			{
-				vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] + ((1130.2f - 840.0f) / 1000.0f);
-			}
-			if (vmath_camera_eye_coord[2] > -550.0f)
-			{
-				vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] - ((550.0f + 1.0f) / 1000.0f);				// 1 old postion, -550.0f new position	
-			}
-
-			if (vmath_camera_center_coord[1] > -160.0f)
-			{
-				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - ((1270.0f + 160.0f) / 1000.0f);
-			}
-			
-
-			if (vmath_camera_eye_coord[0] < 480.0f)
-			{
-				vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + ((480.0f - 20.0f) / 1000.0f);			// 20.0f is old position , 480.0f is new, so old position to final position in 1000 steps
-			}
-			if (vmath_camera_eye_coord[1] > 20.0f)
-			{
-				vmath_camera_eye_coord[1] = vmath_camera_eye_coord[1] - ((840.0f - 20.0f) / 1000.0f);
-			}
-			if (vmath_camera_eye_coord[2] > -340.50f)
-			{
-				vmath_camera_eye_coord[2] = vmath_camera_eye_coord[2] - ((340.50f - 1.0f) / 1000.0f);				// 1 old postion, 11 new position	
-			}
-
-			if (vmath_camera_center_coord[1] > 1030.0f)
-			{
-				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - ((1270.0f - 1030.0f) / 1000.0f);
-			}
-			*/
 			if (vmath_camera_eye_coord[0] < 676.0f)
 			{
 				vmath_camera_eye_coord[0] = vmath_camera_eye_coord[0] + ((676.0f - 207.0f) / 1000.0f);
@@ -978,18 +879,10 @@ void update_pointLight()
 				vmath_camera_center_coord[1] = vmath_camera_center_coord[1] - ((514.0f - 351.0f) / 1000.0f);				// initial position is 514.0f, final position is 351.0
 			}
 		}
-
 	}
 }
 
-void uninitialize_pointLight()
+void uninitialize_pointLight(void)
 {
-	uninitializeCubeShape();
-
-	uninitializeAllModelData();
-
-	uninitializeSphereShape();
-
 	programObjectSafeRelease(gShaderProgramObject_pointLight);
-
 }

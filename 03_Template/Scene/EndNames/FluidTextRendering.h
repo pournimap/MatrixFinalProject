@@ -38,6 +38,7 @@ GLuint gShaderProgramObject_FBO_fluidText;
 GLuint mvpUniform_FBO_fluidText;
 GLuint samplerUniform_fluidText, iTimeUniform_fluidText;
 GLuint fadeinFactorUniform_FBO_fluidText, fadeoutFactorUniform_FBO_fluidText;
+GLuint uColorUniform_FBO_fluidText;
 
 GLuint fbo_fluidText;
 
@@ -83,10 +84,21 @@ int gWidgth_fluidText, gHeight_fluidText;
 
 bool gbIsAnimationStart_fluidText = true;
 
-GLfloat ZTransitionForName_fluidText = -35.0f;
+GLfloat ZTransitionForName_fluidText = -55.0f;
+//GLfloat ZTransitionForName_fluidText = -35.0f;
 int NameCount_fluidText = 1;
 
 float time_fluid_Text = 0.0f;
+
+//////////////////////////////////////////////////////////////////////////
+
+GLuint gVertexShaderObject_fluid;
+GLuint gFragmentShaderObject_fluid;
+GLuint gShaderProgramObject_fluid;
+GLuint gModelMatrixUniform_fluid, gViewMatrixUniform_fluid, gProjectionMatrixUniform_fluid;
+GLuint samplerUniform_fluid, sampler1Uniform_fluid, iTimeUniform_fluid;
+GLuint fadeinFactorUniform_fluid, fadeoutFactorUniform_fluid;
+
 #pragma region FLUID_FUNCTION
 void free_data(void)
 {
@@ -124,10 +136,11 @@ void get_from_UI(float* d, float* u_fluidText, float* v_fluidText)
 	}
 
 	// default i and j (source_fluidText points)
-	i = 32;
 	i2 = 30;
 	j = 2;
 
+	/*i2 = 30;
+	j = 50;*/
 
 	global_temp_count_fluidText = global_temp_count_fluidText + 0.01f;
 
@@ -143,9 +156,7 @@ void get_from_UI(float* d, float* u_fluidText, float* v_fluidText)
 	my_fluidText = 1;
 	omy_fluidText = 500;
 
-
-
-	if (i<1 || i>N_fluidText || j<1 || j>N_fluidText)
+	if (i2<1 || i2>N_fluidText || j<1 || j>N_fluidText)
 	{
 		//return;
 	}
@@ -239,20 +250,23 @@ void draw_density(void)
 
 void Update_FluidText(void)
 {
-	if (ZTransitionForName_fluidText < 0.1f && NameCount_fluidText < 7)
+	static bool bOneTime = true;
+	
+	if (ZTransitionForName_fluidText < 0.1f && NameCount_fluidText < 6)
 	{
-		if (ZTransitionForName_fluidText < -17.0f)
+		if (ZTransitionForName_fluidText < -35.0f)
 			ZTransitionForName_fluidText = ZTransitionForName_fluidText + 0.02f;
 		else
 			ZTransitionForName_fluidText = ZTransitionForName_fluidText + 0.3f;
 	}
 	else
 	{
-		ZTransitionForName_fluidText = -35.0f;
+		ZTransitionForName_fluidText = -55.0f;
 		NameCount_fluidText = NameCount_fluidText + 1;
 		clear_data();
 	}
-	if (NameCount_fluidText >= 7)
+	
+	if (NameCount_fluidText >= 6)
 	{
 		isEndTitle = true;
 	}
@@ -335,11 +349,6 @@ void initFluidText(void)
 			"float width	= fwidth(dist);" \
 			"float alpha	= smoothstep(glyph_center - width, glyph_center+width, dist);" \
 
-			"vec2 uv = TexCoords.xy;" \
-			"uv.y = uv.y + 0.1 * sin(iTime + 2.0 * uv.x);" \
-			
-			"vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, uv).r);" \
-			/*"FragColor = vec4(1.0, 1.0,1.0, 1.0) * sampled;" \*/
 			"vec3 rgb		= mix(glow_color, glyph_color, alpha);" \
 			"float mu		= smoothstep(glyph_center, glow_center, sqrt(dist));" \
 			"FragColor		= vec4(rgb, max(alpha, mu));" \
@@ -406,12 +415,12 @@ void initFluidText(void)
 
 		"uniform float fadeinFactor;" \
 		"uniform float fadeoutFactor;" \
+		"uniform vec4 uColor;" \
 
 		"void main(void)" \
 		"{" \
-			"FragColor = out_color * vec4(1.0,0.1,0.0,1.0) * fadeinFactor * fadeoutFactor;" \
-			/*"if(FragColor.r < 0.1 && FragColor.g < 0.1 && FragColor.b < 0.1)" \
-					"discard;" \*/
+			"FragColor = out_color * uColor * fadeinFactor * fadeoutFactor;" \
+			
 		"}";
 
 	glShaderSource(gFragmentShaderObject_FBO_fluidText, 1, (const GLchar**)&fragmentShaderSourceCode_FBO_fluidText, NULL);
@@ -436,17 +445,109 @@ void initFluidText(void)
 	mvpUniform_FBO_fluidText = glGetUniformLocation(gShaderProgramObject_FBO_fluidText, "u_mvp_matrix");
 	fadeinFactorUniform_FBO_fluidText = glGetUniformLocation(gShaderProgramObject_FBO_fluidText, "fadeinFactor");
 	fadeoutFactorUniform_FBO_fluidText = glGetUniformLocation(gShaderProgramObject_FBO_fluidText, "fadeoutFactor");
-	
+	uColorUniform_FBO_fluidText = glGetUniformLocation(gShaderProgramObject_FBO_fluidText, "uColor");
 // --------------------------------------------------------------------------------------------------------------------------------
 
 	
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////
+
+void initFluidQuad(void)
+{
+	// ---------------------------------------------------------------------------------------------------------------------------------
+
+	gVertexShaderObject_fluid = glCreateShader(GL_VERTEX_SHADER);
+	const GLchar* vertextShaderSourceCode_fluid =
+		"#version 450" \
+		"\n" \
+
+		"in vec4 vPosition;" \
+
+		"uniform mat4 u_model_matrix;" \
+		"uniform mat4 u_view_matrix;" \
+		"uniform mat4 u_projection_matrix;" \
+
+		"out vec2 TexCoords;" \
+
+		"void main(void)" \
+		"{" \
+		"gl_Position	= u_projection_matrix * u_view_matrix * u_model_matrix * vec4(vPosition.xy, 0.0, 1.0);" \
+		"TexCoords		= vPosition.zw;" \
+		"}";
+
+	glShaderSource(gVertexShaderObject_fluid, 1, (const GLchar**)&vertextShaderSourceCode_fluid, NULL);
+	glCompileShader(gVertexShaderObject_fluid);
+	checkCompilationLog((char*)"gVertexShaderObject_fluid", gVertexShaderObject_fluid);
+
+
+	// ---------------------------------------------------------------------------------------------------------------------------------
+
+	gFragmentShaderObject_fluid = glCreateShader(GL_FRAGMENT_SHADER);
+	const GLchar* fragmentShaderSourceCode_fluid =
+		"#version 450" \
+		"\n" \
+		"uniform float iTime;" \
+
+		"in vec2 TexCoords;" \
+		"out vec4 FragColor;" \
+
+		"uniform sampler2D u_sampler;" \
+		
+
+		"uniform float fadeinFactor;" \
+		"uniform float fadeoutFactor;" \
+
+		"vec3 glyph_color			= vec3(1.0, 1.0, 0.0);" \
+		"const float glyph_center	= 0.5;" \
+		"vec3 glow_color			= vec3(1.0, 1.0, 1.0);" \
+		"const float glow_center	= 0.5;" \
+
+		"void main(void)" \
+		"{" \
+		
+		////////////////////////////////////////////////////////
+		"vec4 fluid_tex = texture(u_sampler,TexCoords.xy);" \
+
+		"FragColor		= fluid_tex  * fadeinFactor * fadeoutFactor;" \
+		"}";
+
+	glShaderSource(gFragmentShaderObject_fluid, 1, (const GLchar**)&fragmentShaderSourceCode_fluid, NULL);
+	glCompileShader(gFragmentShaderObject_fluid);
+	checkCompilationLog((char*)"gFragmentShaderObject_fluid", gFragmentShaderObject_fluid);
+
+	// ---------------------------------------------------------------------------------------------------------------------------------
+
+	gShaderProgramObject_fluid = glCreateProgram();
+
+	glAttachShader(gShaderProgramObject_fluid, gVertexShaderObject_fluid);
+	glAttachShader(gShaderProgramObject_fluid, gFragmentShaderObject_fluid);
+	glBindAttribLocation(gShaderProgramObject_fluid, MATRIX_ATTRIBUTE_POSITION, "vPosition");
+	glLinkProgram(gShaderProgramObject_fluid);
+
+	checkLinkLog((char*)"gShaderProgramObject_fluid", gShaderProgramObject_fluid);
+
+	gModelMatrixUniform_fluid = glGetUniformLocation(gShaderProgramObject_fluid, "u_model_matrix");
+	gViewMatrixUniform_fluid = glGetUniformLocation(gShaderProgramObject_fluid, "u_view_matrix");
+	gProjectionMatrixUniform_fluid = glGetUniformLocation(gShaderProgramObject_fluid, "u_projection_matrix");
+
+	samplerUniform_fluid = glGetUniformLocation(gShaderProgramObject_fluid, "u_sampler");
+	sampler1Uniform_fluid = glGetUniformLocation(gShaderProgramObject_fluid, "u_sampler1");
+
+	fadeinFactorUniform_fluid = glGetUniformLocation(gShaderProgramObject_fluid, "fadeinFactor");
+	fadeoutFactorUniform_fluid = glGetUniformLocation(gShaderProgramObject_fluid, "fadeoutFactor");
+	iTimeUniform_fluid = glGetUniformLocation(gShaderProgramObject_fluid, "iTime");
+
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 //FUNCTION DEFINITIONS
 void initialize_FluidText(void)
 {
 	initFluidText();
+	initFluidQuad();
 
 #pragma region TEXT_PART
 
@@ -592,8 +693,49 @@ void initialize_FluidText(void)
 
 }
 
+void DrawingLoop_FluidText(std::string text, float x, float y)
+{
+	float scale = 0.1f;
+	std::string::const_iterator c;
+	for (c = text.begin(); c != text.end(); c++)
+	{
+
+		Character ch = Characters[*c];
+
+		GLfloat xpos = x + ch.Bearing[0] * scale;
+		GLfloat ypos = y - (ch.Size[1] - ch.Bearing[1]) * scale;
+
+		GLfloat w = ch.Size[0] * scale;
+		GLfloat h = ch.Size[1] * scale;
+
+		GLfloat vertices[6][4] = {
+			{ xpos,     ypos + h,   0.0, 0.0 },
+			{ xpos,     ypos,       0.0, 1.0 },
+			{ xpos + w, ypos,       1.0, 1.0 },
+
+			{ xpos,     ypos + h,   0.0, 0.0 },
+			{ xpos + w, ypos,       1.0, 1.0 },
+			{ xpos + w, ypos + h,   1.0, 0.0 }
+		};
+
+		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+		glUniform1i(gTextSamplerUniform_fluidText, 0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, gVbo_Text_fluidText);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		x += (ch.Advance >> 6) * scale;
+
+	}
+
+}
+
 void display_FluidText(void)
 {
+	void DrawFluidOnQuad(void);
 
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
@@ -617,6 +759,7 @@ void display_FluidText(void)
 
 	glUniform1f(fadeoutFactorUniform_FBO_fluidText, 1.0f);
 	glUniform1f(fadeinFactorUniform_FBO_fluidText, 1.0f);
+	glUniform4fv(uColorUniform_FBO_fluidText, 1, vec4(1.0f, 0.1f, 0.0f, 1.0f));
 
 	modelViewProjectionMatrixOrtho_fluidText = ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
 
@@ -652,44 +795,11 @@ void display_FluidText(void)
 	mat4 scaleMatrix_fluidText		= mat4::identity();
 	mat4 rotationMatrix_fluidText	= mat4::identity();
 
-	if (NameCount_fluidText == 1)
-	{
-		text = "maalataI desaaQ";
-		modelMatrix_fluidText = translate(-12.0f, -0.0f, ZTransitionForName_fluidText);
-	}
-	else if (NameCount_fluidText == 2)
-	{
-		text = "BaUVaNa kLmakr";
-		modelMatrix_fluidText = translate(-14.0f, -0.0f, ZTransitionForName_fluidText);
-	}
-	else if (NameCount_fluidText == 3)
-	{
-		text = "Ajaya A/baure";
-		modelMatrix_fluidText = translate(-15.0f, -0.0f, ZTransitionForName_fluidText);
-	}
-	else if (NameCount_fluidText == 4)
-	{
-		text = "yaaegaeSvar rsaaL";
-		modelMatrix_fluidText = translate(-15.0f, -0.0f, ZTransitionForName_fluidText);
-	}
-	else if (NameCount_fluidText == 5)
-	{
-		text = "kumaar Baartai";
-		modelMatrix_fluidText = translate(-12.0f, -0.0f, ZTransitionForName_fluidText);
-	}
-	else
-	{
-		//std::string text = "Baarta maaiJare";
-		text = "Baarta maaiJare";
-		modelMatrix_fluidText = translate(-12.0f, -0.0f, ZTransitionForName_fluidText);
-	}
-
-	glUniformMatrix4fv(gModelMatrixUniform_fluidText, 1, GL_FALSE, modelMatrix_fluidText);
 	glUniformMatrix4fv(gViewMatrixUniform_fluidText, 1, GL_FALSE, viewMatrix_fluidText);
 	glUniformMatrix4fv(gProjectionMatrixUniform_fluidText, 1, GL_FALSE, gPerspectiveProjectionMatrix);			// from source.cpp
-	
-	glBindVertexArray(gVao_Text_fluidText);
-	
+
+
+
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, color_texture_fluidText);
 	glUniform1i(samplerUniform_fluidText, 1);
@@ -697,47 +807,121 @@ void display_FluidText(void)
 
 	glActiveTexture(GL_TEXTURE0);
 
-	std::string::const_iterator c;
-	float scale = 0.1f;
-	float x		= -0.5f;
-	float y		= -0.5f;
-	
-	for (c = text.begin(); c != text.end(); c++)
+	glBindVertexArray(gVao_Text_fluidText);
+
+
+	float x;
+	float y;
+
+	if (NameCount_fluidText == 1)
 	{
-		Character ch = Characters[*c];
+		text = "maalataI desaaQ";
+		modelMatrix_fluidText = translate(-12.0f, -0.0f, ZTransitionForName_fluidText);
+	}
+	else if (NameCount_fluidText == 2)
+	{
+		text = "Baarta maaiJare";
+		modelMatrix_fluidText = translate(-12.0f, -0.0f, ZTransitionForName_fluidText);
+	}
+	else if (NameCount_fluidText == 3)
+	{
+		modelMatrix_fluidText = translate(-12.0f, -0.0f, ZTransitionForName_fluidText);
+		glUniformMatrix4fv(gModelMatrixUniform_fluidText, 1, GL_FALSE, modelMatrix_fluidText);
+		text = "BaVaNa kLmakr";
+		x = -8.5f;
+		y = 5.5f;
+		DrawingLoop_FluidText(text, x, y);
 
-		GLfloat xpos = x + ch.Bearing[0] * scale;
-		GLfloat ypos = y - (ch.Size[1] - ch.Bearing[1]) * scale;
+		text = "U";
+		x = -6.0f;
+		y = 5.0f;
+		DrawingLoop_FluidText(text, x, y);
 
-		GLfloat w = ch.Size[0] * scale;
-		GLfloat h = ch.Size[1] * scale;
+		text = "Ajaya A/baure";
+		x = 8.5f;
+		y = -5.5f;
+		DrawingLoop_FluidText(text, x, y);
+	}
+	else if (NameCount_fluidText == 4)
+	{
+		modelMatrix_fluidText = translate(-12.0f, -0.0f, ZTransitionForName_fluidText);
+		glUniformMatrix4fv(gModelMatrixUniform_fluidText, 1, GL_FALSE, modelMatrix_fluidText);
+		text = "yaaegaeSvar rsaaL";
+		x = -8.5f;
+		y = 5.5f;
+		DrawingLoop_FluidText(text, x, y);
 
-		GLfloat vertices[6][4] = {
-			{ xpos,     ypos + h,   0.0, 0.0 },
-			{ xpos,     ypos,       0.0, 1.0 },
-			{ xpos + w, ypos,       1.0, 1.0 },
+		text = "kmaar Baartia";
+		x = 8.5f;
+		y = -5.5f;
+		DrawingLoop_FluidText(text, x, y);
 
-			{ xpos,     ypos + h,   0.0, 0.0 },
-			{ xpos + w, ypos,       1.0, 1.0 },
-			{ xpos + w, ypos + h,   1.0, 0.0 }
-		};
+		text = "u";
+		x = 10.5f;
+		y = -6.0f;
+		DrawingLoop_FluidText(text, x, y);
+	}
+	else if (NameCount_fluidText == 5)
+	{
+		modelMatrix_fluidText = translate(-12.0f, -0.0f, ZTransitionForName_fluidText);
+		glUniformMatrix4fv(gModelMatrixUniform_fluidText, 1, GL_FALSE, modelMatrix_fluidText);
+		text = "icaPakar - ihmaania caaEYari";
+		x = -8.5f;
+		y = 5.5f;
+		DrawingLoop_FluidText(text, x, y);
 
-		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-		glUniform1i(gTextSamplerUniform_fluidText, 0);
+		text = "jiavana maaekaSia";
+		x = 8.5f;
+		y = -5.5f;
+		DrawingLoop_FluidText(text, x, y);
 
-		glBindBuffer(GL_ARRAY_BUFFER, gVbo_Text_fluidText);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+	
+	if (NameCount_fluidText == 1 || NameCount_fluidText == 2)
+	{
+		glUniformMatrix4fv(gModelMatrixUniform_fluidText, 1, GL_FALSE, modelMatrix_fluidText);
 
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		std::string::const_iterator c;
+		float scale = 0.1f;
+		float x = -0.5f;
+		float y = -0.5f;
 
-		x += (ch.Advance >> 6)* scale;
+		for (c = text.begin(); c != text.end(); c++)
+		{
+			Character ch = Characters[*c];
+
+			GLfloat xpos = x + ch.Bearing[0] * scale;
+			GLfloat ypos = y - (ch.Size[1] - ch.Bearing[1]) * scale;
+
+			GLfloat w = ch.Size[0] * scale;
+			GLfloat h = ch.Size[1] * scale;
+
+			GLfloat vertices[6][4] = {
+				{ xpos,     ypos + h,   0.0, 0.0 },
+				{ xpos,     ypos,       0.0, 1.0 },
+				{ xpos + w, ypos,       1.0, 1.0 },
+
+				{ xpos,     ypos + h,   0.0, 0.0 },
+				{ xpos + w, ypos,       1.0, 1.0 },
+				{ xpos + w, ypos + h,   1.0, 0.0 }
+			};
+
+			glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+			glUniform1i(gTextSamplerUniform_fluidText, 0);
+
+			glBindBuffer(GL_ARRAY_BUFFER, gVbo_Text_fluidText);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+
+			x += (ch.Advance >> 6) * scale;
+		}
+
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	glBindVertexArray(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	
 	glUseProgram(0);
 
 	glDisable(GL_TEXTURE_2D);
@@ -747,7 +931,112 @@ void display_FluidText(void)
 	// update
 
 	Update_FluidText();
+
 }
 
+void DrawFluidOnQuad()
+{
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
+	std::string text;
+
+	mat4 modelViewProjectionMatrixOrtho_fluidText = mat4::identity();
+
+	// START fbo_fluidText ..........................................................................................
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo_fluidText);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glViewport(0, 0, (GLsizei)1024, (GLsizei)1024);
+
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glUseProgram(gShaderProgramObject_FBO_fluidText);
+
+
+	glUniform1f(fadeoutFactorUniform_FBO_fluidText, 1.0f);
+	glUniform1f(fadeinFactorUniform_FBO_fluidText, 1.0f);
+	glUniform4fv(uColorUniform_FBO_fluidText, 1, vec4(0.0f, 0.1f, 0.0f, 1.0f));
+
+	modelViewProjectionMatrixOrtho_fluidText = ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+
+	glUniformMatrix4fv(mvpUniform_FBO_fluidText, 1, GL_FALSE, modelViewProjectionMatrixOrtho_fluidText);
+
+
+	draw_density();
+	get_from_UI(dens_prev_fluidText, u_prev_fluidText, v_prev_fluidText);
+	vel_step(N_fluidText, u_fluidText, v_fluidText, u_prev_fluidText, v_prev_fluidText, visc_fluidText, dt_fluidText);
+	dens_step(N_fluidText, dens_fluidText, dens_prev_fluidText, u_fluidText, v_fluidText, diff_fluidText, dt_fluidText);
+
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glUseProgram(0);
+
+	//code
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glViewport(0, 0, (GLsizei)gWidth, (GLsizei)gHeight);
+
+	glUseProgram(gShaderProgramObject_fluid);
+
+	glUniform1f(fadeoutFactorUniform_fluid, 1.0f);
+	glUniform1f(fadeinFactorUniform_fluid, 1.0f);
+
+	glUniform1f(iTimeUniform_fluid, time_fluid_Text);
+
+	mat4 modelMatrix_fluid = mat4::identity();
+	mat4 viewMatrix_fluid = mat4::identity();
+	mat4 scaleMatrix_fluid= mat4::identity();
+	mat4 rotationMatrix_fluid = mat4::identity();
+
+	glUniform1f(fadeoutFactorUniform_fluid, 1.0f);
+	glUniform1f(fadeinFactorUniform_fluid, 1.0f);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, color_texture_fluidText);
+	glUniform1i(samplerUniform_fluid, 0);
+	
+
+	glUniformMatrix4fv(gViewMatrixUniform_fluid, 1, GL_FALSE, viewMatrix_fluid);
+	glUniformMatrix4fv(gProjectionMatrixUniform_fluid, 1, GL_FALSE, gPerspectiveProjectionMatrix);			// from source.cpp
+
+	modelMatrix_fluid = translate(0.0f, -0.0f, -5.0f);
+	//modelMatrix_fluid = translate(0.0f, 0.0f, -5.0f);
+	glUniformMatrix4fv(gModelMatrixUniform_fluid, 1, GL_FALSE, modelMatrix_fluid);
+	//drawQuadShape();
+
+	glBindVertexArray(gVao_Text_fluidText);
+
+	
+	float vertices[6][4] = {
+
+		// front face
+
+
+		-1.0f, -1.0f,  0.0f, 0.0f, // bottom-left
+		 1.0f, -1.0f,  1.0f, 0.0f, // bottom-right
+		 1.0f,  1.0f,  1.0f, 1.0f, // top-right
+		 1.0f,  1.0f,  1.0f, 1.0f, // top-right
+		 -1.0f, 1.0f,  0.0f, 1.0f, // top-left
+		 -1.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+	};
+
+
+	glBindBuffer(GL_ARRAY_BUFFER, gVbo_Text_fluidText);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glBindVertexArray(0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glUseProgram(0);
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	Update_FluidText();
+}

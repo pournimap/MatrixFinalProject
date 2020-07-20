@@ -1,6 +1,7 @@
 #define gNumPointLights_pointLight_FirstScene  1
 
 GLuint gWoodTexture_FirstScene;
+GLuint gBackgndImage_ShishupalVadh;
 
 mat4 viewMatrix_for_firstScene			= mat4::identity();							// we are going to use this, only here. so no neet to declare anywhere else
 
@@ -164,71 +165,7 @@ void initFirstScene()
 	initPointLightShader_FirstScene();
 	initShadowDepthShader();
 	initfire_FirstScene();
-	/*//VERTEX SHADER
-	gVertexShaderObject_book = glCreateShader(GL_VERTEX_SHADER);
-	const GLchar* vertextShaderSourceCode_book =
-		"#version 450 core" \
-		"\n" \
-		"in vec4 vPosition;" \
-		"in vec2 vTexcoord;" \
-		"out vec2 out_texcoord;" \
-		"uniform mat4 u_model_matrix;" \
-		"uniform mat4 u_view_matrix;" \
-		"uniform mat4 u_projection_matrix;" \
-		"void main(void)" \
-		"{" \
-		"gl_Position		= u_projection_matrix * u_view_matrix * u_model_matrix * vPosition;" \
-		"out_texcoord = vTexcoord;" \
-		"}";
-
-	glShaderSource(gVertexShaderObject_book, 1, (const GLchar**)&vertextShaderSourceCode_book, NULL);
-	glCompileShader(gVertexShaderObject_book);
-	checkCompilationLog((char*)"gVertexShaderObject_book", gVertexShaderObject_book);
-
-
-	//FRAGMENT SHADER
-
-	gFragmentShaderObject_book = glCreateShader(GL_FRAGMENT_SHADER);
-	const GLchar* fragmentShaderSourceCode_book =
-		"#version 450 core" \
-		"\n" \
-		"in vec2 out_texcoord;" \
-		"out vec4 FragColor;" \
-		"uniform sampler2D u_sampler1;" \
-
-		"void main(void)" \
-		"{" \
-		"FragColor = texture(u_sampler1,out_texcoord);" \
-		"}";
-
-	glShaderSource(gFragmentShaderObject_book, 1, (const GLchar**)&fragmentShaderSourceCode_book, NULL);
-	glCompileShader(gFragmentShaderObject_book);
-	checkCompilationLog((char*)"gFragmentShaderObject_book", gFragmentShaderObject_book);
-
-
-	//Shader Program
-	gShaderProgramObject_book = glCreateProgram();
-
-	glAttachShader(gShaderProgramObject_book, gVertexShaderObject_book);
-	glAttachShader(gShaderProgramObject_book, gFragmentShaderObject_book);
-
-	glBindAttribLocation(gShaderProgramObject_book, MATRIX_ATTRIBUTE_POSITION, "vPosition");
-	glBindAttribLocation(gShaderProgramObject_book, MATRIX_ATTRIBUTE_TEXTURE0, "vTexcoord");
-
-	glLinkProgram(gShaderProgramObject_book);
-
-	// Error checking
-	checkLinkLog((char*)"gShaderProgramObject_book", gShaderProgramObject_book);
-
-
-	gModelMatrixUniform_book = glGetUniformLocation(gShaderProgramObject_book, "u_model_matrix");
-	gViewMatrixUniform_book = glGetUniformLocation(gShaderProgramObject_book, "u_view_matrix");
-	gProjectionMatrixUniform_book = glGetUniformLocation(gShaderProgramObject_book, "u_projection_matrix");
-
-	samplerUniform1_book = glGetUniformLocation(gShaderProgramObject_book, "u_sampler1");
 	
-	*/
-
 	const GLfloat rectangleVertices_book[] =
 	{
 		1.0f, 1.0f,0.0f,
@@ -327,6 +264,12 @@ void initFirstScene()
 		fprintf(gpFile, "loadTexture_firstScene Failed in FirstScene\n");
 	}
 
+	status = loadTexture_firstScene(&gBackgndImage_ShishupalVadh, MAKEINTRESOURCE(114));
+	if (status == FALSE)
+	{
+		fprintf(gpFile, "loadTexture_firstScene Failed in FirstScene\n");
+	}
+
 	glShadeModel(GL_SMOOTH);
 
 	glClearDepth(1.0f);
@@ -343,9 +286,7 @@ void initFirstScene()
 
 float t_fire_FirstScene = 0.0f;
 
-//vec3 positionLamp_FirstScene[] = { vec3(0.0f, 50.0f, 20.0f), vec3(0.0f, -0.5f, 0.0f) };
 vec3 positionLamp_FirstScene[] = { vec3(-0.2f, -0.5f, -20.0f) };
-//0.0f, -20.0f, -30.0f
 
 void draw_image(int isBloom, GLfloat TranslateX, GLfloat TranslateY, GLfloat TranslateZ, GLfloat RotateAngleZ, GLfloat RotateZDir, GLuint texture_id)
 {
@@ -383,12 +324,10 @@ void renderModels_FirstScene(GLuint& NewModel)
 	modelMatrix = mat4::identity();
 	scaleMatrix = mat4::identity();
 
-	//modelMatrix = vmath::translate(0.0f, -20.0f, -100.0f);
 	modelMatrix = vmath::translate(0.0f, -20.0f, 0.0f);
 	scaleMatrix = vmath::scale(100.0f, 2.0f, 40.0f);
 	modelMatrix = modelMatrix * scaleMatrix;
 	
-	//glUniformMatrix4fv(NewModel, 1, GL_FALSE, modelMatrix);
 	glUniformMatrix4fv(gModelMatrixUniform_pointLight_FirstScene, 1, GL_FALSE, modelMatrix);
 
 	glUniform1i(isBumpTexturePresentUniform_pointLight_FirstScene, 0);
@@ -426,8 +365,6 @@ void renderModels_FirstScene(GLuint& NewModel)
 	scaleMatrix = mat4::identity();
 	rotateMatrix = mat4::identity();
 
-	//modelMatrix = vmath::translate(-20.0f, -16.0f, -90.0f);
-	//modelMatrix = vmath::translate(-25.0f, -20.0f, -10.0f);
 	modelMatrix = vmath::translate(0.0f, -20.0f, -30.0f);
 	scaleMatrix = scale(3.0f, 3.0f, 3.0f);
 	rotateMatrix = rotate(90.0f, 0.0f, 1.0f, 0.0f);
@@ -485,7 +422,6 @@ void renderModels_FirstScene(GLuint& NewModel)
 		rotateMatrix = mat4::identity();
 
 		modelMatrix = vmath::translate(positionLamp_FirstScene[i]);
-	//	scaleMatrix = scale(0.4f, 0.4f, 0.4f);
 
 		modelMatrix = modelMatrix * scaleMatrix;
 
@@ -623,9 +559,7 @@ void renderLampWithPointLight()
 		glEnable(GL_POINT_SPRITE);
 
 		//t_fire_FirstScene += 0.01f;
-		t_fire_FirstScene += 0.005f;
-		if (t_fire_FirstScene > 360.0f)
-			t_fire_FirstScene = 0.0f;
+		
 
 		glUseProgram(gShaderProgramObject_fire_FirstScene);
 
@@ -638,19 +572,23 @@ void renderLampWithPointLight()
 		mat4 scaleMatrix_fire = mat4::identity();
 		mat4 rotateMatrix_fire = mat4::identity();
 
-		//modelMatrix_fire = vmath::translate(-20.0f, 1.0f, -90.0f);
-		//modelMatrix_fire = vmath::translate(-25.5f, -3.0f, -10.0f);
-		modelMatrix_fire = vmath::translate(-0.1f, -5.8f, -22.0f);
+		modelMatrix_fire = vmath::translate(-0.1f, -6.0f, -22.0f);
 		if (bShowCandle_FirstScene == true)
 		{
-			scaleMatrix_fire = vmath::scale(20.0f, 3.5f, 1.0f);
+			t_fire_FirstScene += 0.005f;
+			if (t_fire_FirstScene > 360.0f)
+				t_fire_FirstScene = 0.0f;
+
+			scaleMatrix_fire = vmath::scale(40.0f, 3.5f, 40.0f);
 		}
 		else
 		{
+			t_fire_FirstScene += 0.005f;
+			if (t_fire_FirstScene > 360.0f)
+				t_fire_FirstScene = 0.0f;
+
 			scaleMatrix_fire = vmath::scale(2.0f, 3.5f, 1.0f);
 		}
-		//scaleMatrix_fire	= vmath::scale(50.0f, 50.0f, 100.0f);
-		//rotateMatrix_fire = rotate(75.0f, 0.0f, 1.0f, 0.0f);
 
 		modelMatrix_fire = modelMatrix_fire * rotateMatrix_fire * scaleMatrix_fire;
 
@@ -660,8 +598,6 @@ void renderLampWithPointLight()
 
 		glUniform1f(timeUniform_fire_FirstScene, t_fire_FirstScene);
 
-		//glPointSize(gWidth_fire / 10);
-		//glPointSize(50);
 		glPointSize(25);
 		glActiveTexture(GL_TEXTURE0);
 
@@ -1073,10 +1009,6 @@ void initPointLightShader_FirstScene()
 		"shadow /= float(samples);" \
 
 
-		/*"float closestDepth = texture(depthMap, fragToLight).r;" \
-		"closestDepth *= far_plane;" \
-
-		"shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;" \*/
 		"return shadow;" \
 		"}" \
 
@@ -1113,10 +1045,7 @@ void initPointLightShader_FirstScene()
 			"diffuse = pointLight[index].u_Ld * diff;" \
 		"}" \
 
-		//specular
-		/*"vec3 viewDir = normalize(TangentViewPos - TangentFragPos);" \*/
-		
-		/*"vec3 halfwayDir = normalize(lightDir + viewDir);" \*/
+	
 		"float spec = max(pow(dot(R, V), 5.0), 0.0f);" \
 		"specular = pointLight[index].u_Ls * spec;" \
 

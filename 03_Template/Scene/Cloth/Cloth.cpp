@@ -69,13 +69,6 @@ float ClothlightDiffuse[4] = { 0.5f,0.0f,0.0f,1.0f };
 float ClothlightSpecular[4] = { 0.7f,0.5f,0.2f,1.0f };
 float ClothlightPosition[4] = { 100.0f,100.0f,100.0f,1.0f };
 
-
-float ClothlightDiffuse2[4] = { 1.0f,1.0f,0.0f,1.0f };
-float ClothlightSpecular2[4] = { 1.0f,0.0f,0.0f,1.0f };
-
-float ClothlightDiffuse3[4] = { 0.0f,0.5f,0.0f,1.0f };
-float ClothlightSpecular3[4] = { 0.7f,0.5f,0.2f,1.0f };
-
 float ClothmaterialAmbient[4] = { 0.01f,0.01f,0.01f,1.0f };
 float ClothmaterialDiffuse[4] = { 1.0f,1.0f,1.0f,1.0f };
 float ClothmaterialSpecular[4] = { 1.0f,1.0f,1.0f,1.0f };
@@ -327,29 +320,6 @@ int Clothintialize(void)
 	//Specify/Write vertex shader code
 
 	const GLchar *VertexShaderSourseCode =
-		/*"#version 450 core" \
-		"\n" \
-		"in vec4 vPosition;" \
-		"in vec3 vNormal;" \
-		"uniform int u_Lkeypress;" \
-		"uniform mat4 u_model_matrix;" \
-		"uniform mat4 u_view_matrix;" \
-		"uniform mat4 u_projection_matrix;" \
-		"uniform vec4 u_lightPosition;" \
-		"out vec3 Transformednormal;" \
-		"out vec3 lightDirection;" \
-		"out vec3 viewer_vector;" \
-		"void main(void)" \
-		"{" \
-		"if(u_Lkeypress==1)" \
-		"{" \
-		"vec4 eye_coordinate = u_view_matrix * u_model_matrix * vPosition;" \
-		"Transformednormal=mat3(u_view_matrix * u_model_matrix) * vNormal;" \
-		"lightDirection = vec3(u_lightPosition - eye_coordinate);" \
-		"viewer_vector =vec3(-eye_coordinate.xyz);" \
-		"}" \
-		"gl_Position = u_projection_matrix * u_view_matrix * u_model_matrix * vPosition;" \
-		"}";*/
 		"#version 450 core" \
 		"\n" \
 		"in vec4 vPosition;" \
@@ -418,72 +388,7 @@ int Clothintialize(void)
 	//Specify/Write fragment shader code
 
 	const GLchar *FragmentShaderSourseCode =
-		/*"#version 450 core" \
-		"\n"
-		"layout (location = 0) out vec4 fragColor;" \
-		"layout (location = 1) out vec4 BloomColor;" \
-		"layout (location = 2) out vec4 GodRaysColor;" \
-		"uniform int u_Lkeypress;" \
-		"uniform vec3 u_la;" \
-		"uniform vec3 u_ld;" \
-		"uniform vec3 u_ls;" \
-		"uniform vec3 u_ka;" \
-		"uniform vec3 u_kd;" \
-		"uniform vec3 u_ks;" \
-		"uniform float u_materialShinyness;" \
-
-		"uniform int applyBloom;" \
-		"uniform float bloom_thresh_min = 0.8f;" \
-		"uniform float bloom_thresh_max = 1.2f;" \
-		"uniform int u_bloom_is_active;" \
-
-		"uniform float fadeinFactor;" \
-		"uniform float fadeoutFactor;" \
-
-		"vec3 phong_ads_light;" \
-		"in vec3 Transformednormal;" \
-		"in vec3 lightDirection;" \
-		"in vec3 viewer_vector;" \
-		"void main(void)" \
-		"{" \
-		"if(u_Lkeypress==1)" \
-		"{" \
-		"vec3 NormalizeTransformednormal = normalize(Transformednormal);"
-		"vec3 NormalizelightDirection = normalize(lightDirection);"
-		"vec3 Normalizeviewer_vector = normalize(viewer_vector);"
-		"float TN_dot_ld = max(dot(NormalizelightDirection,NormalizeTransformednormal),0.0f);" \
-		"vec3 reflection_vector = reflect(-NormalizelightDirection,NormalizeTransformednormal);" \
-		"vec3 ambient = u_la * u_ka;" \
-		"vec3 diffuse = u_ld * u_kd * TN_dot_ld;" \
-		"vec3 specular = u_ls * u_ks * pow(max(dot(reflection_vector , Normalizeviewer_vector ),0.0f),u_materialShinyness);" \
-		"phong_ads_light = ambient + diffuse + specular;" \
-		"}" \
-		"else" \
-		"{" \
-		"phong_ads_light = vec3(1.0f,1.0f,1.0f);" \
-		"}" \
-		"fragColor = vec4(phong_ads_light,1.0) * fadeinFactor * fadeoutFactor;" \
-
-		"if(applyBloom == 1)" \
-		"{" \
-		"vec4 c = fragColor;" \
-		"if (u_bloom_is_active == 1)" \
-		"{" \
-		"float Y = dot(c, vec4(0.299, 0.587, 0.144, 1.0));\n" \
-		"c = c * 4.0 * smoothstep(bloom_thresh_min, bloom_thresh_max, Y);\n" \
-		"BloomColor = c;\n" \
-		"}" \
-		"else" \
-		"{" \
-		"BloomColor = c;\n" \
-		"}" \
-		"}" \
-		"else" \
-		"{" \
-		"BloomColor = vec4(0.0);" \
-		"}" \
-		"GodRaysColor = vec4(0.0);" \
-		"}";*/
+		
 		"#version 450 core" \
 		"\n"
 		"struct PointLight" \
@@ -577,16 +482,6 @@ int Clothintialize(void)
 		"{" \
 		"if(u_Lkeypress==1)" \
 		"{" \
-		/*"vec3 NormalizeTransformednormal = normalize(Transformednormal);"
-		"vec3 NormalizelightDirection = normalize(lightDirection);"
-		"vec3 Normalizeviewer_vector = normalize(viewer_vector);"
-		"float TN_dot_ld = max(dot(NormalizelightDirection,NormalizeTransformednormal),0.0f);" \
-		"vec3 reflection_vector = reflect(-NormalizelightDirection,NormalizeTransformednormal);" \
-		"vec3 ambient = u_la * u_ka;" \
-		"vec3 diffuse = u_ld * u_kd * TN_dot_ld;" \
-		"vec3 specular = u_ls * u_ks * pow(max(dot(reflection_vector , Normalizeviewer_vector ),0.0f),u_materialShinyness);" \
-		"phong_ads_light = ambient + diffuse + specular;" \*/
-
 			"vec3 pointLightColor = vec3(0.0, 0.0, 0.0);" \
 			"for(int i = 0; i < gNumPointLights; i++)" \
 			"{" \
@@ -1111,84 +1006,64 @@ void Clothdisplay()
 			exit(0);
 		}
 		//first right
-	//	DrawCloth(vec3(-750.0f, 650.0f, -900.0f), vec3(12.0f, 11.0f, 1.0f), 0);
 		DrawCloth(vec3(-750.0f, 700.0f, -900.0f), vec3(12.0f, 13.0f, 1.0f), 0);
 		
 		//secondcloth
-		//DrawCloth(vec3(-200.0f, 650.0f, -900.0f), vec3(12.0f, 11.0f, 1.0f), 0);
 		DrawCloth(vec3(-200.0f, 700.0f, -900.0f), vec3(12.0f, 13.0f, 1.0f), 0);
 
 		//Third cloth
-		//DrawCloth(vec3(400.0f, 650.0f, -900.0f), vec3(12.0f, 11.0f, 1.0f), 0);
 		DrawCloth(vec3(400.0f, 700.0f, -900.0f), vec3(12.0f, 13.0f, 1.0f), 0);
 
 		//fourth cloth
-		//DrawCloth(vec3(900.0f, 650.0f, -900.0f), vec3(12.0f, 11.0f, 1.0f), 0);
 		DrawCloth(vec3(900.0f, 700.0f, -900.0f), vec3(12.0f, 13.0f, 1.0f), 0);
 
 		//fifth cloth
-		//DrawCloth(vec3(1500.0f, 650.0f, -900.0f), vec3(12.0f, 11.0f, 1.0f), 0);
 		DrawCloth(vec3(1500.0f, 700.0f, -900.0f), vec3(12.0f, 13.0f, 1.0f), 0);
 
 		//sixth cloth
-		//DrawCloth(vec3(2100.0f, 650.0f, -900.0f), vec3(12.0f, 11.0f, 1.0f), 0);
 		DrawCloth(vec3(2100.0f, 700.0f, -900.0f), vec3(12.0f, 13.0f, 1.0f), 0);
 
 		//seventh cloth
-		//DrawCloth(vec3(2600.0f, 650.0f, -900.0f), vec3(12.0f, 11.0f, 1.0f), 0);
 		DrawCloth(vec3(2600.0f, 700.0f, -900.0f), vec3(12.0f, 13.0f, 1.0f), 0);
 	
 		//eight cloth
-		//DrawCloth(vec3(3200.0f, 650.0f, -900.0f), vec3(12.0f, 11.0f, 1.0f), 0);
 		DrawCloth(vec3(3200.0f, 700.0f, -900.0f), vec3(12.0f, 13.0f, 1.0f), 0);
 	//////////////////////
 	
 		//1st left
-		//DrawCloth(vec3(-320.0f, 650.0f, 850.0f), vec3(12.0f, 11.0f, 1.0f), 1, 180.0f);
 		DrawCloth(vec3(-320.0f, 700.0f, 900.0f), vec3(12.0f, 13.0f, 1.0f), 1, 180.0f);
 
 		//2nd left
-	//	DrawCloth(vec3(300.0f, 650.0f, 850.0f), vec3(12.0f, 11.0f, 1.0f), 1, 180.0f);
 		DrawCloth(vec3(200.0f, 700.0f, 900.0f), vec3(12.0f, 13.0f, 1.0f), 1, 180.0f);
 		
 		//3rd left
-		//DrawCloth(vec3(800.0f, 650.0f, 850.0f), vec3(12.0f, 11.0f, 1.0f), 1, 180.0f);
 		DrawCloth(vec3(700.0f, 700.0f, 900.0f), vec3(12.0f, 13.0f, 1.0f), 1, 180.0f);
 
 		//4rth left
-		//DrawCloth(vec3(1400.0f, 650.0f, 850.0f), vec3(12.0f, 11.0f, 1.0f), 1, 180.0f);
 		DrawCloth(vec3(1200.0f, 700.0f, 900.0f), vec3(12.0f, 13.0f, 1.0f), 1, 180.0f);
 		
 		//5th left
-		//DrawCloth(vec3(2000.0f, 650.0f, 850.0f), vec3(12.0f, 11.0f, 1.0f), 1, 180.0f);
 		DrawCloth(vec3(1700.0f, 700.0f, 900.0f), vec3(12.0f, 13.0f, 1.0f), 1, 180.0f);
 
 		//6th left
-		//DrawCloth(vec3(2500.0f, 650.0f, 850.0f), vec3(12.0f, 11.0f, 1.0f), 1, 180.0f);
 		DrawCloth(vec3(2200.0f, 700.0f, 900.0f), vec3(12.0f, 13.0f, 1.0f), 1, 180.0f);
 
 		//7th left
-		//DrawCloth(vec3(3000.0f, 650.0f, 850.0f), vec3(12.0f, 11.0f, 1.0f), 1, 180.0f);
 		DrawCloth(vec3(2700.0f, 700.0f, 900.0f), vec3(12.0f, 13.0f, 1.0f), 1, 180.0f);
 
 		//6th left
-		//DrawCloth(vec3(3650.0f, 650.0f, 850.0f), vec3(12.0f, 11.0f, 1.0f), 1, 180.0f);
 		DrawCloth(vec3(3250.0f, 700.0f, 900.0f), vec3(12.0f, 13.0f, 1.0f), 1, 180.0f);
 		//////////////////////////////////////////////////////
 		
 		//Front cloth , Stage cloth , Center cloth	
-	
 	
 		ClothlightPosition[0] = -815.0f;
 		ClothlightPosition[1] = 75.0f;
 		ClothlightPosition[2] = 17.0f;
 		ClothlightPosition[3] = 1.0f;
 		glUniform4fv(ClothlightPosition_Uniform, 1, ClothlightPosition);
-		//DrawCentralCloth(vec3(-820.0f, 70.0f, 17.0f), vec3(1.0f, 15.0f, 15.0f));
 		DrawCentralCloth(vec3(-820.0f, 57.5f, 17.0f), vec3(1.0f, 15.0f, 15.0f));
 
-		
-		//DrawCentralCloth(vec3(-900.0f, 70.0f, 17.0f), vec3(1.0f, 15.0f, 30.0f));
 		DrawCentralCloth(vec3(-900.0f, 57.5f, 17.0f), vec3(1.0f, 15.0f, 30.0f));
 		//unbind Clothvao
 		glBindVertexArray(0);
@@ -1199,8 +1074,6 @@ void Clothdisplay()
 
 	if (angry_cloth_flag == true)
 	{
-		/*fprintf(gpFile, "\n angry_cloth_flag = true\n\n");
-		fflush(gpFile);*/
 		ClothwindForce.y = 0.29f;
 		ClothwindForce.z = 0.02f;
 	}
@@ -1322,5 +1195,181 @@ void Clothunintialize(void) {
 }
 
 
+void display_clothOnly() {
+	//code
+	void unintialize(void);
+	void DrawCloth(vec3 translate, vec3 scaleM, bool isRotation, float angle = 0.0f);
+	void DrawCentralCloth(vec3 translate, vec3 scaleM);
+
+	glUseProgram(ClothglShaderProgramObject);
+
+	if (FadeInFactor_cloth <= 1.0f)
+		FadeInFactor_cloth += 0.001f;
 
 
+	if (bStartFadeOutSecondScene == true)
+	{
+		if (FadeOutFactor_cloth >= 0.0f)
+			FadeOutFactor_cloth -= 0.001f;
+	}
+	glUniform1f(ClothFadeoutFactorUniform, FadeOutFactor_cloth);
+	glUniform1f(ClothFadeinFactorUniform, 1.0f);
+
+	glUniform1i(ClothBloomIsActiveUniform, 1);
+	glUniform1i(ClothApplyBloomUniform, 1);
+
+	glUniform1f(ClothBloom_thresh_minUniform, bloom_thresh_min);
+	glUniform1f(ClothBloom_thresh_maxUniform, bloom_thresh_max);
+	//Declaration of Matrix
+	mat4 modelMatrix;
+	mat4 viewMatrix;
+	mat4 translateMatrix;
+	mat4 rotationMatrixX;
+	mat4 rotationMatrixY;
+	mat4 rotationMatrixZ;
+	mat4 scalematrix;
+	mat4 modelViewProjectionMatrix;
+
+	//Intialize above matrix to Identity;
+	modelMatrix = mat4::identity();
+	viewMatrix = mat4::identity();
+
+	translateMatrix = mat4::identity();
+	rotationMatrixX = mat4::identity();
+	rotationMatrixY = mat4::identity();
+	rotationMatrixZ = mat4::identity();
+	scalematrix = mat4::identity();
+	modelViewProjectionMatrix = mat4::identity();
+	ClothlightPosition[0] = 100.0f;
+	ClothlightPosition[1] = 100.0f;
+	ClothlightPosition[2] = 100.0f;
+	ClothlightPosition[3] = 1.0f;
+
+	//Do necessary transformation
+
+	PointLight_Cloth pointLight[gNumPointLights_Cloth];
+
+	for (int i = 0; i < gNumPointLights_Cloth; i++)
+	{
+		pointLight[i].u_La = vec3(0.01f, 0.01f, 0.01f);
+		pointLight[i].u_Ld = vec3(0.5f, 0.0f, 0.0f);
+		pointLight[i].u_Ls = vec3(0.7f, 0.5f, 0.2f);
+		pointLight[i].u_linear = 0.01;
+		pointLight[i].u_constant = 0.01;
+		pointLight[i].u_quadratic = 0.0;
+		pointLight[i].DiffuseIntensity = 1.0f;
+
+		pointLight[i].position = positionLamp_Cloth[i];
+	}
+
+	glUniform3fv(ClothViewPosUniform, 1, vmath_camera_eye_coord);
+	glUniform1i(ClothNumPointLightsUniform, gNumPointLights_Cloth);
+	for (int i = 0; i < gNumPointLights_Cloth; i++)
+	{
+		glUniform3fv(m_pointLightsLocation[i].u_La, 1, pointLight[i].u_La);
+		glUniform3fv(m_pointLightsLocation[i].u_Ls, 1, pointLight[i].u_Ls);
+		glUniform3fv(m_pointLightsLocation[i].u_Ld, 1, pointLight[i].u_Ld);
+		glUniform1f(m_pointLightsLocation[i].DiffuseIntensity, pointLight[i].DiffuseIntensity);
+
+		glUniform3fv(m_pointLightsLocation[i].position, 1, pointLight[i].position);
+		glUniform1f(m_pointLightsLocation[i].u_constant, pointLight[i].u_constant);
+		glUniform1f(m_pointLightsLocation[i].u_linear, pointLight[i].u_linear);
+		glUniform1f(m_pointLightsLocation[i].u_quadratic, pointLight[i].u_quadratic);
+	}
+
+
+	glUniformMatrix4fv(ClothviewMatrix_Uniform, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(Clothprojection_Uniform, 1, GL_FALSE, gPerspectiveProjectionMatrix);
+
+
+	glUniform1i(ClothLKeyPress_Uniform, 1);
+	glUniform3fv(Clothla_Uniform, 1, ClothlightAmbient);
+	glUniform3fv(Clothld_Uniform, 1, ClothlightDiffuse);
+	glUniform3fv(Clothls_Uniform, 1, ClothlightSpecular);
+	glUniform4fv(ClothlightPosition_Uniform, 1, ClothlightPosition);
+
+	glUniform3fv(Clothka_Uniform, 1, ClothmaterialAmbient);
+	glUniform3fv(Clothkd_Uniform, 1, ClothmaterialDiffuse);
+	glUniform3fv(Clothks_Uniform, 1, ClothmaterialSpecular);
+	glUniform1f(ClothmaterialShinyness_Uniform, ClothmaterialShinyness);
+
+
+	Clothaddforce();
+	ClothapplyWindForce();
+
+	ClothtimeStep();
+	glBindVertexArray(Clothvao);
+
+	void calculateNormalCudaKernel(float3 * KParticles_pos_array, float3 * KParticles_Normal, int Kparticle_width, int Kparticle_height);
+
+	calculateNormalCudaKernel(ClothGPUParticles_pos_array, ClothGPUParticles_Normal, Clothparticle_width, Clothparticle_height);
+
+	void renderCudaKernel(float3 * KtriangleVertices, float3 * KtriangleVertices_normal, float3 * KParticles_pos_array, float3 * KParticles_Normal, int Kparticle_width, int Kparticle_height);
+
+	//renderCudaKernel(ClothGPUtriangleVertices,ClothGPUtriangleVertices_normal, ClothGPUParticles_pos_array, ClothGPUParticles_Normal, Clothparticle_width, Clothparticle_height);
+
+	size_t byteCount;
+
+	error = cudaGraphicsMapResources(1, &ClothgraphicResourcePos, 0);
+	if (error != cudaSuccess) {
+		exit(0);
+	}
+	//Step 2 
+	error = cudaGraphicsResourceGetMappedPointer((void**)&ClothGPUtriangleVertices, &byteCount, ClothgraphicResourcePos);
+	if (error != cudaSuccess) {
+		exit(0);
+	}
+
+
+
+	error = cudaGraphicsMapResources(1, &ClothgraphicResourceNor, 0);
+	if (error != cudaSuccess) {
+		exit(0);
+	}
+	//Step 2 
+	error = cudaGraphicsResourceGetMappedPointer((void**)&ClothGPUtriangleVertices_normal, &byteCount, ClothgraphicResourceNor);
+	if (error != cudaSuccess) {
+		exit(0);
+	}
+
+
+	//Step 3 launch cuda kernel
+	renderCudaKernel(ClothGPUtriangleVertices, ClothGPUtriangleVertices_normal, ClothGPUParticles_pos_array, ClothGPUParticles_Normal, Clothparticle_width, Clothparticle_height);
+
+	// Step 4 unmap resorce
+	error = cudaGraphicsUnmapResources(1, &ClothgraphicResourcePos, 0);
+	if (error != cudaSuccess) {
+		exit(0);
+	}
+
+	error = cudaGraphicsUnmapResources(1, &ClothgraphicResourceNor, 0);
+	if (error != cudaSuccess) {
+		exit(0);
+	}
+	//first right
+	DrawCloth(vec3(10.0f, 40.0f, -100.0f), vec3(1.0f, 1.0f, 1.0f), 0);
+
+	ClothlightPosition[0] = -815.0f;
+	ClothlightPosition[1] = 75.0f;
+	ClothlightPosition[2] = 17.0f;
+	ClothlightPosition[3] = 1.0f;
+	glUniform4fv(ClothlightPosition_Uniform, 1, ClothlightPosition);
+
+
+	glBindVertexArray(0);
+
+
+	glUseProgram(0);
+
+
+	if (angry_cloth_flag == true)
+	{
+		
+		ClothwindForce.y = 0.29f;
+		ClothwindForce.z = 0.02f;
+	}
+	else {
+		ClothwindForce.y = 0.0f;
+		ClothwindForce.z = 0.0f;
+	}
+}

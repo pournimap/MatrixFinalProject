@@ -1,10 +1,12 @@
 #pragma once
 
+//function declaration
+void initializeBloom(void);
+void ApplyingBloom(void);
+void uninitializeBloom(void);
+
+//variable declaration
 bool bShowBloom_bloom = false;
-
-
-//GLsizei currentWidth;
-//GLsizei currentHeight;
 
 struct {
 	struct {
@@ -454,44 +456,12 @@ void initializeBloom(void) {
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	
-
-}
-
-void applyBloom(void) {
-	// variable declarations
-	int i = 0;
-	static float t_time = 0.02f;
-	static const GLfloat one = { 1.0f };
-	static const GLfloat black[] = { 0.0f, 0.0f, 0.0, 1.0f };
-
-	// code
-	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo_bloom);
-
-	glClearBufferfv(GL_COLOR, 0, black);	// GL_COLOR_ATTACHMENT0
-	glClearBufferfv(GL_COLOR, 1, black);	// GL_COLOR_ATTACHMENT1
-	glClearBufferfv(GL_DEPTH, 0, &one);
-
-	/*glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);*/
-
-	glUseProgram(ShaderProgramObject_hdrBloomScene);
-
-	glUniform1i(bloomIsActiveUniform_hdrBloomScene, (GLint)one);
-	glUniform1f(bloom_thresh_min_hdrBloomScene, bloom_thresh_min);
-	glUniform1f(bloom_thresh_max_hdrBloomScene, bloom_thresh_max);
 }
 
 void ApplyingBloom(void) {
 	// variable declarations
 	static const GLfloat black[] = { 0.0f, 0.0f, 0.0, 1.0f };
 	static const GLfloat one = { 1.0f };
-
-	// code
-	//glUseProgram(0);
-	
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	/*glDisable(GL_DEPTH_TEST);*/
 
 	glUseProgram(ShaderProgramObject_GaussianBlur_Y_Direction);
 
@@ -531,7 +501,6 @@ void ApplyingBloom(void) {
 	
 
 	glActiveTexture(GL_TEXTURE1);
-	//glBindTexture(GL_TEXTURE_2D, texScene_bloom);
 	glBindTexture(GL_TEXTURE_2D, texGaussianBlur_bloom[1]);
 
 	glActiveTexture(GL_TEXTURE0);
@@ -548,9 +517,7 @@ void ApplyingBloom(void) {
 
 	glUseProgram(0);
 
-	//glClearDepth(1.0f);
 	glDepthFunc(GL_LEQUAL);
-	//glEnable(GL_DEPTH_TEST);
 }
 
 
